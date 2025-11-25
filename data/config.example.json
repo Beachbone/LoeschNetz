@@ -1,0 +1,53 @@
+{
+  "version": "1.0",
+  "app": {
+    "wehr_name": "Muster Feuerwehr",
+    "contact_email": "admin@example.com",
+    "impressum_url": "/impressum.html",
+    "datenschutz_url": "/datenschutz.html",
+    "debug": false
+  },
+  "map": {
+    "center": [50.000153, 7.356538],
+    "zoom": 15,
+    "bounds": [
+      [50.00387, 7.35199],
+      [49.98652, 7.37710]
+    ]
+  },
+  "photos": {
+    "max_width": 800,
+    "max_height": 400,
+    "jpeg_quality": 85,
+    "thumbnail_width": 300,
+    "thumbnail_height": 200,
+    "thumbnail_quality": 80
+  },
+  "security": {
+    "auto_logout_minutes": 30,
+    "max_login_attempts": 5,
+    "lockout_duration_minutes": 15,
+    "session_lifetime_hours": 24
+  },
+  "logging": {
+    "level": 1,
+    "max_size_kb": 2048,
+    "retention_days": {
+      "level_1": 90,
+      "level_2": 365
+    },
+    "actions": {
+      "create": true,
+      "update": true,
+      "delete": true,
+      "login": false
+    }
+  },
+  "snapshots": {
+    "enabled": true,
+    "max_count": 20,
+    "daily_limit": 1,
+    "min_disk_space_mb": 10,
+    "auto_cleanup_older_than_days": 90
+  }
+}

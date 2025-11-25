@@ -1,0 +1,18 @@
+# Nur Bilder erlauben, keine Script-Ausführung!
+
+# PHP-Ausführung verhindern
+<FilesMatch "\.(php|phtml|php3|php4|php5|pl|py|jsp|asp|sh|cgi)$">
+    Order Deny,Allow
+    Deny from all
+</FilesMatch>
+
+# Nur Bilder erlauben
+<FilesMatch "\.(jpg|jpeg|png|gif|webp)$">
+    Order Allow,Deny
+    Allow from all
+</FilesMatch>
+
+# .gitkeep erlauben
+<Files ".gitkeep">
+    Allow from all
+</Files>
