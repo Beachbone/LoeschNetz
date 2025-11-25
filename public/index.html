@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Offline-fähige Hydrantenverwaltung für Feuerwehren">
+    
+    <title>LoeschNetz - Hydrantenverwaltung</title>
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json">
+    
+    <!-- Theme Color -->
+    <meta name="theme-color" content="#d32f2f">
+    <meta name="apple-mobile-web-app-status-bar-style" content="#d32f2f">
+    
+    <!-- Favicons -->
+    <link rel="icon" href="/favicon.png">
+    <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
+    
+    <!-- PWA Meta-Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="LoeschNetz">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="LoeschNetz">
+    
+    <!-- Leaflet CSS (lokal gehostet) -->
+    <link rel="stylesheet" href="/leaflet/leaflet.css">
+    
+    <!-- App CSS -->
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <!-- Cookie Consent Banner -->
+    <div id="cookieConsent" class="cookie-banner" style="display: none;">
+        <div class="cookie-content">
+            <h3>🍪 Diese App nutzt Kartenmaterial</h3>
+            <p>
+                Um Hydranten anzuzeigen, lädt diese App Kartenmaterial von 
+                <strong>OpenStreetMap.org</strong>. Dabei wird Ihre IP-Adresse übertragen.
+            </p>
+            <p class="cookie-highlight">
+                <strong>Es werden keine Tracking-Tools verwendet.</strong>
+            </p>
+            <div class="cookie-buttons">
+                <button id="acceptCookies" class="btn-primary">Akzeptieren</button>
+                <button id="declineCookies" class="btn-secondary">Ablehnen</button>
+            </div>
+            <a href="/datenschutz.html" class="cookie-link">Mehr erfahren</a>
+        </div>
+    </div>
+
+    <!-- Cookie Declined Message -->
+    <div id="cookieDeclined" class="cookie-declined" style="display: none;">
+        <div class="declined-content">
+            <h2>⚠️ App nicht verfügbar</h2>
+            <p>Ohne Zustimmung kann die App nicht genutzt werden.</p>
+            <h3>App deinstallieren:</h3>
+            <ul>
+                <li><strong>Android:</strong> Einstellungen → Apps → LoeschNetz → Deinstallieren</li>
+                <li><strong>iOS:</strong> App gedrückt halten → "App entfernen"</li>
+                <li><strong>Desktop:</strong> Adressleiste → ⓘ → "LoeschNetz deinstallieren"</li>
+            </ul>
+            <button id="reconsiderCookies" class="btn-secondary">Erneut überlegen</button>
+        </div>
+    </div>
+
+    <!-- Loading Screen -->
+    <div id="loadingScreen" class="loading-screen">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <p>LoeschNetz wird geladen...</p>
+        </div>
+    </div>
+
+    <!-- Offline Notice -->
+    <div id="offlineNotice" class="offline-notice" style="display: none;">
+        <span class="offline-icon">📡</span>
+        <span class="offline-text">Offline-Modus</span>
+    </div>
+
+    <!-- Main App Container -->
+    <div id="app" style="display: none;">
+        <!-- Header -->
+        <header class="app-header">
+            <h1 class="app-title">
+                <span class="logo">🚒</span>
+                LoeschNetz
+            </h1>
+            <button id="infoButton" class="icon-button" aria-label="Information">
+                <span>ℹ️</span>
+            </button>
+        </header>
+
+        <!-- Map Container -->
+        <div id="map" class="map-container"></div>
+
+        <!-- Legend -->
+        <div id="legend" class="legend">
+            <h3>Legende</h3>
+            <div id="legendContent" class="legend-content">
+                <!-- Wird dynamisch gefüllt -->
+            </div>
+        </div>
+
+        <!-- Install Prompt (nur wenn noch nicht installiert) -->
+        <div id="installPrompt" class="install-prompt" style="display: none;">
+            <p>📱 LoeschNetz als App installieren?</p>
+            <button id="installButton" class="btn-primary">Installieren</button>
+            <button id="dismissInstall" class="btn-text">Später</button>
+        </div>
+    </div>
+
+    <!-- Info Modal -->
+    <div id="infoModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <button class="modal-close" id="closeInfo">×</button>
+            <h2>ℹ️ Über LoeschNetz</h2>
+            <p>
+                <strong>LoeschNetz</strong> ist eine Progressive Web App zur 
+                Verwaltung und Anzeige von Feuerwehr-Hydranten.
+            </p>
+            <h3>Features:</h3>
+            <ul>
+                <li>✅ Offline-fähige Kartenansicht</li>
+                <li>✅ Farbcodierte Hydranten</li>
+                <li>✅ Detailansicht mit Fotos</li>
+                <li>✅ Installierbar auf allen Geräten</li>
+            </ul>
+            <p class="version">Version 1.0.0 (November 2025)</p>
+            <div class="modal-links">
+                <a href="/datenschutz.html">Datenschutz</a>
+                <a href="/impressum.html">Impressum</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <!-- Leaflet.js (lokal gehostet) -->
+    <script src="/leaflet/leaflet.js"></script>
+    
+    <!-- App Scripts -->
+    <script src="/js/app.js"></script>
+    
+    <!-- Service Worker Registration -->
+    <script>
+        // Service Worker registrieren
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('✅ Service Worker registriert:', registration.scope);
+                    })
+                    .catch(error => {
+                        console.error('❌ Service Worker Fehler:', error);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>
