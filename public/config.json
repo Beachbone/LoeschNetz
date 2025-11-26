@@ -1,0 +1,47 @@
+{
+  "version": "1.0",
+  "last_updated": "2025-11-25T19:00:00Z",
+  
+  "organization": {
+    "name": "FFW Kappel",
+    "logo": "/icons/icon-192x192.png"
+  },
+  
+  "map": {
+    "center": [50.000153, 7.356538],
+    "zoom": 15,
+    "minZoom": 10,
+    "maxZoom": 19,
+    "locationZoom": 18,
+    "tileServers": {
+      "osm": {
+        "name": "Karte",
+        "url": "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+        "attribution": "© <a href=\"https://www.openstreetmap.org/\">OpenStreetMap</a>",
+        "maxZoom": 19
+      },
+      "satellite": {
+        "name": "Satellit",
+        "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+        "attribution": "© <a href=\"http://www.esri.com/\">Esri</a>",
+        "maxZoom": 19
+      }
+    }
+  },
+  
+  "theme": {
+    "primaryColor": "#d32f2f",
+    "backgroundColor": "#ffffff"
+  },
+  
+  "data": {
+    "hydrants": "/data/hydrants.json",
+    "markerTypes": "/data/marker-types.json"
+  },
+  
+  "legal": {
+    "impressum": "/impressum.html",
+    "datenschutz": "/datenschutz.html",
+    "contactEmail": "kontakt@ffw-kappel.de"
+  }
+}

@@ -6,10 +6,12 @@
 
 // === Globale App-State ===
 const App = {
+    config: null,       // Geladene Config
     map: null,
     markers: [],
     markerTypes: [],
     hydrants: [],
+    userLocationMarker: null,  // GPS-Marker
     isOnline: navigator.onLine,
     deferredPrompt: null
 };
@@ -31,6 +33,17 @@ document.addEventListener('DOMContentLoaded', () => {
     // Info Modal
     document.getElementById('infoButton')?.addEventListener('click', openInfoModal);
     document.getElementById('closeInfo')?.addEventListener('click', closeInfoModal);
+    
+    // Legende Toggle
+    document.getElementById('legendToggle')?.addEventListener('click', toggleLegend);
+    
+    // GPS Button
+    document.getElementById('gpsButton')?.addEventListener('click', gotoUserLocation);
+    
+    // Legende auf Mobile standardmäßig eingeklappt
+    if (window.innerWidth <= 600) {
+        document.getElementById('legend')?.classList.add('collapsed', 'auto-collapsed');
+    }
 });
 
 // === Cookie Consent ===
@@ -80,18 +93,27 @@ async function initApp() {
     console.log('✅ Cookie akzeptiert, App wird initialisiert...');
     
     try {
-        // Marker-Typen laden
+        // 1. Config laden
+        await loadConfig();
+        
+        // 2. Theme anwenden
+        applyTheme();
+        
+        // 3. Marker-Typen laden
         await loadMarkerTypes();
         
-        // Hydranten laden
+        // 4. Hydranten laden
         await loadHydrants();
         
-        // Karte initialisieren
-        initMap();
-        
-        // UI zeigen
+        // WICHTIG: UI ERST zeigen, DANN Karte initialisieren!
         document.getElementById('loadingScreen').style.display = 'none';
         document.getElementById('app').style.display = 'flex';
+        
+        // Kurz warten damit der Browser das Layout berechnen kann
+        await new Promise(resolve => setTimeout(resolve, 50));
+        
+        // 5. JETZT Karte initialisieren (Container ist sichtbar!)
+        initMap();
         
         // Online-Status
         updateOnlineStatus();
@@ -106,31 +128,84 @@ async function initApp() {
     }
 }
 
+// === Config laden ===
+async function loadConfig() {
+    try {
+        const response = await fetch('/config.json');
+        if (!response.ok) throw new Error('Config nicht gefunden');
+        
+        App.config = await response.json();
+        console.log('✅ Config geladen');
+    } catch (error) {
+        console.warn('⚠️ Config nicht gefunden, nutze Defaults');
+        
+        // Fallback: Default-Config
+        App.config = {
+            organization: { name: 'LoeschNetz', logo: '/icons/icon-192x192.png' },
+            map: {
+                center: [50.000153, 7.356538],
+                zoom: 15,
+                minZoom: 10,
+                maxZoom: 19,
+                locationZoom: 18,
+                tileServers: {
+                    osm: {
+                        name: 'Karte',
+                        url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                        attribution: '© OpenStreetMap',
+                        maxZoom: 19
+                    }
+                }
+            },
+            theme: { primaryColor: '#d32f2f', backgroundColor: '#ffffff' },
+            data: { hydrants: '/data/hydrants.json', markerTypes: '/data/marker-types.json' },
+            legal: { impressum: '/impressum.html', datenschutz: '/datenschutz.html' }
+        };
+    }
+}
+
+// === Theme anwenden ===
+function applyTheme() {
+    if (!App.config?.theme) return;
+    
+    const root = document.documentElement;
+    if (App.config.theme.primaryColor) {
+        root.style.setProperty('--primary-color', App.config.theme.primaryColor);
+    }
+    if (App.config.theme.backgroundColor) {
+        root.style.setProperty('--background', App.config.theme.backgroundColor);
+    }
+    
+    console.log('✅ Theme angewendet');
+}
+
 // === Marker-Typen laden ===
 async function loadMarkerTypes() {
     try {
-        const response = await fetch('/api/marker-types');
-        if (!response.ok) throw new Error('Marker-Typen nicht geladen');
+        const url = App.config?.data?.markerTypes || '/data/marker-types.json';
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Marker-Typen JSON nicht gefunden');
         
         const data = await response.json();
         App.markerTypes = data.types || [];
         
-        console.log(`✅ ${App.markerTypes.length} Marker-Typen geladen`);
+        console.log(`✅ ${App.markerTypes.length} Marker-Typen aus JSON geladen`);
         
         // Legende erstellen
         createLegend();
     } catch (error) {
-        console.warn('⚠️ Marker-Typen nicht verfügbar, nutze Fallback');
+        console.error('❌ Fehler beim Laden der Marker-Typen:', error);
         
-        // Fallback: Standard-Typen
+        // Fallback: Minimale Standard-Typen
         App.markerTypes = [
-            { id: 'h80', label: 'H80 Hydrant', color: '#FF0000', icon: 'markericon_rot.png' },
-            { id: 'h100', label: 'H100 Hydrant', color: '#0000FF', icon: 'markericon_blau.png' },
-            { id: 'h125', label: 'H125 Hydrant', color: '#3388FF', icon: 'markericon.png' },
-            { id: 'h150', label: 'H150 Hydrant', color: '#00FF00', icon: 'markericon_gruen.png' },
-            { id: 'reservoir', label: 'Wasserreservoir', color: '#00FFFF', icon: 'markericon_aqua.png' }
+            { id: 'h80', label: 'H80', color: '#FF0000', icon: 'markericon_rot.png' },
+            { id: 'h100', label: 'H100', color: '#0000FF', icon: 'markericon_blau.png' },
+            { id: 'h125', label: 'H125', color: '#3388FF', icon: 'markericon.png' },
+            { id: 'h150', label: 'H150', color: '#00FF00', icon: 'markericon_gruen.png' },
+            { id: 'reservoir', label: 'Reservoir', color: '#00FFFF', icon: 'markericon_aqua.png' }
         ];
         
+        console.warn('⚠️ Nutze Fallback-Marker-Typen');
         createLegend();
     }
 }
@@ -138,97 +213,137 @@ async function loadMarkerTypes() {
 // === Hydranten laden ===
 async function loadHydrants() {
     try {
-        const response = await fetch('/api/hydrants');
-        if (!response.ok) throw new Error('Hydranten nicht geladen');
+        const url = App.config?.data?.hydrants || '/data/hydrants.json';
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('JSON-Datei nicht gefunden');
         
         const data = await response.json();
         App.hydrants = data.hydrants || [];
         
-        console.log(`✅ ${App.hydrants.length} Hydranten geladen`);
+        console.log(`✅ ${App.hydrants.length} Hydranten aus JSON-Datei geladen`);
         
         // In IndexedDB speichern für Offline
         await saveToIndexedDB('hydrants', App.hydrants);
     } catch (error) {
-        console.warn('⚠️ API nicht verfügbar, lade aus IndexedDB');
+        console.warn('⚠️ JSON-Datei nicht verfügbar, versuche IndexedDB Cache');
         
-        // Versuche aus IndexedDB zu laden
+        // Fallback: IndexedDB Cache
         const cached = await loadFromIndexedDB('hydrants');
         if (cached && cached.length > 0) {
             App.hydrants = cached;
-            console.log(`✅ ${App.hydrants.length} Hydranten aus Cache geladen`);
+            console.log(`✅ ${App.hydrants.length} Hydranten aus IndexedDB Cache geladen`);
         } else {
-            // Fallback: Beispiel-Hydranten
-            console.warn('⚠️ Keine Hydranten verfügbar, nutze Beispiel-Daten');
-            App.hydrants = getExampleHydrants();
+            // Letzter Fallback: Leere Daten
+            console.error('❌ Keine Hydranten-Daten verfügbar!');
+            App.hydrants = [];
         }
     }
 }
 
 // === Karte initialisieren ===
 function initMap() {
-    // Prüfe ob Leaflet geladen ist
+    console.log('🗺️ Initialisiere Karte...');
+    
     if (typeof L === 'undefined') {
         console.error('❌ Leaflet.js nicht geladen!');
         showError('Kartenbibliothek nicht verfügbar. Bitte Seite neu laden.');
         return;
     }
     
-    // Karte erstellen
     const mapElement = document.getElementById('map');
-    App.map = L.map(mapElement, {
-        tap: false // Wichtig für mobile Geräte
-    });
     
-    // Standard-Ansicht: Kappel-Kludenbach
-    // TODO: Aus config.json laden
-    const center = [50.000153, 7.356538];
-    const zoom = 15;
-    const bounds = [
-        [50.00387, 7.35199],
-        [49.98652, 7.37710]
-    ];
+    try {
+        App.map = L.map(mapElement, { tap: false, zoomControl: true });
+        console.log('✅ Leaflet-Map-Objekt erstellt');
+    } catch (error) {
+        console.error('❌ Fehler beim Erstellen der Karte:', error);
+        showError('Karte konnte nicht erstellt werden: ' + error.message);
+        return;
+    }
     
-    App.map.setView(center, zoom);
-    App.map.fitBounds(bounds);
+    // Tile-Layer aus Config
+    const tileServers = App.config?.map?.tileServers || {};
+    const baseLayers = {};
     
-    // Tile-Layer (OSM)
-    const osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '© <a href="https://www.openstreetmap.org/">OpenStreetMap</a>'
-    });
+    // OSM Layer
+    if (tileServers.osm) {
+        const osmLayer = L.tileLayer(tileServers.osm.url, {
+            maxZoom: tileServers.osm.maxZoom || 19,
+            attribution: tileServers.osm.attribution || '© OpenStreetMap',
+            crossOrigin: true
+        });
+        osmLayer.addTo(App.map);
+        baseLayers[tileServers.osm.name || 'Karte'] = osmLayer;
+    }
     
-    // Satellit-Layer (Esri)
-    const satelliteLayer = L.tileLayer(
-        'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-        {
-            maxZoom: 19,
-            attribution: '© <a href="http://www.esri.com/">Esri</a>'
-        }
-    );
-    
-    // OSM als Standard
-    osmLayer.addTo(App.map);
+    // Satellit Layer
+    if (tileServers.satellite) {
+        const satelliteLayer = L.tileLayer(tileServers.satellite.url, {
+            maxZoom: tileServers.satellite.maxZoom || 19,
+            attribution: tileServers.satellite.attribution || '© Esri',
+            crossOrigin: true
+        });
+        baseLayers[tileServers.satellite.name || 'Satellit'] = satelliteLayer;
+    }
     
     // Layer-Control
-    const baseLayers = {
-        'Karte': osmLayer,
-        'Satellit': satelliteLayer
-    };
-    L.control.layers(baseLayers).addTo(App.map);
+    if (Object.keys(baseLayers).length > 1) {
+        L.control.layers(baseLayers).addTo(App.map);
+    }
     
     // Maßstab
     L.control.scale({ imperial: false }).addTo(App.map);
+    console.log('✅ Tile-Layer hinzugefügt');
     
-    // Marker hinzufügen
-    addMarkers();
+    // Bounds berechnen oder Fallback
+    let bounds;
+    if (App.hydrants && App.hydrants.length > 0) {
+        bounds = calculateBounds(App.hydrants);
+        console.log('✅ Bounds automatisch aus Hydranten berechnet');
+    } else {
+        const center = App.config?.map?.center || [50.000153, 7.356538];
+        const zoom = App.config?.map?.zoom || 15;
+        App.map.setView(center, zoom);
+        console.log('✅ Karten-Ansicht aus Config gesetzt');
+    }
+    
+    // Size neu berechnen und Bounds setzen
+    setTimeout(() => {
+        App.map.invalidateSize();
+        if (bounds) {
+            App.map.fitBounds(bounds, { padding: [50, 50] });
+        }
+        console.log('✅ Map-Size invalidiert und Bounds gesetzt');
+        addMarkers();
+    }, 100);
     
     // Resize-Event
     App.map.on('resize', () => {
-        App.map.fitBounds(bounds);
+        if (bounds) {
+            App.map.fitBounds(bounds, { padding: [50, 50] });
+        }
     });
     
     console.log('✅ Karte initialisiert');
 }
+
+// === Bounds aus Hydranten berechnen ===
+function calculateBounds(hydrants) {
+    if (!hydrants || hydrants.length === 0) return null;
+    
+    let minLat = Infinity, maxLat = -Infinity;
+    let minLng = Infinity, maxLng = -Infinity;
+    
+    hydrants.forEach(h => {
+        if (h.latitude < minLat) minLat = h.latitude;
+        if (h.latitude > maxLat) maxLat = h.latitude;
+        if (h.longitude < minLng) minLng = h.longitude;
+        if (h.longitude > maxLng) maxLng = h.longitude;
+    });
+    
+    return [[minLat, minLng], [maxLat, maxLng]];
+}
+
 
 // === Marker hinzufügen ===
 function addMarkers() {
@@ -280,9 +395,10 @@ function createPopupContent(hydrant, markerType) {
     
     if (hydrant.photo) {
         html += `
-            <img src="/uploads/thumbs/${hydrant.photo}" 
+            <img src="/uploads/${hydrant.photo}" 
                  alt="${hydrant.name}"
-                 loading="lazy">
+                 loading="lazy"
+                 onclick="openPhotoOverlay('/uploads/${hydrant.photo}', '${hydrant.name}')">
         `;
     }
     
@@ -372,6 +488,30 @@ function closeInfoModal() {
     document.getElementById('infoModal').style.display = 'none';
 }
 
+// === Photo Overlay (Fullscreen-Zoom) ===
+function openPhotoOverlay(src, alt) {
+    // Erstelle Overlay wenn nicht vorhanden
+    let overlay = document.getElementById('photoOverlay');
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.id = 'photoOverlay';
+        overlay.className = 'photo-overlay';
+        overlay.onclick = closePhotoOverlay;
+        document.body.appendChild(overlay);
+    }
+    
+    // Setze Bild
+    overlay.innerHTML = `<img src="${src}" alt="${alt}">`;
+    overlay.classList.add('active');
+}
+
+function closePhotoOverlay() {
+    const overlay = document.getElementById('photoOverlay');
+    if (overlay) {
+        overlay.classList.remove('active');
+    }
+}
+
 // === Fehler anzeigen ===
 function showError(message) {
     alert('❌ ' + message);
@@ -440,19 +580,95 @@ function openDB() {
     });
 }
 
-// === Beispiel-Hydranten (Fallback) ===
-function getExampleHydrants() {
-    return [
-        {
-            id: 'example_h100',
-            type: 'h100',
-            name: 'Beispiel-Hydrant',
-            description: 'Dies ist ein Beispiel-Hydrant. Die echten Daten werden vom Server geladen.',
-            latitude: 50.000153,
-            longitude: 7.356538,
-            photo: null
-        }
-    ];
+console.log('🚒 LoeschNetz App-Script geladen');
+
+// === Legende Toggle ===
+function toggleLegend() {
+    const legend = document.getElementById('legend');
+    legend?.classList.toggle('collapsed');
 }
 
-console.log('🚒 LoeschNetz App-Script geladen');
+// === GPS-Funktionen ===
+function gotoUserLocation() {
+    const button = document.getElementById('gpsButton');
+    
+    if (!navigator.geolocation) {
+        alert('Geolocation wird von Ihrem Browser nicht unterstützt.');
+        return;
+    }
+    
+    button?.classList.add('active');
+    
+    navigator.geolocation.getCurrentPosition(
+        (position) => {
+            const { latitude, longitude } = position.coords;
+            const zoom = App.config?.map?.locationZoom || 18;
+            
+            // Karte zentrieren
+            App.map.setView([latitude, longitude], zoom);
+            
+            // User-Marker anzeigen
+            showUserLocationMarker(latitude, longitude, position.coords.accuracy);
+            
+            button?.classList.remove('active');
+            console.log('✅ GPS-Position gefunden:', latitude, longitude);
+        },
+        (error) => {
+            button?.classList.remove('active');
+            console.error('❌ GPS-Fehler:', error.message);
+            
+            let message = 'Standort konnte nicht ermittelt werden.';
+            if (error.code === error.PERMISSION_DENIED) {
+                message = 'Standort-Berechtigung wurde verweigert.';
+            } else if (error.code === error.POSITION_UNAVAILABLE) {
+                message = 'Standort ist nicht verfügbar.';
+            } else if (error.code === error.TIMEOUT) {
+                message = 'Standort-Abfrage Timeout.';
+            }
+            
+            alert(message);
+        },
+        {
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 0
+        }
+    );
+}
+
+function showUserLocationMarker(lat, lng, accuracy) {
+    // Entferne alten Marker
+    if (App.userLocationMarker) {
+        App.map.removeLayer(App.userLocationMarker);
+    }
+    
+    // Erstelle Kreis für Genauigkeit
+    const circle = L.circle([lat, lng], {
+        radius: accuracy,
+        color: '#4285F4',
+        fillColor: '#4285F4',
+        fillOpacity: 0.2,
+        weight: 2
+    });
+    
+    // Erstelle Punkt-Marker
+    const marker = L.circleMarker([lat, lng], {
+        radius: 8,
+        color: 'white',
+        fillColor: '#4285F4',
+        fillOpacity: 1,
+        weight: 2
+    });
+    
+    // Gruppiere als Layer
+    App.userLocationMarker = L.layerGroup([circle, marker]).addTo(App.map);
+    
+    // Popup
+    marker.bindPopup(`
+        <div style="text-align: center;">
+            <strong>📍 Ihr Standort</strong><br>
+            <small>Genauigkeit: ±${Math.round(accuracy)}m</small>
+        </div>
+    `).openPopup();
+}
+

@@ -84,7 +84,7 @@
         <!-- Header -->
         <header class="app-header">
             <h1 class="app-title">
-                <span class="logo">🚒</span>
+                <img src="/icons/icon-48x48.png" class="logo" alt="LoeschNetz">
                 LoeschNetz
             </h1>
             <button id="infoButton" class="icon-button" aria-label="Information">
@@ -95,13 +95,34 @@
         <!-- Map Container -->
         <div id="map" class="map-container"></div>
 
-        <!-- Legend -->
+        <!-- Legend (ausklappbar, oben rechts) -->
         <div id="legend" class="legend">
-            <h3>Legende</h3>
+            <button id="legendToggle" class="legend-toggle" aria-label="Legende umschalten">
+                Legende
+            </button>
             <div id="legendContent" class="legend-content">
                 <!-- Wird dynamisch gefüllt -->
             </div>
         </div>
+
+        <!-- GPS Location Button (unten rechts) -->
+        <button id="gpsButton" class="gps-button" aria-label="Zu meinem Standort" title="Zu meinem Standort">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <circle cx="12" cy="12" r="3"/>
+                <line x1="12" y1="1" x2="12" y2="5"/>
+                <line x1="12" y1="19" x2="12" y2="23"/>
+                <line x1="1" y1="12" x2="5" y2="12"/>
+                <line x1="19" y1="12" x2="23" y2="12"/>
+            </svg>
+        </button>
+
+        <!-- Footer (sticky) -->
+        <footer class="app-footer">
+            <a href="/impressum.html" target="_blank">Impressum</a>
+            <span>|</span>
+            <a href="/datenschutz.html" target="_blank">Datenschutz</a>
+        </footer>
 
         <!-- Install Prompt (nur wenn noch nicht installiert) -->
         <div id="installPrompt" class="install-prompt" style="display: none;">

@@ -3,7 +3,7 @@
    Offline-Funktionalität & Caching
    ======================================== */
 
-const CACHE_VERSION = 'loeschnetz-v1.0.0';
+const CACHE_VERSION = 'loeschnetz-v1.2.0';
 const CACHE_NAME = `${CACHE_VERSION}`;
 
 // === Assets die gecacht werden sollen ===
@@ -15,7 +15,10 @@ const STATIC_ASSETS = [
     '/manifest.json',
     '/favicon.png',
     '/icons/icon-192x192.png',
-    '/icons/icon-512x512.png'
+    '/icons/icon-512x512.png',
+    '/config.json',
+    '/data/marker-types.json',
+    '/data/hydrants.json'
 ];
 
 // === Leaflet-Assets (falls lokal) ===

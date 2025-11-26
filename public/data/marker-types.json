@@ -1,0 +1,41 @@
+{
+  "version": "1.0",
+  "last_updated": "2025-11-25T12:00:00Z",
+  "types": [
+    {
+      "id": "h80",
+      "label": "H80 Hydrant",
+      "color": "#FF0000",
+      "icon": "markericon_rot.png",
+      "description": "Unterflurhydrant mit 80mm Anschluss"
+    },
+    {
+      "id": "h100",
+      "label": "H100 Hydrant",
+      "color": "#0000FF",
+      "icon": "markericon_blau.png",
+      "description": "Unterflurhydrant mit 100mm Anschluss"
+    },
+    {
+      "id": "h125",
+      "label": "H125 Hydrant",
+      "color": "#3388FF",
+      "icon": "markericon.png",
+      "description": "Überflurhydrant mit 125mm Anschluss"
+    },
+    {
+      "id": "h150",
+      "label": "H150 Hydrant",
+      "color": "#00FF00",
+      "icon": "markericon_gruen.png",
+      "description": "Überflurhydrant mit 150mm Anschluss"
+    },
+    {
+      "id": "reservoir",
+      "label": "Wasserreservoir",
+      "color": "#00FFFF",
+      "icon": "markericon_aqua.png",
+      "description": "Löschwasserreservoir, Löschteich oder Fischweiher"
+    }
+  ]
+}
