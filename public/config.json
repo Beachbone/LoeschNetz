@@ -1,47 +1,56 @@
 {
   "version": "1.0",
-  "last_updated": "2025-11-25T19:00:00Z",
-  
-  "organization": {
-    "name": "FFW Kappel",
-    "logo": "/icons/icon-192x192.png"
-  },
-  
   "map": {
     "center": [50.000153, 7.356538],
     "zoom": 15,
+    "bounds": [[50.00387, 7.35199], [49.98652, 7.37710]],
     "minZoom": 10,
     "maxZoom": 19,
     "locationZoom": 18,
     "tileServers": {
       "osm": {
-        "name": "Karte",
         "url": "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-        "attribution": "© <a href=\"https://www.openstreetmap.org/\">OpenStreetMap</a>",
+        "attribution": "Map data © OpenStreetMap and contributors CC-BY-SA",
         "maxZoom": 19
       },
       "satellite": {
-        "name": "Satellit",
         "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
-        "attribution": "© <a href=\"http://www.esri.com/\">Esri</a>",
+        "attribution": "Map data © Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community",
         "maxZoom": 19
       }
     }
   },
-  
+  "organization": {
+    "name": "FFW Kappel-Kludenbach",
+    "shortName": "FFW Kappel",
+    "logo": "/icons/icon-192x192.png"
+  },
   "theme": {
     "primaryColor": "#d32f2f",
     "backgroundColor": "#ffffff"
   },
-  
-  "data": {
-    "hydrants": "/data/hydrants.json",
-    "markerTypes": "/data/marker-types.json"
-  },
-  
   "legal": {
-    "impressum": "/impressum.html",
-    "datenschutz": "/datenschutz.html",
-    "contactEmail": "kontakt@ffw-kappel.de"
+    "impressumUrl": "/impressum.html",
+    "datenschutzUrl": "/datenschutz.html"
+  },
+  "security": {
+    "autoLogoutMinutes": 30,
+    "sessionTimeout": 1800
+  },
+  "logging": {
+    "level": 2,
+    "maxSizeKb": 1024,
+    "retentionDays": 365
+  },
+  "snapshots": {
+    "enabled": true,
+    "maxCount": 20,
+    "autoCreate": true
+  },
+  "photos": {
+    "maxWidth": 1200,
+    "maxHeight": 800,
+    "quality": 85,
+    "maxSizeKb": 300
   }
 }

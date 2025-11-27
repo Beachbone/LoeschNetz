@@ -1,4 +1,5 @@
 # Hydrant-PWA
+In Entwicklung. Noch ohne Funktion!!
 
 **Progressive Web App zur Verwaltung von Feuerwehr-Hydranten**
 
