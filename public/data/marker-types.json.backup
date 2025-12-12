@@ -1,0 +1,55 @@
+{
+    "version": "1.0",
+    "last_updated": "2025-12-11T00:00:00Z",
+    "types": [
+        {
+            "id": "h80",
+            "label": "H80 Hydrant",
+            "color": "#ff0000",
+            "icon": "markericon_rot.png",
+            "description": "Unterflurhydrant mit 80mm Anschluss"
+        },
+        {
+            "id": "h100",
+            "label": "H100 Hydrant",
+            "color": "#0000ff",
+            "icon": "markericon_blau.png",
+            "description": "Unterflurhydrant mit 100mm Anschluss"
+        },
+        {
+            "id": "h125",
+            "label": "H125 Hydrant",
+            "color": "#3388ff",
+            "icon": "markericon_aqua.png",
+            "description": "Überflurhydrant mit 125mm Anschluss"
+        },
+        {
+            "id": "h150",
+            "label": "H150 Hydrant",
+            "color": "#000000",
+            "icon": "markericon.png",
+            "description": "Überflurhydrant mit 150mm Anschluss"
+        },
+        {
+            "id": "reservoir",
+            "label": "Wasserreservoir",
+            "color": "#dbdbdb",
+            "icon": "marker_dbdbdb.png",
+            "description": "Löschwasserreservoir, Löschteich oder Fischweiher"
+        },
+        {
+            "id": "building",
+            "label": "Gebäude",
+            "color": "#666666",
+            "icon": "markericon_gruen.png",
+            "description": "Gerätehaus oder wichtiges Gebäude"
+        },
+        {
+            "id": "warnung",
+            "label": "Erhöhte Gefahr",
+            "color": "#ff0000",
+            "icon": "marker_01fe01.png",
+            "description": "Gebäude mit erhöhter Gefahr"
+        }
+    ]
+}

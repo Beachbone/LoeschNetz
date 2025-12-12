@@ -1,0 +1,1109 @@
+{
+    "hydrants": [
+        {
+            "id": "geraetehaus",
+            "type": "building",
+            "lat": 50.000133,
+            "lng": 7.356532,
+            "title": "Test Gerätehaus",
+            "description": "Test Beschreibung",
+            "created_at": "2025-01-15T10:00:00Z",
+            "created_by": "admin",
+            "updated_at": "2025-12-03T04:40:55Z",
+            "updated_by": "editor",
+            "photos": [
+                {
+                    "filename": "IMAG0502.jpg",
+                    "uploaded_at": "2025-12-05 05:36:50",
+                    "uploaded_by": "migration",
+                    "migrated_from": "photo_field"
+                }
+            ]
+        },
+        {
+            "id": "h80_mohr",
+            "type": "h80",
+            "lat": 49.99985,
+            "lng": 7.3612,
+            "title": "Unterhalb Eingang Mohr",
+            "description": "Etwas unterhalb des Eingang Mohr. Auf der gegenüberliegenden Seite",
+            "created_at": "2025-01-15T11:05:00Z",
+            "created_by": "admin",
+            "updated_at": "2025-01-15T11:05:00Z",
+            "updated_by": "admin",
+            "photos": [
+                {
+                    "filename": "h80_liesch_faust.jpg",
+                    "uploaded_at": "2025-12-05 05:36:50",
+                    "uploaded_by": "migration",
+                    "migrated_from": "photo_field"
+                }
+            ]
+        },
+        {
+            "id": "h80_zilles_marx",
+            "type": "h80",
+            "lat": 50.0005,
+            "lng": 7.36087,
+            "title": "Grenze Stall Zilles und Garage Marx",
+            "description": "An der Grenze zwischen Stall Zilles und Garage Marx",
+            "created_at": "2025-01-15T11:10:00Z",
+            "created_by": "admin",
+            "updated_at": "2025-01-15T11:10:00Z",
+            "updated_by": "admin",
+            "photos": [
+                {
+                    "filename": "h80_liesch_faust.jpg",
+                    "uploaded_at": "2025-12-05 05:36:50",
+                    "uploaded_by": "migration",
+                    "migrated_from": "photo_field"
+                }
+            ]
+        },
+        {
+            "id": "h100_faust",
+            "type": "h100",
+            "lat": 50.001104,
+            "lng": 7.36231,
+            "title": "Vor der alten Industrieanlage Faust",
+            "description": "Neben der Strasse",
+            "created_at": "2025-01-15T11:15:00Z",
+            "created_by": "admin",
+            "updated_at": "2025-01-15T11:15:00Z",
+            "updated_by": "admin",
+            "photos": [
+                {
+                    "filename": "h100_faust.jpg",
+                    "uploaded_at": "2025-12-05 05:36:50",
+                    "uploaded_by": "migration",
+                    "migrated_from": "photo_field"
+                }
+            ]
+        },
+        {
+            "id": "h100_brummi",
+            "type": "h100",
+            "lat": 50.000185,
+            "lng": 7.362224,
+            "title": "Zwischen altem Gemeindehaus und BrummiGrill",
+            "description": "Zwischen altem Gemeindehaus und ehemals BrummiGrill. Vor der Hecke",
+            "created_at": "2025-01-15T11:30:00Z",
+            "created_by": "editor",
+            "updated_at": "2025-01-20T14:30:00Z",
+            "updated_by": "editor",
+            "photos": [
+                {
+                    "filename": "h100_brummi.jpg",
+                    "uploaded_at": "2025-12-05 05:36:50",
+                    "uploaded_by": "migration",
+                    "migrated_from": "photo_field"
+                }
+            ]
+        },
+        {
+            "id": "h100_brieger",
+            "type": "h100",
+            "lat": 49.999399,
+            "lng": 7.362787,
+            "title": "Oberhalb Anwesen Brieger",
+            "description": "Oberhalb des Anwesen Brieger",
+            "created_at": "2025-01-15T12:00:00Z",
+            "created_by": "admin",
+            "updated_at": "2025-01-15T12:00:00Z",
+            "updated_by": "admin",
+            "photos": [
+                {
+                    "filename": "h100_brieger.jpg",
+                    "uploaded_at": "2025-12-05 05:36:50",
+                    "uploaded_by": "migration",
+                    "migrated_from": "photo_field"
+                }
+            ]
+        },
+        {
+            "id": "h100_keetze",
+            "type": "h100",
+            "lat": 49.99928,
+            "lng": 7.362047,
+            "title": "Ringstrasse",
+            "description": "Mittig vor dem Schiebetor",
+            "created_at": "2025-01-15T12:10:00Z",
+            "created_by": "admin",
+            "updated_at": "2025-01-15T12:10:00Z",
+            "updated_by": "admin",
+            "photos": [
+                {
+                    "filename": "h100_keetze.jpg",
+                    "uploaded_at": "2025-12-05 05:36:50",
+                    "uploaded_by": "migration",
+                    "migrated_from": "photo_field"
+                }
+            ]
+        },
+        {
+            "id": "h100_emmel",
+            "type": "h100",
+            "lat": 49.998736,
+            "lng": 7.361741,
+            "title": "Stall Emmel",
+            "description": "Im Bürgersteig. Ganz am Anfang",
+            "created_at": "2025-01-15T12:20:00Z",
+            "created_by": "admin",
+            "updated_at": "2025-01-15T12:20:00Z",
+            "updated_by": "admin",
+            "photos": [
+                {
+                    "filename": "h100_stall_emmel.jpg",
+                    "uploaded_at": "2025-12-05 05:36:50",
+                    "uploaded_by": "migration",
+                    "migrated_from": "photo_field"
+                }
+            ]
+        },
+        {
+            "id": "h100_weirich",
+            "type": "h100",
+            "lat": 49.998352,
+            "lng": 7.362471,
+            "title": "Anwesen Weirich",
+            "description": "Mittig auf dem Bürgersteig",
+            "created_at": "2025-01-15T12:30:00Z",
+            "created_by": "admin",
+            "updated_at": "2025-01-15T12:30:00Z",
+            "updated_by": "admin",
+            "photos": [
+                {
+                    "filename": "h100_weirich.jpg",
+                    "uploaded_at": "2025-12-05 05:36:50",
+                    "uploaded_by": "migration",
+                    "migrated_from": "photo_field"
+                }
+            ]
+        },
+        {
+            "id": "h100_halfmann",
+            "type": "h100",
+            "lat": 49.999093,
+            "lng": 7.361103,
+            "title": "Halfmann Werksgelände",
+            "description": "Zwischen Tür und Garten",
+            "created_at": "2025-01-15T12:40:00Z",
+            "created_by": "admin",
+            "updated_at": "2025-01-15T12:40:00Z",
+            "updated_by": "admin",
+            "photos": [
+                {
+                    "filename": "h100_halfmann.jpg",
+                    "uploaded_at": "2025-12-05 05:36:50",
+                    "uploaded_by": "migration",
+                    "migrated_from": "photo_field"
+                }
+            ]
+        },
+        {
+            "id": "h100_bauche",
+            "type": "h100",
+            "lat": 50.001591,
+            "lng": 7.360783,
+            "title": "Hausecke Anwesen ehemals Bauch",
+            "description": "In der Nähe der Hausecke",
+            "created_at": "2025-01-15T12:50:00Z",
+            "created_by": "admin",
+            "updated_at": "2025-01-15T12:50:00Z",
+            "updated_by": "admin",
+            "photos": [
+                {
+                    "filename": "h100_bauche.jpg",
+                    "uploaded_at": "2025-12-05 05:36:50",
+                    "uploaded_by": "migration",
+                    "migrated_from": "photo_field"
+                }
+            ]
+        },
+        {
+            "id": "h100_moortze",
+            "type": "h100",
+            "lat": 50.00216,
+            "lng": 7.360729,
+            "title": "Neubau Anwesen ehemals Weber",
+            "description": "Etwas rechts der Garage, auf der Strasse",
+            "created_at": "2025-01-15T13:00:00Z",
+            "created_by": "admin",
+            "updated_at": "2025-01-15T13:00:00Z",
+            "updated_by": "admin",
+            "photos": [
+                {
+                    "filename": "h100_moortze.jpg",
+                    "uploaded_at": "2025-12-05 05:36:51",
+                    "uploaded_by": "migration",
+                    "migrated_from": "photo_field"
+                }
+            ]
+        },
+        {
+            "id": "h100_luugi",
+            "type": "h100",
+            "lat": 50.002864,
+            "lng": 7.360725,
+            "title": "Anwesen Jakobs",
+            "description": "Etwa auf Höhe der Hausecke",
+            "created_at": "2025-01-15T13:10:00Z",
+            "created_by": "admin",
+            "updated_at": "2025-12-02T18:19:17Z",
+            "updated_by": "admin",
+            "photos": [
+                {
+                    "filename": "h100_jakobs_luugi.jpg",
+                    "uploaded_at": "2025-12-05 05:36:51",
+                    "uploaded_by": "migration",
+                    "migrated_from": "photo_field"
+                }
+            ]
+        },
+        {
+            "id": "h100_kasper1",
+            "type": "h100",
+            "lat": 50.003226,
+            "lng": 7.361165,
+            "title": "Anwesen Studio ehemals Kaspar Glaskunst",
+            "description": "Kurz vor der Hofeinfahrt",
+            "created_at": "2025-01-15T13:20:00Z",
+            "created_by": "admin",
+            "updated_at": "2025-01-15T13:20:00Z",
+            "updated_by": "admin",
+            "photos": [
+                {
+                    "filename": "h100_kaspar_alt.jpg",
+                    "uploaded_at": "2025-12-05 05:36:51",
+                    "uploaded_by": "migration",
+                    "migrated_from": "photo_field"
+                }
+            ]
+        },
+        {
+            "id": "h100_kasper2",
+            "type": "h100",
+            "lat": 50.003503,
+            "lng": 7.361588,
+            "title": "Anwesen Kaspar Glaskunst neu",
+            "description": "Am Ende der Strasse im Rabatt",
+            "created_at": "2025-01-15T13:30:00Z",
+            "created_by": "admin",
+            "updated_at": "2025-01-15T13:30:00Z",
+            "updated_by": "admin",
+            "photos": [
+                {
+                    "filename": "h100_kaspar_neu.jpg",
+                    "uploaded_at": "2025-12-05 05:36:51",
+                    "uploaded_by": "migration",
+                    "migrated_from": "photo_field"
+                }
+            ]
+        },
+        {
+            "id": "h100_vladi",
+            "type": "h100",
+            "lat": 49.998542,
+            "lng": 7.359359,
+            "title": "Anwesen V.Theise",
+            "description": "Am Strassenrand. In der Biegung",
+            "created_at": "2025-01-15T13:40:00Z",
+            "created_by": "admin",
+            "updated_at": "2025-01-15T13:40:00Z",
+            "updated_by": "admin",
+            "photos": [
+                {
+                    "filename": "h100_vladi.jpg",
+                    "uploaded_at": "2025-12-05 05:36:51",
+                    "uploaded_by": "migration",
+                    "migrated_from": "photo_field"
+                }
+            ]
+        },
+        {
+            "id": "h100_kiga",
+            "type": "h100",
+            "lat": 49.997875,
+            "lng": 7.358552,
+            "title": "Kindergarten",
+            "description": "Vor dem Eingang des Kindergarten, in der Strasse",
+            "created_at": "2025-01-15T13:50:00Z",
+            "created_by": "admin",
+            "updated_at": "2025-01-15T13:50:00Z",
+            "updated_by": "admin",
+            "photos": [
+                {
+                    "filename": "h100_kiga.jpg",
+                    "uploaded_at": "2025-12-05 05:36:51",
+                    "uploaded_by": "migration",
+                    "migrated_from": "photo_field"
+                }
+            ]
+        },
+        {
+            "id": "h100_horbert1",
+            "type": "h100",
+            "lat": 49.998294,
+            "lng": 7.357483,
+            "title": "Anwesen Horbert",
+            "description": "Zwischen Anwesen Horbert und Dankl",
+            "created_at": "2025-01-15T14:00:00Z",
+            "created_by": "admin",
+            "updated_at": "2025-01-15T14:00:00Z",
+            "updated_by": "admin",
+            "photos": [
+                {
+                    "filename": "h100_peter_horbert.jpg",
+                    "uploaded_at": "2025-12-05 05:36:51",
+                    "uploaded_by": "migration",
+                    "migrated_from": "photo_field"
+                }
+            ]
+        },
+        {
+            "id": "h100_mueller",
+            "type": "h100",
+            "lat": 49.99863,
+            "lng": 7.356766,
+            "title": "Anwesen Müller",
+            "description": "Mittig Einmündung des Feldweg",
+            "created_at": "2025-01-15T14:10:00Z",
+            "created_by": "admin",
+            "updated_at": "2025-01-15T14:10:00Z",
+            "updated_by": "admin",
+            "photos": [
+                {
+                    "filename": "h100_mueller.jpg",
+                    "uploaded_at": "2025-12-05 05:36:51",
+                    "uploaded_by": "migration",
+                    "migrated_from": "photo_field"
+                }
+            ]
+        },
+        {
+            "id": "h100_walges",
+            "type": "h100",
+            "lat": 49.999363,
+            "lng": 7.357476,
+            "title": "Kreuzung Walges",
+            "description": "Fast mittig auf der Kreuzung",
+            "created_at": "2025-01-15T14:20:00Z",
+            "created_by": "admin",
+            "updated_at": "2025-01-15T14:20:00Z",
+            "updated_by": "admin",
+            "photos": [
+                {
+                    "filename": "h100_walges.jpg",
+                    "uploaded_at": "2025-12-05 05:36:51",
+                    "uploaded_by": "migration",
+                    "migrated_from": "photo_field"
+                }
+            ]
+        },
+        {
+            "id": "h100_horbert2",
+            "type": "h100",
+            "lat": 49.999004,
+            "lng": 7.35803,
+            "title": "Anwesen Horbert (2)",
+            "description": "Leicht links zur Haustür versetzt",
+            "created_at": "2025-01-15T14:30:00Z",
+            "created_by": "admin",
+            "updated_at": "2025-01-15T14:30:00Z",
+            "updated_by": "admin",
+            "photos": [
+                {
+                    "filename": "h100_luddi.jpg",
+                    "uploaded_at": "2025-12-05 05:36:51",
+                    "uploaded_by": "migration",
+                    "migrated_from": "photo_field"
+                }
+            ]
+        },
+        {
+            "id": "h100_otto",
+            "type": "h100",
+            "lat": 49.999795,
+            "lng": 7.356725,
+            "title": "Anwesen O.Kuhn",
+            "description": "Mittig vor dem Treppenhaus",
+            "created_at": "2025-01-15T14:40:00Z",
+            "created_by": "admin",
+            "updated_at": "2025-01-15T14:40:00Z",
+            "updated_by": "admin",
+            "photos": [
+                {
+                    "filename": "h100_otto.jpg",
+                    "uploaded_at": "2025-12-05 05:36:51",
+                    "uploaded_by": "migration",
+                    "migrated_from": "photo_field"
+                }
+            ]
+        },
+        {
+            "id": "h100_edgar",
+            "type": "h100",
+            "lat": 50.0002409,
+            "lng": 7.3561349,
+            "title": "Vor Anwesen E.Müller",
+            "description": "Zwischen Anwesen Müller und Wiese",
+            "created_at": "2025-01-15T14:50:00Z",
+            "created_by": "admin",
+            "updated_at": "2025-01-15T14:50:00Z",
+            "updated_by": "admin",
+            "photos": [
+                {
+                    "filename": "h100_edgar.jpg",
+                    "uploaded_at": "2025-12-05 05:36:51",
+                    "uploaded_by": "migration",
+                    "migrated_from": "photo_field"
+                }
+            ]
+        },
+        {
+            "id": "h100_braun",
+            "type": "h100",
+            "lat": 50.001141,
+            "lng": 7.355547,
+            "title": "Anwesen Braun",
+            "description": "Rechts vom Treppenaufgang",
+            "created_at": "2025-01-15T15:00:00Z",
+            "created_by": "admin",
+            "updated_at": "2025-01-15T15:00:00Z",
+            "updated_by": "admin",
+            "photos": [
+                {
+                    "filename": "h100_braun.jpg",
+                    "uploaded_at": "2025-12-05 05:36:51",
+                    "uploaded_by": "migration",
+                    "migrated_from": "photo_field"
+                }
+            ]
+        },
+        {
+            "id": "h100_ortsausgang",
+            "type": "h100",
+            "lat": 50.001786,
+            "lng": 7.355343,
+            "title": "Ortsausgang Richtung Zell\/Mosel",
+            "description": "Vor dem Verkehrsschild. Im Rabatt",
+            "created_at": "2025-01-15T15:10:00Z",
+            "created_by": "admin",
+            "updated_at": "2025-01-15T15:10:00Z",
+            "updated_by": "admin",
+            "photos": [
+                {
+                    "filename": "h100_ortsausgang.jpg",
+                    "uploaded_at": "2025-12-05 05:36:51",
+                    "uploaded_by": "migration",
+                    "migrated_from": "photo_field"
+                }
+            ]
+        },
+        {
+            "id": "h100_becker",
+            "type": "h100",
+            "lat": 50.0015,
+            "lng": 7.356244,
+            "title": "Anwesen H.Becker",
+            "description": "Im Bürgersteig. Etwas unterhalb Anwesen H.Becker",
+            "created_at": "2025-01-15T15:20:00Z",
+            "created_by": "admin",
+            "updated_at": "2025-01-15T15:20:00Z",
+            "updated_by": "admin",
+            "photos": [
+                {
+                    "filename": "h100_becker.jpg",
+                    "uploaded_at": "2025-12-05 05:36:51",
+                    "uploaded_by": "migration",
+                    "migrated_from": "photo_field"
+                }
+            ]
+        },
+        {
+            "id": "h100_baste",
+            "type": "h100",
+            "lat": 50.000962,
+            "lng": 7.35689,
+            "title": "Anwesen Bast",
+            "description": "Fast mittig auf der Fahrbahn",
+            "created_at": "2025-01-15T15:30:00Z",
+            "created_by": "admin",
+            "updated_at": "2025-01-15T15:30:00Z",
+            "updated_by": "admin",
+            "photos": [
+                {
+                    "filename": "h100_keime_baste.jpg",
+                    "uploaded_at": "2025-12-05 05:36:51",
+                    "uploaded_by": "migration",
+                    "migrated_from": "photo_field"
+                }
+            ]
+        },
+        {
+            "id": "h100_gemeindehaus",
+            "type": "h100",
+            "lat": 50.000378,
+            "lng": 7.357174,
+            "title": "Gemeindehaus",
+            "description": "Mittig Abfahrt Schlachthaus",
+            "created_at": "2025-01-15T15:40:00Z",
+            "created_by": "admin",
+            "updated_at": "2025-01-15T15:40:00Z",
+            "updated_by": "admin",
+            "photos": [
+                {
+                    "filename": "h100_gemeindehaus.jpg",
+                    "uploaded_at": "2025-12-05 05:36:51",
+                    "uploaded_by": "migration",
+                    "migrated_from": "photo_field"
+                }
+            ]
+        },
+        {
+            "id": "h100_kuhne",
+            "type": "h100",
+            "lat": 49.999731,
+            "lng": 7.358138,
+            "title": "Anwesen Kuhn",
+            "description": "Im Gehweg auf der Ecke",
+            "created_at": "2025-01-15T15:50:00Z",
+            "created_by": "admin",
+            "updated_at": "2025-01-15T15:50:00Z",
+            "updated_by": "admin",
+            "photos": [
+                {
+                    "filename": "h100_kuhne.jpg",
+                    "uploaded_at": "2025-12-05 05:36:51",
+                    "uploaded_by": "migration",
+                    "migrated_from": "photo_field"
+                }
+            ]
+        },
+        {
+            "id": "h125_schule",
+            "type": "h125",
+            "lat": 50.000035,
+            "lng": 7.35984,
+            "title": "Vor der ehemaligen evangelischen Schule",
+            "description": "Auf der Strasse",
+            "created_at": "2025-01-16T09:00:00Z",
+            "created_by": "editor",
+            "updated_at": "2025-01-16T09:00:00Z",
+            "updated_by": "editor",
+            "photos": [
+                {
+                    "filename": "h125_schule.jpg",
+                    "uploaded_at": "2025-12-05 05:36:51",
+                    "uploaded_by": "migration",
+                    "migrated_from": "photo_field"
+                }
+            ]
+        },
+        {
+            "id": "h125_juppi",
+            "type": "h125",
+            "lat": 50.000866,
+            "lng": 7.36034,
+            "title": "Ecke Anwesen Juppi Zilles",
+            "description": "Gegenüber Einmündung Ringstrasse. Auf der Strasse",
+            "created_at": "2025-01-16T09:10:00Z",
+            "created_by": "admin",
+            "updated_at": "2025-01-16T09:10:00Z",
+            "updated_by": "admin",
+            "photos": [
+                {
+                    "filename": "h125_juppi.jpg",
+                    "uploaded_at": "2025-12-05 05:36:51",
+                    "uploaded_by": "migration",
+                    "migrated_from": "photo_field"
+                }
+            ]
+        },
+        {
+            "id": "h150_jung",
+            "type": "h150",
+            "lat": 50.0017,
+            "lng": 7.361533,
+            "title": "Grenze Anwesen Bongarth\/Jung",
+            "description": "Im Bürgersteig",
+            "created_at": "2025-01-16T10:00:00Z",
+            "created_by": "admin",
+            "updated_at": "2025-01-16T10:00:00Z",
+            "updated_by": "admin",
+            "photos": [
+                {
+                    "filename": "h150_bongarth_jung.jpg",
+                    "uploaded_at": "2025-12-05 05:36:51",
+                    "uploaded_by": "migration",
+                    "migrated_from": "photo_field"
+                }
+            ]
+        },
+        {
+            "id": "h150_staudt",
+            "type": "h150",
+            "lat": 50.00219,
+            "lng": 7.362483,
+            "title": "Grenze Anwesen Staudt\/Christ",
+            "description": "Kurz vor dem Zaun",
+            "created_at": "2025-01-16T10:10:00Z",
+            "created_by": "admin",
+            "updated_at": "2025-01-16T10:10:00Z",
+            "updated_by": "admin",
+            "photos": [
+                {
+                    "filename": "h150_staudt.jpg",
+                    "uploaded_at": "2025-12-05 05:36:51",
+                    "uploaded_by": "migration",
+                    "migrated_from": "photo_field"
+                }
+            ]
+        },
+        {
+            "id": "h150_ortsschild",
+            "type": "h150",
+            "lat": 50.002593,
+            "lng": 7.363411,
+            "title": "Ortseingang, Anwesen Meurer",
+            "description": "Neben dem Ortsschild, auf dem Grasstück",
+            "created_at": "2025-01-16T10:20:00Z",
+            "created_by": "admin",
+            "updated_at": "2025-01-16T10:20:00Z",
+            "updated_by": "admin",
+            "photos": [
+                {
+                    "filename": "h150_ortsschild.jpg",
+                    "uploaded_at": "2025-12-05 05:36:51",
+                    "uploaded_by": "migration",
+                    "migrated_from": "photo_field"
+                }
+            ]
+        },
+        {
+            "id": "h150_bernhardt",
+            "type": "h150",
+            "lat": 49.999286,
+            "lng": 7.360272,
+            "title": "Anwesen Bernhardt",
+            "description": "An der Zaunecke",
+            "created_at": "2025-01-16T10:30:00Z",
+            "created_by": "admin",
+            "updated_at": "2025-01-16T10:30:00Z",
+            "updated_by": "admin",
+            "photos": [
+                {
+                    "filename": "h150_bernhardt.jpg",
+                    "uploaded_at": "2025-12-05 05:36:51",
+                    "uploaded_by": "migration",
+                    "migrated_from": "photo_field"
+                }
+            ]
+        },
+        {
+            "id": "h150_kreissel",
+            "type": "h150",
+            "lat": 49.999391,
+            "lng": 7.359534,
+            "title": "Kreisel",
+            "description": "Im Bürgersteig. Kurz nach der Treppe",
+            "created_at": "2025-01-16T10:40:00Z",
+            "created_by": "admin",
+            "updated_at": "2025-01-16T10:40:00Z",
+            "updated_by": "admin",
+            "photos": [
+                {
+                    "filename": "h150_kreissel_beckersch.jpg",
+                    "uploaded_at": "2025-12-05 05:36:51",
+                    "uploaded_by": "migration",
+                    "migrated_from": "photo_field"
+                }
+            ]
+        },
+        {
+            "id": "reservoir_zilles1",
+            "type": "reservoir",
+            "lat": 50.002,
+            "lng": 7.362064,
+            "title": "Wasservorrat Anwesen Zilles",
+            "description": "Ehemals Güllegrube. Zwischen Anwesen Zilles und Staudt",
+            "created_at": "2025-01-16T11:00:00Z",
+            "created_by": "admin",
+            "updated_at": "2025-01-16T11:00:00Z",
+            "updated_by": "admin",
+            "photos": [
+                {
+                    "filename": "wr_zilles_staudt.jpg",
+                    "uploaded_at": "2025-12-05 05:36:51",
+                    "uploaded_by": "migration",
+                    "migrated_from": "photo_field"
+                }
+            ]
+        },
+        {
+            "id": "reservoir_zilles2",
+            "type": "reservoir",
+            "lat": 50.000603,
+            "lng": 7.360675,
+            "title": "Wasservorrat Stall T.Zilles ca 80m³",
+            "description": "Ehemals Güllegrube. Vor dem Stallgebäude. Nur die hinterste Kammer wird genutzt!",
+            "created_at": "2025-01-16T11:10:00Z",
+            "created_by": "admin",
+            "updated_at": "2025-01-16T11:10:00Z",
+            "updated_by": "admin",
+            "photos": [
+                {
+                    "filename": "wr_busche.jpg",
+                    "uploaded_at": "2025-12-05 05:36:51",
+                    "uploaded_by": "migration",
+                    "migrated_from": "photo_field"
+                }
+            ]
+        },
+        {
+            "id": "teich_gass",
+            "type": "reservoir",
+            "lat": 50.001993,
+            "lng": 7.35732,
+            "title": "Löschteich Gass ca 60-70m³",
+            "description": "Schwer zu erreichen. Im Gebüsch versteckt",
+            "created_at": "2025-01-16T12:00:00Z",
+            "created_by": "admin",
+            "updated_at": "2025-01-16T12:00:00Z",
+            "updated_by": "admin",
+            "photos": [
+                {
+                    "filename": "lt_gass.jpg",
+                    "uploaded_at": "2025-12-05 05:36:51",
+                    "uploaded_by": "migration",
+                    "migrated_from": "photo_field"
+                }
+            ]
+        },
+        {
+            "id": "weiher_keim",
+            "type": "reservoir",
+            "lat": 50.004791,
+            "lng": 7.349999,
+            "title": "Fischweiher Keim ca 5.500m³",
+            "description": "Darf als Wasserentnahmestelle genutzt werden",
+            "created_at": "2025-01-16T13:00:00Z",
+            "created_by": "admin",
+            "updated_at": "2025-01-16T13:00:00Z",
+            "updated_by": "admin",
+            "photos": [
+                {
+                    "filename": "lt_keim.jpg",
+                    "uploaded_at": "2025-12-05 05:36:51",
+                    "uploaded_by": "migration",
+                    "migrated_from": "photo_field"
+                }
+            ]
+        },
+        {
+            "id": "weiher_marx",
+            "type": "reservoir",
+            "lat": 50.00293278321956,
+            "lng": 7.378638982772828,
+            "title": "Fischweiher Marx ca 500m³",
+            "description": "Darf als Wasserentnahmestelle genutzt werden",
+            "created_at": "2025-01-16T13:10:00Z",
+            "created_by": "admin",
+            "updated_at": "2025-01-16T13:10:00Z",
+            "updated_by": "admin",
+            "photos": [
+                {
+                    "filename": "lt_keim.jpg",
+                    "uploaded_at": "2025-12-05 05:36:51",
+                    "uploaded_by": "migration",
+                    "migrated_from": "photo_field"
+                }
+            ]
+        },
+        {
+            "id": "kludenbach_hauptstrasse_1",
+            "type": "h100",
+            "lat": 49.986728036623354,
+            "lng": 7.366901636123658,
+            "title": "Kludenbach Hauptstraße 1",
+            "description": "Mittig auf der Straße",
+            "created_at": "2025-01-16T14:00:00Z",
+            "created_by": "admin",
+            "updated_at": "2025-01-16T14:00:00Z",
+            "updated_by": "admin",
+            "photos": [
+                {
+                    "filename": "h100_gemeindehaus.jpg",
+                    "uploaded_at": "2025-12-05 05:36:51",
+                    "uploaded_by": "migration",
+                    "migrated_from": "photo_field"
+                }
+            ]
+        },
+        {
+            "id": "kludenbach_hauptstrasse_2",
+            "type": "h100",
+            "lat": 49.987395439276,
+            "lng": 7.368143498897553,
+            "title": "Kludenbach Hauptstraße 2",
+            "description": "Mittig auf der Straße",
+            "created_at": "2025-01-16T14:10:00Z",
+            "created_by": "admin",
+            "updated_at": "2025-01-16T14:10:00Z",
+            "updated_by": "admin",
+            "photos": [
+                {
+                    "filename": "h100_gemeindehaus.jpg",
+                    "uploaded_at": "2025-12-05 05:36:51",
+                    "uploaded_by": "migration",
+                    "migrated_from": "photo_field"
+                }
+            ]
+        },
+        {
+            "id": "kludenbach_hauptstrasse_3",
+            "type": "h100",
+            "lat": 49.987604108489265,
+            "lng": 7.368779182434083,
+            "title": "Kludenbach Hauptstraße 3",
+            "description": "Mittig auf der Straße",
+            "created_at": "2025-01-16T14:20:00Z",
+            "created_by": "admin",
+            "updated_at": "2025-01-16T14:20:00Z",
+            "updated_by": "admin",
+            "photos": [
+                {
+                    "filename": "h100_gemeindehaus.jpg",
+                    "uploaded_at": "2025-12-05 05:36:51",
+                    "uploaded_by": "migration",
+                    "migrated_from": "photo_field"
+                }
+            ]
+        },
+        {
+            "id": "kludenbach_aspelgasse",
+            "type": "h100",
+            "lat": 49.98728679296363,
+            "lng": 7.370332181453706,
+            "title": "Kludenbach Aspelgasse",
+            "description": "Mittig auf der Straße",
+            "created_at": "2025-01-16T14:30:00Z",
+            "created_by": "admin",
+            "updated_at": "2025-01-16T14:30:00Z",
+            "updated_by": "admin",
+            "photos": [
+                {
+                    "filename": "h100_gemeindehaus.jpg",
+                    "uploaded_at": "2025-12-05 05:36:51",
+                    "uploaded_by": "migration",
+                    "migrated_from": "photo_field"
+                }
+            ]
+        },
+        {
+            "id": "kludenbach_im_waeldchen_1",
+            "type": "h100",
+            "lat": 49.98949588641169,
+            "lng": 7.371850311756135,
+            "title": "Kludenbach Im Wäldchen 1",
+            "description": "Mittig auf der Straße",
+            "created_at": "2025-01-16T14:40:00Z",
+            "created_by": "admin",
+            "updated_at": "2025-01-16T14:40:00Z",
+            "updated_by": "admin",
+            "photos": [
+                {
+                    "filename": "h100_gemeindehaus.jpg",
+                    "uploaded_at": "2025-12-05 05:36:51",
+                    "uploaded_by": "migration",
+                    "migrated_from": "photo_field"
+                }
+            ]
+        },
+        {
+            "id": "kludenbach_im_waeldchen_2",
+            "type": "h100",
+            "lat": 49.989206175018964,
+            "lng": 7.371372878551484,
+            "title": "Kludenbach Im Wäldchen 2",
+            "description": "Mittig auf der Straße",
+            "created_at": "2025-01-16T14:50:00Z",
+            "created_by": "admin",
+            "updated_at": "2025-01-16T14:50:00Z",
+            "updated_by": "admin",
+            "photos": [
+                {
+                    "filename": "h100_gemeindehaus.jpg",
+                    "uploaded_at": "2025-12-05 05:36:51",
+                    "uploaded_by": "migration",
+                    "migrated_from": "photo_field"
+                }
+            ]
+        },
+        {
+            "id": "kludenbach_im_waeldchen_3",
+            "type": "h100",
+            "lat": 49.989411387435766,
+            "lng": 7.370900809764863,
+            "title": "Kludenbach Im Wäldchen 3",
+            "description": "Mittig auf der Straße",
+            "created_at": "2025-01-16T15:00:00Z",
+            "created_by": "admin",
+            "updated_at": "2025-01-16T15:00:00Z",
+            "updated_by": "admin",
+            "photos": [
+                {
+                    "filename": "h100_gemeindehaus.jpg",
+                    "uploaded_at": "2025-12-05 05:36:51",
+                    "uploaded_by": "migration",
+                    "migrated_from": "photo_field"
+                }
+            ]
+        },
+        {
+            "id": "kludenbach_metzenhausenerweg",
+            "type": "h100",
+            "lat": 49.986408990740024,
+            "lng": 7.367494404315949,
+            "title": "Kludenbach Metzenhausener Weg",
+            "description": "Mittig auf der Straße",
+            "created_at": "2025-01-16T15:10:00Z",
+            "created_by": "admin",
+            "updated_at": "2025-01-16T15:10:00Z",
+            "updated_by": "admin",
+            "photos": [
+                {
+                    "filename": "h100_gemeindehaus.jpg",
+                    "uploaded_at": "2025-12-05 05:36:51",
+                    "uploaded_by": "migration",
+                    "migrated_from": "photo_field"
+                }
+            ]
+        },
+        {
+            "id": "kludenbach_hauptstrasse_4",
+            "type": "h125",
+            "lat": 49.9881214662703,
+            "lng": 7.369586527347566,
+            "title": "Kludenbach Hauptstraße 4",
+            "description": "Auf der Strasse",
+            "created_at": "2025-01-16T15:20:00Z",
+            "created_by": "admin",
+            "updated_at": "2025-01-16T15:20:00Z",
+            "updated_by": "admin",
+            "photos": [
+                {
+                    "filename": "h125_schule.jpg",
+                    "uploaded_at": "2025-12-05 05:36:51",
+                    "uploaded_by": "migration",
+                    "migrated_from": "photo_field"
+                }
+            ]
+        },
+        {
+            "id": "kludenbach_hauptstrasse_5",
+            "type": "h125",
+            "lat": 49.98842153123348,
+            "lng": 7.370675504207612,
+            "title": "Kludenbach Hauptstraße 5",
+            "description": "Auf der Strasse",
+            "created_at": "2025-01-16T15:30:00Z",
+            "created_by": "admin",
+            "updated_at": "2025-01-16T15:30:00Z",
+            "updated_by": "admin",
+            "photos": [
+                {
+                    "filename": "h125_schule.jpg",
+                    "uploaded_at": "2025-12-05 05:36:51",
+                    "uploaded_by": "migration",
+                    "migrated_from": "photo_field"
+                }
+            ]
+        },
+        {
+            "id": "kludenbach_hauptstrasse_6",
+            "type": "h125",
+            "lat": 49.98857328751352,
+            "lng": 7.3720595240592965,
+            "title": "Kludenbach Hauptstraße 6",
+            "description": "Auf der Strasse",
+            "created_at": "2025-01-16T15:40:00Z",
+            "created_by": "admin",
+            "updated_at": "2025-01-16T15:40:00Z",
+            "updated_by": "admin",
+            "photos": [
+                {
+                    "filename": "h125_schule.jpg",
+                    "uploaded_at": "2025-12-05 05:36:51",
+                    "uploaded_by": "migration",
+                    "migrated_from": "photo_field"
+                }
+            ]
+        },
+        {
+            "id": "kludenbach_hauptstrasse_7",
+            "type": "h125",
+            "lat": 49.98869400239437,
+            "lng": 7.373912930488587,
+            "title": "Kludenbach Hauptstraße 7",
+            "description": "Auf der Strasse",
+            "created_at": "2025-01-16T15:50:00Z",
+            "created_by": "admin",
+            "updated_at": "2025-01-16T15:50:00Z",
+            "updated_by": "admin",
+            "photos": [
+                {
+                    "filename": "h125_schule.jpg",
+                    "uploaded_at": "2025-12-05 05:36:51",
+                    "uploaded_by": "migration",
+                    "migrated_from": "photo_field"
+                }
+            ]
+        },
+        {
+            "id": "kludenbach_hauptstrasse_8",
+            "type": "h125",
+            "lat": 49.98872849230468,
+            "lng": 7.374661266803742,
+            "title": "Kludenbach Hauptstraße 8",
+            "description": "Auf der Strasse",
+            "created_at": "2025-01-16T16:00:00Z",
+            "created_by": "admin",
+            "updated_at": "2025-01-16T16:00:00Z",
+            "updated_by": "admin",
+            "photos": [
+                {
+                    "filename": "h125_schule.jpg",
+                    "uploaded_at": "2025-12-05 05:36:51",
+                    "uploaded_by": "migration",
+                    "migrated_from": "photo_field"
+                }
+            ]
+        },
+        {
+            "id": "building_1",
+            "type": "building",
+            "lat": 50.000007,
+            "lng": 7.360368,
+            "title": "Werkstatt",
+            "description": "Scheen",
+            "photo": "",
+            "created_at": "2025-12-05T05:42:03Z",
+            "created_by": "admin",
+            "updated_at": "2025-12-06T08:11:37Z",
+            "updated_by": "admin",
+            "photos": [
+                {
+                    "filename": "photo_6932907a2cf099.59310735.jpg",
+                    "uploaded_at": "2025-12-05 07:57:46",
+                    "uploaded_by": "admin"
+                },
+                {
+                    "filename": "photo_69340a3351ac92.22151349.jpg",
+                    "uploaded_at": "2025-12-06 10:49:23",
+                    "uploaded_by": "admin"
+                }
+            ]
+        }
+    ]
+}

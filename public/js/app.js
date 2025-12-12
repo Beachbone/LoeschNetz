@@ -39,7 +39,10 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // GPS Button
     document.getElementById('gpsButton')?.addEventListener('click', gotoUserLocation);
-    
+
+    // Reload Button
+    document.getElementById('reloadButton')?.addEventListener('click', reloadData);
+
     // Legende auf Mobile standardmäßig eingeklappt
     if (window.innerWidth <= 600) {
         document.getElementById('legend')?.classList.add('collapsed', 'auto-collapsed');
@@ -128,10 +131,78 @@ async function initApp() {
     }
 }
 
-// === Config laden ===
-async function loadConfig() {
+// === Daten neu laden ===
+async function reloadData() {
+    const button = document.getElementById('reloadButton');
+
     try {
-        const response = await fetch('/config.json');
+        // Visuelle Rückmeldung (Spinning-Animation)
+        button?.classList.add('loading');
+        button.disabled = true;
+
+        console.log('🔄 Daten werden neu geladen...');
+
+        // 1. Config neu laden (mit Cache-Busting)
+        await loadConfig(true);
+
+        // 2. Theme neu anwenden
+        applyTheme();
+
+        // 3. Marker-Typen neu laden (mit Cache-Busting)
+        await loadMarkerTypes(true);
+
+        // 4. Hydranten neu laden (mit Cache-Busting)
+        await loadHydrants(true);
+
+        // 5. Bestehende Marker von der Karte entfernen
+        App.markers.forEach(marker => {
+            App.map.removeLayer(marker);
+        });
+        App.markers = [];
+
+        // 6. Neue Marker hinzufügen
+        addMarkers();
+
+        // 7. Karte neu zentrieren auf Bounds
+        if (App.hydrants && App.hydrants.length > 0) {
+            const bounds = calculateBounds(App.hydrants);
+            if (bounds) {
+                App.map.fitBounds(bounds, { padding: [50, 50] });
+            }
+        }
+
+        console.log('✅ Daten erfolgreich neu geladen!');
+
+        // Erfolgsmeldung kurz anzeigen
+        button?.classList.remove('loading');
+        button.textContent = '✅';
+        setTimeout(() => {
+            button.textContent = '🔄';
+            button.disabled = false;
+        }, 1500);
+
+    } catch (error) {
+        console.error('❌ Fehler beim Neuladen:', error);
+
+        // Fehlermeldung
+        button?.classList.remove('loading');
+        button.textContent = '❌';
+        setTimeout(() => {
+            button.textContent = '🔄';
+            button.disabled = false;
+        }, 2000);
+
+        alert('Fehler beim Neuladen der Daten. Bitte versuchen Sie es erneut.');
+    }
+}
+
+// === Config laden ===
+async function loadConfig(forceReload = false) {
+    try {
+        const url = forceReload
+            ? `/config.json?_=${Date.now()}`
+            : '/config.json';
+        const response = await fetch(url, forceReload ? { cache: 'no-cache' } : {});
         if (!response.ok) throw new Error('Config nicht gefunden');
         
         App.config = await response.json();
@@ -180,10 +251,13 @@ function applyTheme() {
 }
 
 // === Marker-Typen laden ===
-async function loadMarkerTypes() {
+async function loadMarkerTypes(forceReload = false) {
     try {
-        const url = App.config?.data?.markerTypes || '/data/marker-types.json';
-        const response = await fetch(url);
+        let url = App.config?.data?.markerTypes || '/data/marker-types.json';
+        if (forceReload) {
+            url += `?_=${Date.now()}`;
+        }
+        const response = await fetch(url, forceReload ? { cache: 'no-cache' } : {});
         if (!response.ok) throw new Error('Marker-Typen JSON nicht gefunden');
         
         const data = await response.json();
@@ -211,10 +285,13 @@ async function loadMarkerTypes() {
 }
 
 // === Hydranten laden ===
-async function loadHydrants() {
+async function loadHydrants(forceReload = false) {
     try {
-        const url = App.config?.data?.hydrants || '/data/hydrants.json';
-        const response = await fetch(url);
+        let url = App.config?.data?.hydrants || '/data/hydrants.json';
+        if (forceReload) {
+            url += `?_=${Date.now()}`;
+        }
+        const response = await fetch(url, forceReload ? { cache: 'no-cache' } : {});
         if (!response.ok) throw new Error('JSON-Datei nicht gefunden');
         
         const data = await response.json();
@@ -335,11 +412,24 @@ function calculateBounds(hydrants) {
     let minLng = Infinity, maxLng = -Infinity;
     
     hydrants.forEach(h => {
-        if (h.latitude < minLat) minLat = h.latitude;
-        if (h.latitude > maxLat) maxLat = h.latitude;
-        if (h.longitude < minLng) minLng = h.longitude;
-        if (h.longitude > maxLng) maxLng = h.longitude;
+        const lat = parseFloat(h.lat);
+        const lng = parseFloat(h.lng);
+        
+        if (isNaN(lat) || isNaN(lng)) {
+            console.warn("Ungueltige Koordinaten:", h.id);
+            return;
+        }
+        
+        if (lat < minLat) minLat = lat;
+        if (lat > maxLat) maxLat = lat;
+        if (lng < minLng) minLng = lng;
+        if (lng > maxLng) maxLng = lng;
     });
+    
+    if (minLat === Infinity || minLng === Infinity) {
+        console.warn('⚠️ Keine gültigen Koordinaten gefunden');
+        return null;
+    }
     
     return [[minLat, minLng], [maxLat, maxLng]];
 }
@@ -364,9 +454,9 @@ function addMarkers() {
         });
         
         // Marker erstellen
-        const marker = L.marker([hydrant.latitude, hydrant.longitude], {
+        const marker = L.marker([hydrant.lat, hydrant.lng], {
             icon: icon,
-            title: hydrant.name
+            title: hydrant.title
         });
         
         // Popup
@@ -386,22 +476,37 @@ function createPopupContent(hydrant, markerType) {
     let html = `
         <div class="hydrant-popup">
             <h3>${markerType.label}</h3>
-            <p><strong>${hydrant.name}</strong></p>
+            <p><strong>${hydrant.title}</strong></p>
     `;
-    
+
     if (hydrant.description) {
         html += `<p>${hydrant.description}</p>`;
     }
-    
-    if (hydrant.photo) {
+
+    // Support new photos array structure
+    if (hydrant.photos && Array.isArray(hydrant.photos) && hydrant.photos.length > 0) {
+        html += '<div class="popup-photos">';
+        hydrant.photos.forEach(photo => {
+            const photoPath = `/uploads/hydrants/${hydrant.id}/${photo.filename}`;
+            html += `
+                <img src="${photoPath}"
+                     alt="${hydrant.title}"
+                     loading="lazy"
+                     onclick="openPhotoOverlay('${photoPath}', '${hydrant.title}')">
+            `;
+        });
+        html += '</div>';
+    }
+    // Fallback for old single photo field (backward compatibility)
+    else if (hydrant.photo) {
         html += `
-            <img src="/uploads/${hydrant.photo}" 
-                 alt="${hydrant.name}"
+            <img src="/uploads/${hydrant.photo}"
+                 alt="${hydrant.title}"
                  loading="lazy"
-                 onclick="openPhotoOverlay('/uploads/${hydrant.photo}', '${hydrant.name}')">
+                 onclick="openPhotoOverlay('/uploads/${hydrant.photo}', '${hydrant.title}')">
         `;
     }
-    
+
     html += '</div>';
     return html;
 }

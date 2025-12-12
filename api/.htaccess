@@ -1,0 +1,30 @@
+# API .htaccess
+# Ermöglicht PATH_INFO für saubere URLs
+
+# PHP-Einstellungen
+<IfModule mod_php.c>
+    php_flag display_errors Off
+    php_value max_execution_time 30
+    php_value upload_max_filesize 10M
+    php_value post_max_size 10M
+</IfModule>
+
+# PATH_INFO aktivieren
+AcceptPathInfo On
+
+# Zugriff auf JSON-Dateien verbieten
+<FilesMatch "\.(json)$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+
+# Test-Script nach Produktiv-Einsatz sperren (auskommentieren wenn Tests fertig)
+# <Files "test-auth-api.php">
+#     Order Allow,Deny
+#     Deny from all
+# </Files>
+
+# <Files "create-test-users.php">
+#     Order Allow,Deny
+#     Deny from all
+# </Files>

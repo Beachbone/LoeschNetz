@@ -1,0 +1,3 @@
+# Snapshots-Ordner - Zugriff verweigern
+Order Deny,Allow
+Deny from all

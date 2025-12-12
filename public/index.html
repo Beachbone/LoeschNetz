@@ -2,21 +2,21 @@
 <html lang="de">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="description" content="Offline-fähige Hydrantenverwaltung für Feuerwehren">
     
     <title>LoeschNetz - Hydrantenverwaltung</title>
     
-    <!-- PWA Manifest -->
-    <link rel="manifest" href="/manifest.json">
+    <!-- PWA Manifest (dynamisch) -->
+    <link rel="manifest" href="./manifest.php">
     
-    <!-- Theme Color -->
+    <!-- Theme Color (wird aus config geladen) -->
     <meta name="theme-color" content="#d32f2f">
-    <meta name="apple-mobile-web-app-status-bar-style" content="#d32f2f">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
     
     <!-- Favicons -->
-    <link rel="icon" href="/favicon.png">
-    <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
+    <link rel="icon" href="./favicon.ico">
+    <link rel="apple-touch-icon" href="./icons/icon-192x192.png">
     
     <!-- PWA Meta-Tags -->
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -25,10 +25,10 @@
     <meta name="application-name" content="LoeschNetz">
     
     <!-- Leaflet CSS (lokal gehostet) -->
-    <link rel="stylesheet" href="/leaflet/leaflet.css">
+    <link rel="stylesheet" href="./leaflet/leaflet.css">
     
     <!-- App CSS -->
-    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="./css/style.css">
 </head>
 <body>
     <!-- Cookie Consent Banner -->
@@ -46,7 +46,7 @@
                 <button id="acceptCookies" class="btn-primary">Akzeptieren</button>
                 <button id="declineCookies" class="btn-secondary">Ablehnen</button>
             </div>
-            <a href="/datenschutz.html" class="cookie-link">Mehr erfahren</a>
+            <a href="./datenschutz.html" class="cookie-link">Mehr erfahren</a>
         </div>
     </div>
 
@@ -84,8 +84,8 @@
         <!-- Header -->
         <header class="app-header">
             <h1 class="app-title">
-                <img src="/icons/icon-48x48.png" class="logo" alt="LoeschNetz">
-                LoeschNetz
+                <img src="./icons/icon-48x48.png" class="logo" alt="LoeschNetz">
+                <span id="appTitle">LoeschNetz</span>
             </h1>
             <button id="infoButton" class="icon-button" aria-label="Information">
                 <span>ℹ️</span>
@@ -96,9 +96,9 @@
         <div id="map" class="map-container"></div>
 
         <!-- Legend (ausklappbar, oben rechts) -->
-        <div id="legend" class="legend">
+        <div id="legend" class="legend collapsed">
             <button id="legendToggle" class="legend-toggle" aria-label="Legende umschalten">
-                Legende
+                📍 Legende
             </button>
             <div id="legendContent" class="legend-content">
                 <!-- Wird dynamisch gefüllt -->
@@ -117,11 +117,16 @@
             </svg>
         </button>
 
+        <!-- Reload Button -->
+        <button id="reloadButton" class="reload-button" aria-label="Daten neu laden" title="Daten neu laden">
+            🔄
+        </button>
+
         <!-- Footer (sticky) -->
         <footer class="app-footer">
-            <a href="/impressum.html" target="_blank">Impressum</a>
+            <a href="./impressum.html" target="_blank">Impressum</a>
             <span>|</span>
-            <a href="/datenschutz.html" target="_blank">Datenschutz</a>
+            <a href="./datenschutz.html" target="_blank">Datenschutz</a>
         </footer>
 
         <!-- Install Prompt (nur wenn noch nicht installiert) -->
@@ -134,6 +139,7 @@
 
     <!-- Info Modal -->
     <div id="infoModal" class="modal" style="display: none;">
+        <div class="modal-overlay" id="infoModalOverlay"></div>
         <div class="modal-content">
             <button class="modal-close" id="closeInfo">×</button>
             <h2>ℹ️ Über LoeschNetz</h2>
@@ -147,35 +153,102 @@
                 <li>✅ Farbcodierte Hydranten</li>
                 <li>✅ Detailansicht mit Fotos</li>
                 <li>✅ Installierbar auf allen Geräten</li>
+                <li>✅ GPS-Lokalisierung</li>
             </ul>
-            <p class="version">Version 1.0.0 (November 2025)</p>
+            <p class="version">Version 1.0.0 (Dezember 2025)</p>
             <div class="modal-links">
-                <a href="/datenschutz.html">Datenschutz</a>
-                <a href="/impressum.html">Impressum</a>
+                <a href="./datenschutz.html">Datenschutz</a>
+                <a href="./impressum.html">Impressum</a>
             </div>
         </div>
     </div>
 
     <!-- Scripts -->
     <!-- Leaflet.js (lokal gehostet) -->
-    <script src="/leaflet/leaflet.js"></script>
+    <script src="./leaflet/leaflet.js"></script>
     
     <!-- App Scripts -->
-    <script src="/js/app.js"></script>
+    <script src="./js/app.js"></script>
     
     <!-- Service Worker Registration -->
     <script>
         // Service Worker registrieren
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
+                navigator.serviceWorker.register('./sw.js')
                     .then(registration => {
                         console.log('✅ Service Worker registriert:', registration.scope);
+                        
+                        // Update-Check
+                        registration.addEventListener('updatefound', () => {
+                            const newWorker = registration.installing;
+                            newWorker.addEventListener('statechange', () => {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    console.log('🔄 Neue Version verfügbar!');
+                                    // User benachrichtigen
+                                    if (confirm('Neue Version verfügbar! Neu laden?')) {
+                                        newWorker.postMessage({ type: 'SKIP_WAITING' });
+                                        window.location.reload();
+                                    }
+                                }
+                            });
+                        });
                     })
                     .catch(error => {
                         console.error('❌ Service Worker Fehler:', error);
                     });
             });
+            
+            // Reload bei neuem SW
+            navigator.serviceWorker.addEventListener('controllerchange', () => {
+                window.location.reload();
+            });
+        }
+        
+        // PWA Install Prompt
+        let deferredPrompt;
+        
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            
+            // Zeige Install-Button nach 10 Sekunden
+            setTimeout(() => {
+                const installPrompt = document.getElementById('installPrompt');
+                if (installPrompt && !window.matchMedia('(display-mode: standalone)').matches) {
+                    installPrompt.style.display = 'block';
+                }
+            }, 10000);
+        });
+        
+        // Install-Button Handler
+        document.getElementById('installButton')?.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                console.log('Install outcome:', outcome);
+                deferredPrompt = null;
+                document.getElementById('installPrompt').style.display = 'none';
+            }
+        });
+        
+        // Dismiss-Button Handler
+        document.getElementById('dismissInstall')?.addEventListener('click', () => {
+            document.getElementById('installPrompt').style.display = 'none';
+        });
+        
+        // Online/Offline Status
+        window.addEventListener('online', () => {
+            document.getElementById('offlineNotice').style.display = 'none';
+        });
+        
+        window.addEventListener('offline', () => {
+            document.getElementById('offlineNotice').style.display = 'block';
+        });
+        
+        // Initial Status
+        if (!navigator.onLine) {
+            document.getElementById('offlineNotice').style.display = 'block';
         }
     </script>
 </body>

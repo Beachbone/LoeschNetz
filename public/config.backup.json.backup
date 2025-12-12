@@ -1,0 +1,68 @@
+{
+    "version": "1.0",
+    "map": {
+        "center": [
+            50.000153,
+            7.356538
+        ],
+        "zoom": 15,
+        "bounds": [
+            [
+                50.00387,
+                7.35199
+            ],
+            [
+                49.98652,
+                7.3771
+            ]
+        ],
+        "minZoom": 10,
+        "maxZoom": 19,
+        "locationZoom": 18,
+        "tileServers": {
+            "osm": {
+                "url": "https:\/\/{s}.tile.openstreetmap.org\/{z}\/{x}\/{y}.png",
+                "attribution": "Map data © OpenStreetMap and contributors CC-BY-SA",
+                "maxZoom": 19
+            },
+            "satellite": {
+                "url": "https:\/\/server.arcgisonline.com\/ArcGIS\/rest\/services\/World_Imagery\/MapServer\/tile\/{z}\/{y}\/{x}",
+                "attribution": "Map data © Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community",
+                "maxZoom": 19
+            }
+        }
+    },
+    "organization": {
+        "name": "FFW Kappel-Kludenbach",
+        "shortName": "FFW Kappel",
+        "logo": "\/icons\/icon-192x192.png"
+    },
+    "theme": {
+        "primaryColor": "#d32f2f",
+        "backgroundColor": "#ffffff"
+    },
+    "legal": {
+        "impressumUrl": "\/impressum.html",
+        "datenschutzUrl": "\/datenschutz.html"
+    },
+    "security": {
+        "autoLogoutMinutes": 30,
+        "sessionTimeout": 1800
+    },
+    "logging": {
+        "level": 2,
+        "maxSizeKb": 1024,
+        "retentionDays": 365
+    },
+    "snapshots": {
+        "enabled": true,
+        "maxCount": 20,
+        "autoCreate": true
+    },
+    "photos": {
+        "maxWidth": 1200,
+        "maxHeight": 800,
+        "quality": 85,
+        "maxSizeKb": 512
+    }
+}

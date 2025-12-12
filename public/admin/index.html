@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - LoeschNetz</title>
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="./manifest.json">
+    <meta name="theme-color" content="#d32f2f">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="LoeschNetz Admin">
+    <link rel="apple-touch-icon" href="../icons/icon-192x192.png">
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+    <!-- Admin CSS -->
+    <link rel="stylesheet" href="./css/admin.css">
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="header-content">
+            <div class="logo">
+                <span>🔥 LoeschNetz Admin</span>
+            </div>
+            <div class="user-info">
+                <span>Angemeldet als: <strong id="userName">...</strong></span>
+                <span class="text-muted text-small" id="userRole"></span>
+                <button id="changePasswordBtn" class="btn-header" title="Passwort ändern">🔑</button>
+                <button class="btn-logout" id="logoutBtn">Abmelden</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation (dynamically generated) -->
+    <div id="nav-menu"></div>
+
+    <!-- Container -->
+    <div class="container">
+        <!-- Message Container -->
+        <div id="messageContainer"></div>
+
+        <!-- Toolbar -->
+        <div class="toolbar">
+            <div class="toolbar-info">
+                <strong id="statTotal">0</strong> Hydranten (<span id="statTypes">-</span>)
+            </div>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <input type="text" id="searchInput" placeholder="🔍 Suchen..." style="padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; width: 250px;">
+                <button class="btn-primary" id="newHydrantBtn">+ Neuer Hydrant</button>
+            </div>
+        </div>
+
+        <!-- Map -->
+        <div class="map-container">
+            <div id="map"></div>
+        </div>
+
+        <!-- Mobile Sort Controls -->
+        <div class="mobile-sort-controls">
+            <label>Sortieren:</label>
+            <select id="mobileSortField">
+                <option value="type">Typ</option>
+                <option value="title">Titel</option>
+                <option value="description">Beschreibung</option>
+                <option value="lat">Koordinaten</option>
+                <option value="updated_at">Geändert</option>
+            </select>
+            <button id="mobileSortToggle" title="Sortierreihenfolge umkehren">↕️</button>
+        </div>
+
+        <!-- Table -->
+        <div class="table-container">
+            <table class="hydrant-table">
+                <thead>
+                    <tr>
+                        <th style="width: 80px" data-sort="type">Typ <span class="sort-icon">⇅</span></th>
+                        <th data-sort="title">Titel <span class="sort-icon">⇅</span></th>
+                        <th data-sort="description">Beschreibung <span class="sort-icon">⇅</span></th>
+                        <th style="width: 150px" data-sort="lat">Koordinaten <span class="sort-icon">⇅</span></th>
+                        <th style="width: 120px" data-sort="updated_at">Geändert <span class="sort-icon">⇅</span></th>
+                        <th style="width: 220px">Aktionen</th>
+                    </tr>
+                </thead>
+                <tbody id="hydrantTableBody">
+                    <tr>
+                        <td colspan="6">
+                            <div class="loading">
+                                <div class="spinner"></div>
+                                <div>Lade Hydranten...</div>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal: Hydrant bearbeiten/erstellen -->
+    <div class="modal-overlay" id="hydrantModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalTitle">Hydrant bearbeiten</h2>
+                <button class="modal-close" id="closeModal">&times;</button>
+            </div>
+            <form id="hydrantForm">
+                <div class="modal-body">
+                    <input type="hidden" name="id" id="id_field">
+                    
+                    <!-- Karte zur Positionsauswahl -->
+                    <div class="form-group">
+                        <label>Position auf Karte wählen</label>
+                        <div id="modalMap" class="modal-map"></div>
+                        <small>Klicke auf die Karte oder ziehe den Marker um die Position zu ändern</small>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="type">Typ *</label>
+                            <select name="type" id="type" required>
+                                <option value="">Lade Typen...</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="title">Titel *</label>
+                            <input type="text" name="title" id="title" required placeholder="z.B. Anwesen Bernhardt">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="description">Beschreibung</label>
+                        <textarea name="description" id="description" placeholder="z.B. An der Zaunecke"></textarea>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="lat">Breitengrad *</label>
+                            <input type="number" name="lat" id="lat" step="0.000001" required placeholder="50.000000">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="lng">Längengrad *</label>
+                            <input type="number" name="lng" id="lng" step="0.000001" required placeholder="7.360000">
+                        </div>
+                    </div>
+
+                    <!-- Foto-Galerie -->
+                    <div class="form-group">
+                        <label>📸 Fotos</label>
+                        <div id="photoGallery" class="photo-gallery"></div>
+                        <div class="photo-upload">
+                            <input type="file" id="photoUpload" accept="image/*" multiple style="display:none">
+                            <input type="file" id="photoCameraUpload" accept="image/*" capture="environment" style="display:none">
+                            <button type="button" class="btn-secondary" id="photoUploadBtn">🖼️ Aus Galerie</button>
+                            <button type="button" class="btn-secondary" id="photoCameraBtn">📷 Kamera</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-action" onclick="Hydrants.closeModal()">Abbrechen</button>
+                    <button type="submit" class="btn-primary">Speichern</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <!-- Admin JS -->
+    <script src="./js/admin-utils.js"></script>
+    <script src="./js/admin-auth.js"></script>
+    <script src="./js/admin-menu.js"></script>
+    <script src="./js/admin-password.js"></script>
+    <script src="./js/admin-photos.js"></script>
+    <script src="./js/admin-hydrants.js"></script>
+    <script src="./js/admin-map.js"></script>
+    
+    <!-- Init -->
+    <script>
+        // App initialisieren
+        async function initApp() {
+            // Session prüfen
+            const isLoggedIn = await Auth.checkSession();
+
+            if (!isLoggedIn) {
+                Auth.requireLogin();
+                return;
+            }
+
+            // User-Info anzeigen
+            Auth.displayUserInfo();
+
+            // UI für Rolle anpassen
+            Auth.updateUIForRole();
+
+            // Menu generieren (nach Auth-Check!)
+            AdminMenu.generate();
+            
+            // Event-Listener
+            setupLogout();
+            setupNewHydrantButton();
+            setupHydrantForm();
+            setupModalClose();
+            setupSearch();
+            setupTableSort();
+            setupMobileSort();
+            setupTableScrollIndicator();
+            setupPasswordChange();
+            setupPhotoUpload();
+            
+            // Karte initialisieren
+            await AdminMap.initMainMap();
+
+            // Marker-Typen laden (vor Hydranten!)
+            await Hydrants.loadMarkerTypes();
+
+            // Hydranten laden
+            await Hydrants.loadAll();
+        }
+        
+        // App starten wenn DOM bereit
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initApp);
+        } else {
+            initApp();
+        }
+    </script>
+    
+    <!-- Migration Script -->
+    <script>
+    async function runMigration() {
+        if (!confirm('Alte Fotos zu neuem System migrieren?\n\nDies kopiert alle Fotos aus /pictures_app/ nach /uploads/')) return;
+        
+        try {
+            showMessage('Migration läuft...', 'info');
+            
+            const response = await fetch('../api/migrate-photos.php', {
+                credentials: 'include'
+            });
+            const result = await response.json();
+            
+            if (result.success) {
+                showMessage(`Migration erfolgreich! ${result.data.migrated} Fotos migriert.`, 'success');
+                document.getElementById('migrationBanner').style.display = 'none';
+                
+                // Hydranten neu laden
+                setTimeout(() => {
+                    Hydrants.loadAll();
+                }, 1000);
+            } else {
+                throw new Error(result.error || 'Migration fehlgeschlagen');
+            }
+        } catch (error) {
+            console.error('Migration-Fehler:', error);
+            showMessage('Fehler: ' + error.message, 'error');
+        }
+    }
+    </script>
+
+<!-- Change Password Modal -->
+<div class="modal-overlay" id="changePasswordModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h2 class="modal-title">Passwort ändern</h2>
+            <button class="modal-close" id="closeChangePassword">&times;</button>
+        </div>
+        <form id="changePasswordForm">
+            <div class="modal-body">
+                <!-- Hidden username field for accessibility -->
+                <input type="text" name="username" autocomplete="username" style="display: none;" aria-hidden="true" tabindex="-1">
+                
+                <div id="passwordChangeNotice" class="alert alert-warning" style="display: none;">
+                    <strong>⚠️ Passwort muss geändert werden</strong>
+                    <p>Aus Sicherheitsgründen müssen Sie Ihr Passwort bei der ersten Anmeldung ändern.</p>
+                </div>
+                
+                <div class="form-group">
+                    <label for="currentPassword">Aktuelles Passwort *</label>
+                    <input type="password" name="current_password" id="currentPassword" required 
+                           autocomplete="current-password">
+                </div>
+                
+                <div class="form-group">
+                    <label for="newPassword">Neues Passwort * <small>(mind. 8 Zeichen)</small></label>
+                    <input type="password" name="new_password" id="newPassword" required 
+                           minlength="8" autocomplete="new-password">
+                </div>
+                
+                <div class="form-group">
+                    <label for="confirmPassword">Neues Passwort bestätigen *</label>
+                    <input type="password" name="confirm_password" id="confirmPassword" required 
+                           minlength="8" autocomplete="new-password">
+                </div>
+                
+                <div class="password-strength" id="passwordStrength"></div>
+            </div>
+            
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" id="cancelPasswordChange">Abbrechen</button>
+                <button type="submit" class="btn-primary">Passwort ändern</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Service Worker Registration -->
+<script>
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+            .then(registration => {
+                console.log('✅ Admin SW registered:', registration.scope);
+
+                // Check for updates
+                registration.addEventListener('updatefound', () => {
+                    const newWorker = registration.installing;
+                    console.log('🔄 Admin SW update found');
+
+                    newWorker.addEventListener('statechange', () => {
+                        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                            console.log('✨ Admin SW update available - reload to activate');
+                            // Optionally show update notification
+                        }
+                    });
+                });
+            })
+            .catch(error => {
+                console.error('❌ Admin SW registration failed:', error);
+            });
+    });
+}
+</script>
+
+</body>
+</html>
