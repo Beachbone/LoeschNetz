@@ -247,11 +247,114 @@ window.AdminMap = {
             setTimeout(() => {
                 this.modalMap.invalidateSize();
             }, 100);
-            
+
+            // GPS-Button Event-Listener
+            this.setupGpsButton();
+
             console.log('AdminMap.initModalMap() - Erfolgreich abgeschlossen');
         } catch (error) {
             console.error('AdminMap.initModalMap() - FEHLER:', error);
         }
+    },
+
+    /**
+     * GPS-Button einrichten
+     */
+    setupGpsButton() {
+        const gpsButton = document.getElementById('modalGpsButton');
+        if (!gpsButton) {
+            console.warn('AdminMap: GPS-Button nicht gefunden');
+            return;
+        }
+
+        gpsButton.addEventListener('click', () => {
+            this.getHighAccuracyPosition();
+        });
+    },
+
+    /**
+     * GPS-Position mit hoher Genauigkeit abrufen
+     */
+    getHighAccuracyPosition() {
+        const gpsButton = document.getElementById('modalGpsButton');
+
+        if (!navigator.geolocation) {
+            showMessage('GPS wird von diesem Browser nicht unterstützt', 'error');
+            return;
+        }
+
+        // Button-Status: Wird geladen
+        gpsButton.classList.add('active');
+        gpsButton.disabled = true;
+
+        console.log('AdminMap: Starte hochgenaue GPS-Ortung...');
+
+        const options = {
+            enableHighAccuracy: true,
+            timeout: 30000,
+            maximumAge: 0
+        };
+
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                console.log('AdminMap: GPS-Position erfolgreich:', position.coords);
+
+                const lat = position.coords.latitude;
+                const lng = position.coords.longitude;
+                const accuracy = position.coords.accuracy;
+
+                // Formularfelder aktualisieren
+                const form = document.getElementById('hydrantForm');
+                const latField = form.querySelector('[name="lat"]');
+                const lngField = form.querySelector('[name="lng"]');
+
+                latField.value = lat.toFixed(6);
+                lngField.value = lng.toFixed(6);
+
+                // Marker und Karte aktualisieren
+                if (this.modalMarker && this.modalMap) {
+                    this.modalMarker.setLatLng([lat, lng]);
+                    this.modalMap.setView([lat, lng], 18);
+                }
+
+                // Button zurücksetzen
+                gpsButton.classList.remove('active', 'error');
+                gpsButton.disabled = false;
+
+                // Erfolgs-Nachricht mit Genauigkeit
+                showMessage(`GPS-Position erfolgreich ermittelt (±${Math.round(accuracy)}m Genauigkeit)`, 'success');
+            },
+            (error) => {
+                console.error('AdminMap: GPS-Fehler:', error);
+
+                // Button-Status: Fehler
+                gpsButton.classList.remove('active');
+                gpsButton.classList.add('error');
+                gpsButton.disabled = false;
+
+                // Fehler-Nachricht
+                let errorMessage = 'GPS-Position konnte nicht ermittelt werden';
+                switch (error.code) {
+                    case error.PERMISSION_DENIED:
+                        errorMessage = 'GPS-Zugriff verweigert. Bitte erlaube den Zugriff in den Browser-Einstellungen.';
+                        break;
+                    case error.POSITION_UNAVAILABLE:
+                        errorMessage = 'GPS-Position nicht verfügbar. Bitte prüfe deine Verbindung.';
+                        break;
+                    case error.TIMEOUT:
+                        errorMessage = 'GPS-Timeout. Bitte versuche es erneut.';
+                        break;
+                }
+
+                showMessage(errorMessage, 'error');
+
+                // Fehler-Status nach 3 Sekunden zurücksetzen
+                setTimeout(() => {
+                    gpsButton.classList.remove('error');
+                }, 3000);
+            },
+            options
+        );
     },
     
     /**

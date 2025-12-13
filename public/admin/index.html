@@ -113,8 +113,20 @@
                     <!-- Karte zur Positionsauswahl -->
                     <div class="form-group">
                         <label>Position auf Karte wählen</label>
-                        <div id="modalMap" class="modal-map"></div>
-                        <small>Klicke auf die Karte oder ziehe den Marker um die Position zu ändern</small>
+                        <div style="position: relative;">
+                            <div id="modalMap" class="modal-map"></div>
+                            <button type="button" id="modalGpsButton" class="modal-gps-button" title="Genaue GPS-Position verwenden" aria-label="GPS-Position">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"/>
+                                    <circle cx="12" cy="12" r="3"/>
+                                    <line x1="12" y1="1" x2="12" y2="5"/>
+                                    <line x1="12" y1="19" x2="12" y2="23"/>
+                                    <line x1="1" y1="12" x2="5" y2="12"/>
+                                    <line x1="19" y1="12" x2="23" y2="12"/>
+                                </svg>
+                            </button>
+                        </div>
+                        <small>Klicke auf die Karte oder ziehe den Marker um die Position zu ändern. GPS-Button für genaue Position.</small>
                     </div>
 
                     <div class="form-row">

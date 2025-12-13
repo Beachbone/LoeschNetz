@@ -695,6 +695,70 @@ body > .modal.active {
     background: #e0e0e0;
 }
 
+/* GPS Button in Modal Map */
+.modal-gps-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 36px;
+    height: 36px;
+    background: white;
+    border: 2px solid rgba(0,0,0,0.2);
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    z-index: 1000;
+    transition: all 0.2s ease;
+}
+
+.modal-gps-button:hover {
+    background: #f5f5f5;
+    border-color: #cc0000;
+}
+
+.modal-gps-button:active {
+    transform: scale(0.95);
+}
+
+.modal-gps-button svg {
+    color: #666;
+}
+
+.modal-gps-button:hover svg {
+    color: #cc0000;
+}
+
+.modal-gps-button.active {
+    background: #cc0000;
+    border-color: #cc0000;
+}
+
+.modal-gps-button.active svg {
+    color: white;
+    animation: pulse 2s infinite;
+}
+
+.modal-gps-button.error {
+    background: #f44336;
+    border-color: #f44336;
+}
+
+.modal-gps-button.error svg {
+    color: white;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
 /* Loading */
 .loading {
     text-align: center;
