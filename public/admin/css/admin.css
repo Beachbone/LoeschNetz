@@ -855,19 +855,22 @@ body > .modal.active {
     /* Card-Layout für Tabellen auf Mobile */
     .hydrant-table,
     .marker-types-table,
-    .snapshots-table {
+    .snapshots-table,
+    .logs-table {
         border: 0;
     }
 
     .hydrant-table thead,
     .marker-types-table thead,
-    .snapshots-table thead {
+    .snapshots-table thead,
+    .logs-table thead {
         display: none; /* Header verstecken */
     }
 
     .hydrant-table tbody tr,
     .marker-types-table tbody tr,
-    .snapshots-table tbody tr {
+    .snapshots-table tbody tr,
+    .logs-table tbody tr {
         display: block;
         margin-bottom: 15px;
         border: 1px solid #ddd;
@@ -878,13 +881,15 @@ body > .modal.active {
 
     .hydrant-table tbody tr:hover,
     .marker-types-table tbody tr:hover,
-    .snapshots-table tbody tr:hover {
+    .snapshots-table tbody tr:hover,
+    .logs-table tbody tr:hover {
         box-shadow: 0 4px 8px rgba(0,0,0,0.15);
     }
 
     .hydrant-table td,
     .marker-types-table td,
-    .snapshots-table td {
+    .snapshots-table td,
+    .logs-table td {
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -895,14 +900,16 @@ body > .modal.active {
 
     .hydrant-table td:last-child,
     .marker-types-table td:last-child,
-    .snapshots-table td:last-child {
+    .snapshots-table td:last-child,
+    .logs-table td:last-child {
         border-bottom: 0;
     }
 
     /* Label vor jedem Wert anzeigen */
     .hydrant-table td:before,
     .marker-types-table td:before,
-    .snapshots-table td:before {
+    .snapshots-table td:before,
+    .logs-table td:before {
         content: attr(data-label);
         font-weight: bold;
         color: #666;

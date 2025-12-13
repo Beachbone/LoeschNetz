@@ -122,13 +122,13 @@ window.Logs = {
 
             return `
                 <tr>
-                    <td class="text-muted">${entry._index || index + 1}</td>
-                    <td>${this.formatTimestamp(entry.timestamp)}</td>
-                    <td><strong>${this.escapeHtml(entry.user)}</strong></td>
-                    <td><span class="badge badge-${actionClass}">${entry.action}</span></td>
-                    <td>${this.escapeHtml(entry.resource)}</td>
-                    <td>${detailsHtml}</td>
-                    <td class="text-muted">${this.escapeHtml(entry.ip)}</td>
+                    <td data-label="#" class="text-muted">${entry._index || index + 1}</td>
+                    <td data-label="Zeitstempel">${this.formatTimestamp(entry.timestamp)}</td>
+                    <td data-label="Benutzer"><strong>${this.escapeHtml(entry.user)}</strong></td>
+                    <td data-label="Aktion"><span class="badge badge-${actionClass}">${entry.action}</span></td>
+                    <td data-label="Resource">${this.escapeHtml(entry.resource)}</td>
+                    <td data-label="Details">${detailsHtml}</td>
+                    <td data-label="IP-Adresse" class="text-muted">${this.escapeHtml(entry.ip)}</td>
                 </tr>
             `;
         }).join('');

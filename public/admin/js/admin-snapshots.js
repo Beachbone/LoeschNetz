@@ -126,14 +126,14 @@ window.Snapshots = {
                 <td data-label="Größe">${size}</td>
                 <td data-label="Erstellt von">${isAuto ? '🤖 Automatisch' : snapshot.created_by}</td>
                 <td data-label="Aktionen" class="actions">
-                    <button class="btn-icon" onclick="Snapshots.showPreview('${snapshot.date}')" title="Vorschau">
-                        👁️
+                    <button class="btn-action btn-edit" onclick="Snapshots.showPreview('${snapshot.date}')">
+                        👁️ Vorschau
                     </button>
-                    <button class="btn-icon" onclick="Snapshots.showRestoreModal('${snapshot.date}')" title="Wiederherstellen">
-                        ♻️
+                    <button class="btn-action btn-primary" onclick="Snapshots.showRestoreModal('${snapshot.date}')">
+                        ♻️ Wiederherstellen
                     </button>
-                    <button class="btn-icon btn-danger" onclick="Snapshots.showDeleteModal('${snapshot.date}')" title="Löschen">
-                        🗑️
+                    <button class="btn-action btn-delete" onclick="Snapshots.showDeleteModal('${snapshot.date}')">
+                        🗑️ Löschen
                     </button>
                 </td>
             </tr>`;
