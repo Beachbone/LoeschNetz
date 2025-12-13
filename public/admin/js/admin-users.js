@@ -37,9 +37,15 @@ const Users = {
             }
 
             // Datumsfelder als Date-Objekte vergleichen
-            if (this.sortField === 'created_at' || this.sortField === 'updated_at') {
-                aVal = aVal ? new Date(aVal).getTime() : 0;
-                bVal = bVal ? new Date(bVal).getTime() : 0;
+            if (this.sortField === 'created_at' || this.sortField === 'updated_at' || this.sortField === 'last_login') {
+                // Für last_login: null/undefined sollten als "ältestes Datum" behandelt werden
+                if (this.sortField === 'last_login') {
+                    aVal = aVal ? new Date(aVal).getTime() : 0;
+                    bVal = bVal ? new Date(bVal).getTime() : 0;
+                } else {
+                    aVal = aVal ? new Date(aVal).getTime() : 0;
+                    bVal = bVal ? new Date(bVal).getTime() : 0;
+                }
             }
 
             // Null-Werte behandeln
@@ -64,33 +70,67 @@ const Users = {
         const tbody = document.getElementById('userTableBody');
 
         if (this.users.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center">Keine User vorhanden</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center">Keine User vorhanden</td></tr>';
             return;
         }
 
         // Sortieren vor dem Rendern
         this.sortUsers();
-        
-        tbody.innerHTML = this.users.map(user => `
-            <tr>
-                <td data-label="Username"><strong>${escapeHtml(user.username)}</strong></td>
-                <td data-label="Rolle">
-                    <span class="badge ${user.role === 'admin' ? 'badge-primary' : 'badge-secondary'}">
-                        ${user.role === 'admin' ? '👑 Admin' : '✏️ Editor'}
-                    </span>
-                </td>
-                <td data-label="Erstellt">
-                    ${user.created_at ? new Date(user.created_at).toLocaleString('de-DE') : '-'}
-                    ${user.created_by ? `<br><small>von ${escapeHtml(user.created_by)}</small>` : ''}
-                </td>
-                <td data-label="Geändert">${user.updated_at ? new Date(user.updated_at).toLocaleString('de-DE') : '-'}</td>
-                <td data-label="Aktionen">
-                    <button class="btn-icon" onclick="Users.edit('${user.id}')" title="Bearbeiten">✏️</button>
-                    <button class="btn-icon" onclick="Users.resetPassword('${user.id}')" title="Passwort zurücksetzen">🔑</button>
-                    <button class="btn-icon btn-danger" onclick="Users.delete('${user.id}')" title="Löschen">🗑️</button>
-                </td>
-            </tr>
-        `).join('');
+
+        tbody.innerHTML = this.users.map(user => {
+            // Format last login
+            let lastLoginDisplay = '-';
+            if (user.last_login) {
+                const lastLoginDate = new Date(user.last_login);
+                const now = new Date();
+                const diffMs = now - lastLoginDate;
+                const diffMins = Math.floor(diffMs / 60000);
+                const diffHours = Math.floor(diffMs / 3600000);
+                const diffDays = Math.floor(diffMs / 86400000);
+
+                if (diffMins < 1) {
+                    lastLoginDisplay = 'Gerade eben';
+                } else if (diffMins < 60) {
+                    lastLoginDisplay = `vor ${diffMins} Min.`;
+                } else if (diffHours < 24) {
+                    lastLoginDisplay = `vor ${diffHours} Std.`;
+                } else if (diffDays < 7) {
+                    lastLoginDisplay = `vor ${diffDays} Tag${diffDays > 1 ? 'en' : ''}`;
+                } else {
+                    lastLoginDisplay = lastLoginDate.toLocaleString('de-DE', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+                }
+            } else {
+                lastLoginDisplay = '<span class="text-muted">Noch nie</span>';
+            }
+
+            return `
+                <tr>
+                    <td data-label="Username"><strong>${escapeHtml(user.username)}</strong></td>
+                    <td data-label="Rolle">
+                        <span class="badge ${user.role === 'admin' ? 'badge-primary' : 'badge-secondary'}">
+                            ${user.role === 'admin' ? '👑 Admin' : '✏️ Editor'}
+                        </span>
+                    </td>
+                    <td data-label="Letzter Login">${lastLoginDisplay}</td>
+                    <td data-label="Erstellt">
+                        ${user.created_at ? new Date(user.created_at).toLocaleString('de-DE') : '-'}
+                        ${user.created_by ? `<br><small>von ${escapeHtml(user.created_by)}</small>` : ''}
+                    </td>
+                    <td data-label="Geändert">${user.updated_at ? new Date(user.updated_at).toLocaleString('de-DE') : '-'}</td>
+                    <td data-label="Aktionen">
+                        <button class="btn-icon" onclick="Users.edit('${user.id}')" title="Bearbeiten">✏️</button>
+                        <button class="btn-icon" onclick="Users.resetPassword('${user.id}')" title="Passwort zurücksetzen">🔑</button>
+                        <button class="btn-icon btn-danger" onclick="Users.delete('${user.id}')" title="Löschen">🗑️</button>
+                    </td>
+                </tr>
+            `;
+        }).join('');
     },
     
     /**

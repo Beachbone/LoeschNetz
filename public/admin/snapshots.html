@@ -223,5 +223,35 @@
             initApp();
         }
     </script>
+
+    <!-- Back to Top Button -->
+    <button id="backToTop" class="back-to-top" aria-label="Nach oben" title="Nach oben">↑</button>
+
+    <script>
+        (function() {
+            const backToTopButton = document.getElementById('backToTop');
+            const scrollThreshold = 300;
+
+            function toggleBackToTopButton() {
+                if (window.pageYOffset > scrollThreshold || document.documentElement.scrollTop > scrollThreshold) {
+                    backToTopButton.classList.add('visible');
+                } else {
+                    backToTopButton.classList.remove('visible');
+                }
+            }
+
+            function scrollToTop() {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            }
+
+            window.addEventListener('scroll', toggleBackToTopButton);
+            backToTopButton.addEventListener('click', scrollToTop);
+
+            toggleBackToTopButton();
+        })();
+    </script>
 </body>
 </html>

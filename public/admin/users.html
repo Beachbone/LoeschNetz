@@ -45,6 +45,7 @@
             <select id="mobileSortField">
                 <option value="username">Username</option>
                 <option value="role">Rolle</option>
+                <option value="last_login">Letzter Login</option>
                 <option value="created_at">Erstellt</option>
                 <option value="updated_at">Geändert</option>
             </select>
@@ -58,6 +59,7 @@
                     <tr>
                         <th data-sort="username">Username <span class="sort-icon">↕</span></th>
                         <th data-sort="role">Rolle <span class="sort-icon">↕</span></th>
+                        <th data-sort="last_login">Letzter Login <span class="sort-icon">↕</span></th>
                         <th data-sort="created_at">Erstellt <span class="sort-icon">↕</span></th>
                         <th data-sort="updated_at">Geändert <span class="sort-icon">↕</span></th>
                         <th style="width: 280px">Aktionen</th>
@@ -65,7 +67,7 @@
                 </thead>
                 <tbody id="userTableBody">
                     <tr>
-                        <td colspan="5">
+                        <td colspan="6">
                             <div class="loading">
                                 <div class="spinner"></div>
                                 <div>Lade User...</div>
@@ -183,6 +185,36 @@
         } else {
             initApp();
         }
+    </script>
+
+    <!-- Back to Top Button -->
+    <button id="backToTop" class="back-to-top" aria-label="Nach oben" title="Nach oben">↑</button>
+
+    <script>
+        (function() {
+            const backToTopButton = document.getElementById('backToTop');
+            const scrollThreshold = 300;
+
+            function toggleBackToTopButton() {
+                if (window.pageYOffset > scrollThreshold || document.documentElement.scrollTop > scrollThreshold) {
+                    backToTopButton.classList.add('visible');
+                } else {
+                    backToTopButton.classList.remove('visible');
+                }
+            }
+
+            function scrollToTop() {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            }
+
+            window.addEventListener('scroll', toggleBackToTopButton);
+            backToTopButton.addEventListener('click', scrollToTop);
+
+            toggleBackToTopButton();
+        })();
     </script>
 </body>
 </html>

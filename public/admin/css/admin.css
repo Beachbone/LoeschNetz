@@ -1424,16 +1424,65 @@ body > .modal.active {
     .snapshots-list .actions {
         flex-direction: column;
     }
-    
+
     .snapshots-list .btn-small {
         width: 100%;
     }
-    
+
     .data-table {
         font-size: 0.85rem;
     }
-    
+
     .data-table td, .data-table th {
         padding: 8px;
+    }
+}
+
+/* Back to Top Button */
+.back-to-top {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background: #cc0000;
+    color: white;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease, background 0.2s ease;
+    transform: translateY(100px);
+}
+
+.back-to-top.visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.back-to-top:hover {
+    background: #aa0000;
+    transform: translateY(-5px) scale(1.05);
+}
+
+.back-to-top:active {
+    transform: translateY(0) scale(0.95);
+}
+
+@media (max-width: 768px) {
+    .back-to-top {
+        bottom: 20px;
+        right: 20px;
+        width: 45px;
+        height: 45px;
+        font-size: 20px;
     }
 }
