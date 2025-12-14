@@ -87,9 +87,14 @@
                 <img src="./icons/icon-48x48.png" class="logo" alt="LoeschNetz">
                 <span id="appTitle">LoeschNetz</span>
             </h1>
-            <button id="infoButton" class="icon-button" aria-label="Information">
-                <span>ℹ️</span>
-            </button>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <button id="installAppBtn" class="icon-button" title="App installieren" onclick="showInstallPrompt()" style="display: none;" aria-label="App installieren">
+                    <span>📱</span>
+                </button>
+                <button id="infoButton" class="icon-button" aria-label="Information">
+                    <span>ℹ️</span>
+                </button>
+            </div>
         </header>
 
         <!-- Map Container -->
@@ -131,9 +136,11 @@
 
         <!-- Install Prompt (nur wenn noch nicht installiert) -->
         <div id="installPrompt" class="install-prompt" style="display: none;">
-            <p>📱 LoeschNetz als App installieren?</p>
-            <button id="installButton" class="btn-primary">Installieren</button>
-            <button id="dismissInstall" class="btn-text">Später</button>
+            <p>LoeschNetz als App installieren?</p>
+            <div class="install-actions">
+                <button id="installButton">Installieren</button>
+                <button id="dismissInstall">Später</button>
+            </div>
         </div>
     </div>
 
@@ -210,34 +217,83 @@
         
         // PWA Install Prompt
         let deferredPrompt;
-        
+
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
-            
-            // Zeige Install-Button nach 10 Sekunden
-            setTimeout(() => {
-                const installPrompt = document.getElementById('installPrompt');
-                if (installPrompt && !window.matchMedia('(display-mode: standalone)').matches) {
-                    installPrompt.style.display = 'block';
-                }
-            }, 10000);
+
+            // Zeige Install-Button im Header
+            const installBtn = document.getElementById('installAppBtn');
+            if (installBtn && !window.matchMedia('(display-mode: standalone)').matches) {
+                installBtn.style.display = 'inline-block';
+            }
+
+            // Prüfe ob bereits angezeigt wurde
+            const hasSeenInstallPrompt = localStorage.getItem('hasSeenInstallPrompt');
+
+            // Zeige Install-Prompt nur beim ersten Mal automatisch
+            if (!hasSeenInstallPrompt) {
+                setTimeout(() => {
+                    const installPrompt = document.getElementById('installPrompt');
+                    if (installPrompt && !window.matchMedia('(display-mode: standalone)').matches) {
+                        installPrompt.style.display = 'block';
+                    }
+                }, 10000);
+            }
         });
-        
+
+        // Funktion zum manuellen Anzeigen des Install-Prompts
+        window.showInstallPrompt = function() {
+            const installPrompt = document.getElementById('installPrompt');
+            if (deferredPrompt && installPrompt && !window.matchMedia('(display-mode: standalone)').matches) {
+                installPrompt.style.display = 'block';
+            } else if (window.matchMedia('(display-mode: standalone)').matches) {
+                alert('Die App ist bereits installiert!');
+            } else {
+                alert('Installation ist im Browser nicht verfügbar. Bitte öffnen Sie die Seite im Browser und versuchen Sie es erneut.');
+            }
+        };
+
+        // Funktion zum Ausblenden des Install-Prompts mit Animation
+        function hideInstallPrompt() {
+            const installPrompt = document.getElementById('installPrompt');
+            if (installPrompt) {
+                installPrompt.classList.add('slide-out');
+                setTimeout(() => {
+                    installPrompt.style.display = 'none';
+                    installPrompt.classList.remove('slide-out');
+                }, 300);
+            }
+        }
+
         // Install-Button Handler
         document.getElementById('installButton')?.addEventListener('click', async () => {
             if (deferredPrompt) {
                 deferredPrompt.prompt();
                 const { outcome } = await deferredPrompt.userChoice;
                 console.log('Install outcome:', outcome);
+
+                // Markiere als gesehen
+                localStorage.setItem('hasSeenInstallPrompt', 'true');
+
+                // Verstecke Popup mit Animation
+                hideInstallPrompt();
+
+                // Verstecke Header-Button nach Installation
+                if (outcome === 'accepted') {
+                    const installBtn = document.getElementById('installAppBtn');
+                    if (installBtn) installBtn.style.display = 'none';
+                }
+
                 deferredPrompt = null;
-                document.getElementById('installPrompt').style.display = 'none';
             }
         });
-        
+
         // Dismiss-Button Handler
         document.getElementById('dismissInstall')?.addEventListener('click', () => {
-            document.getElementById('installPrompt').style.display = 'none';
+            // Markiere als gesehen
+            localStorage.setItem('hasSeenInstallPrompt', 'true');
+            hideInstallPrompt();
         });
         
         // Online/Offline Status

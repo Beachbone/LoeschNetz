@@ -29,6 +29,7 @@
             <div class="user-info">
                 <span>Angemeldet als: <strong id="userName">...</strong></span>
                 <span class="text-muted text-small" id="userRole"></span>
+                <button id="installAppBtn" class="btn-header" title="App installieren" onclick="showInstallPrompt()" style="display: none;">📱</button>
                 <button id="changePasswordBtn" class="btn-header" title="Passwort ändern">🔑</button>
                 <button class="btn-logout" id="logoutBtn">Abmelden</button>
             </div>
@@ -43,15 +44,37 @@
         <!-- Message Container -->
         <div id="messageContainer"></div>
 
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">🔥</div>
+                <div class="stat-content">
+                    <div class="stat-label">Gesamt</div>
+                    <div class="stat-value" id="statTotal">0</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">📍</div>
+                <div class="stat-content">
+                    <div class="stat-label">Typen</div>
+                    <div class="stat-value" id="statTypes">-</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🗺️</div>
+                <div class="stat-content">
+                    <div class="stat-label">Auf Karte</div>
+                    <div class="stat-value" id="statVisible">0</div>
+                </div>
+            </div>
+        </div>
+
         <!-- Toolbar -->
         <div class="toolbar">
-            <div class="toolbar-info">
-                <strong id="statTotal">0</strong> Hydranten (<span id="statTypes">-</span>)
+            <div style="display: flex; gap: 10px; align-items: center; flex: 1;">
+                <input type="text" id="searchInput" placeholder="🔍 Suchen..." style="padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; flex: 1; max-width: 400px;">
             </div>
-            <div style="display: flex; gap: 10px; align-items: center;">
-                <input type="text" id="searchInput" placeholder="🔍 Suchen..." style="padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; width: 250px;">
-                <button class="btn-primary" id="newHydrantBtn">+ Neuer Hydrant</button>
-            </div>
+            <button class="btn-primary" id="newHydrantBtn">+ Neuer Hydrant</button>
         </div>
 
         <!-- Map -->
@@ -323,6 +346,15 @@
 <!-- Back to Top Button -->
 <button id="backToTop" class="back-to-top" aria-label="Nach oben" title="Nach oben">↑</button>
 
+<!-- Install Prompt (nur wenn noch nicht installiert) -->
+<div id="installPrompt" class="install-prompt" style="display: none;">
+    <p>LoeschNetz Admin als App installieren?</p>
+    <div class="install-actions">
+        <button id="installButton">Installieren</button>
+        <button id="dismissInstall">Später</button>
+    </div>
+</div>
+
 <!-- Service Worker Registration -->
 <script>
 if ('serviceWorker' in navigator) {
@@ -349,6 +381,87 @@ if ('serviceWorker' in navigator) {
             });
     });
 }
+
+// PWA Install Prompt
+let deferredPrompt;
+
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+
+    // Zeige Install-Button im Header
+    const installBtn = document.getElementById('installAppBtn');
+    if (installBtn && !window.matchMedia('(display-mode: standalone)').matches) {
+        installBtn.style.display = 'inline-block';
+    }
+
+    // Prüfe ob bereits angezeigt wurde
+    const hasSeenInstallPrompt = localStorage.getItem('hasSeenInstallPrompt');
+
+    // Zeige Install-Prompt nur beim ersten Mal automatisch
+    if (!hasSeenInstallPrompt) {
+        setTimeout(() => {
+            const installPrompt = document.getElementById('installPrompt');
+            if (installPrompt && !window.matchMedia('(display-mode: standalone)').matches) {
+                installPrompt.style.display = 'block';
+            }
+        }, 10000);
+    }
+});
+
+// Funktion zum manuellen Anzeigen des Install-Prompts
+window.showInstallPrompt = function() {
+    const installPrompt = document.getElementById('installPrompt');
+    if (deferredPrompt && installPrompt && !window.matchMedia('(display-mode: standalone)').matches) {
+        installPrompt.style.display = 'block';
+    } else if (window.matchMedia('(display-mode: standalone)').matches) {
+        alert('Die App ist bereits installiert!');
+    } else {
+        alert('Installation ist im Browser nicht verfügbar. Bitte öffnen Sie die Seite im Browser und versuchen Sie es erneut.');
+    }
+};
+
+// Funktion zum Ausblenden des Install-Prompts mit Animation
+function hideInstallPrompt() {
+    const installPrompt = document.getElementById('installPrompt');
+    if (installPrompt) {
+        installPrompt.classList.add('slide-out');
+        setTimeout(() => {
+            installPrompt.style.display = 'none';
+            installPrompt.classList.remove('slide-out');
+        }, 300);
+    }
+}
+
+// Install-Button Handler
+document.getElementById('installButton')?.addEventListener('click', async () => {
+    if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        console.log('Install outcome:', outcome);
+
+        // Markiere als gesehen
+        localStorage.setItem('hasSeenInstallPrompt', 'true');
+
+        // Verstecke Popup mit Animation
+        hideInstallPrompt();
+
+        // Verstecke Header-Button nach Installation
+        if (outcome === 'accepted') {
+            const installBtn = document.getElementById('installAppBtn');
+            if (installBtn) installBtn.style.display = 'none';
+        }
+
+        deferredPrompt = null;
+    }
+});
+
+// Dismiss-Button Handler
+document.getElementById('dismissInstall')?.addEventListener('click', () => {
+    // Markiere als gesehen
+    localStorage.setItem('hasSeenInstallPrompt', 'true');
+    hideInstallPrompt();
+});
 </script>
 
 <!-- Back to Top Button Functionality -->

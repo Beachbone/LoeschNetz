@@ -236,6 +236,172 @@ body {
     padding: 20px;
 }
 
+/* Page Header */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.page-header h1 {
+    margin: 0;
+    color: #333;
+    font-size: 28px;
+}
+
+.page-subtitle {
+    color: #666;
+    font-size: 14px;
+    margin-top: 4px;
+}
+
+/* Stats Grid */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.stat-icon {
+    font-size: 36px;
+    line-height: 1;
+}
+
+.stat-content {
+    flex: 1;
+}
+
+.stat-label {
+    color: #666;
+    font-size: 13px;
+    margin-bottom: 4px;
+    font-weight: 500;
+}
+
+.stat-value {
+    color: #333;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+/* Color Picker */
+.color-picker-container {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.color-preview-large {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px;
+    background: #f8f8f8;
+    border-radius: 10px;
+    border: 2px solid #e0e0e0;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.color-preview-large:hover {
+    border-color: #cc0000;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.color-sample {
+    width: 68px;
+    height: 68px;
+    border-radius: 7px;
+    background: #0000FF;
+    border: 3px solid white;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2), inset 0 0 0 1px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease;
+}
+
+.color-preview-large:hover .color-sample {
+    transform: scale(1.05);
+}
+
+.color-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.color-info span {
+    font-size: 20px;
+    font-weight: bold;
+    color: #333;
+    font-family: monospace;
+}
+
+.color-info small {
+    color: #666;
+    font-size: 12px;
+}
+
+.color-input-hidden {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.color-presets {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(42px, 1fr));
+    gap: 7px;
+    padding: 10px;
+    background: #f8f8f8;
+    border-radius: 7px;
+    border: 1px solid #e0e0e0;
+}
+
+.color-preset {
+    width: 100%;
+    height: 42px;
+    border-radius: 5px;
+    border: 3px solid white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.color-preset:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    border-color: #fff;
+}
+
+.color-preset:active {
+    transform: translateY(-1px) scale(1.02);
+}
+
+.color-preset.active {
+    border-color: #cc0000;
+    box-shadow: 0 0 0 2px #cc0000, 0 4px 12px rgba(204,0,0,0.3);
+}
+
 /* Marker Types Specific */
 .marker-types-table img {
     display: block;
@@ -309,6 +475,27 @@ input[type="color"]:hover {
     cursor: not-allowed;
 }
 
+.btn-secondary {
+    background: #757575;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 14px;
+    transition: background 0.3s ease;
+}
+
+.btn-secondary:hover {
+    background: #616161;
+}
+
+.btn-secondary:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+}
+
 /* Map Container */
 .map-container {
     height: 400px;
@@ -333,11 +520,13 @@ input[type="color"]:hover {
     -webkit-overflow-scrolling: touch;
 }
 
+.data-table,
 .hydrant-table {
     width: 100%;
     border-collapse: collapse;
 }
 
+.data-table th,
 .hydrant-table th {
     background: #f5f5f5;
     padding: 12px;
@@ -347,44 +536,54 @@ input[type="color"]:hover {
     font-size: 14px;
 }
 
+.data-table th[data-sort],
 .hydrant-table th[data-sort] {
     cursor: pointer;
     user-select: none;
 }
 
+.data-table th[data-sort]:hover,
 .hydrant-table th[data-sort]:hover {
     background: #e8e8e8;
 }
 
+.data-table th .sort-icon,
 .hydrant-table th .sort-icon {
     opacity: 0.3;
     margin-left: 4px;
     font-size: 12px;
 }
 
+.data-table th.sorted-asc .sort-icon,
+.data-table th.sorted-desc .sort-icon,
 .hydrant-table th.sorted-asc .sort-icon,
 .hydrant-table th.sorted-desc .sort-icon {
     opacity: 1;
 }
 
+.data-table td,
 .hydrant-table td {
     padding: 12px;
     border-bottom: 1px solid #eee;
-    font-size: 14px;
+    font-size: 0.75em;
 }
 
+.data-table tr:hover,
 .hydrant-table tr:hover {
     background: #f9f9f9;
 }
 
+.data-table tbody tr,
 .hydrant-table tbody tr {
     cursor: pointer;
 }
 
+.data-table tbody tr:nth-child(even),
 .hydrant-table tbody tr:nth-child(even) {
     background: #fafafa;
 }
 
+.data-table tbody tr:nth-child(even):hover,
 .hydrant-table tbody tr:nth-child(even):hover {
     background: #f0f0f0;
 }
@@ -526,7 +725,7 @@ input[type="color"]:hover {
     right: 0;
     bottom: 0;
     background: rgba(0,0,0,0.5);
-    z-index: 2000;
+    z-index: 10001;
     align-items: center;
     justify-content: center;
     padding: 20px;
@@ -558,7 +757,7 @@ body > .modal {
     right: 0;
     bottom: 0;
     background: rgba(0,0,0,0.5);
-    z-index: 2000;
+    z-index: 10001;
     align-items: center;
     justify-content: center;
     padding: 20px;
@@ -571,70 +770,97 @@ body > .modal.active {
 .modal-content {
     background: white;
     border-radius: 8px;
-    max-width: 800px;
+    max-width: 900px;
     width: 100%;
     max-height: 90vh;
-    overflow-y: auto;
+    overflow: hidden;
     box-shadow: 0 10px 40px rgba(0,0,0,0.3);
     position: relative;
-    padding: 20px;
+    display: flex;
+    flex-direction: column;
 }
 
 .modal-content h2 {
     margin: 0 0 16px 0;
-    padding-right: 40px; /* Platz für Close-Button */
     color: #333;
     font-size: 1.5rem;
 }
 
 .modal-header {
-    padding: 20px;
-    border-bottom: 1px solid #ddd;
+    padding: 20px 24px;
+    border-bottom: 1px solid #e0e0e0;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-shrink: 0;
+    background: #fafafa;
 }
 
 .modal-title {
     font-size: 20px;
     font-weight: bold;
     color: #333;
+    margin: 0;
 }
 
 .modal-close {
-    background: none;
-    border: none;
-    font-size: 28px;
+    background: white;
+    border: 2px solid #ddd;
+    font-size: 24px;
     cursor: pointer;
     color: #666;
     padding: 0;
-    width: 32px;
-    height: 32px;
-    line-height: 28px;
-    position: absolute;
-    right: 12px;
-    top: 12px;
+    width: 36px;
+    height: 36px;
+    line-height: 1;
     display: flex;
     align-items: center;
     justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    flex-shrink: 0;
 }
 
 .modal-close:hover {
-    color: #333;
-    background: rgba(0,0,0,0.05);
-    border-radius: 4px;
+    color: #fff;
+    background: #cc0000;
+    border-color: #cc0000;
+    transform: scale(1.1);
+}
+
+.modal-close:active {
+    transform: scale(0.95);
 }
 
 .modal-body {
-    padding: 20px;
+    padding: 24px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.modal-body table {
+    width: 100%;
+    overflow-x: auto;
+    display: block;
+}
+
+.modal-body table thead,
+.modal-body table tbody,
+.modal-body table tr {
+    display: table;
+    width: 100%;
+    table-layout: fixed;
 }
 
 .modal-footer {
-    padding: 20px;
-    border-top: 1px solid #ddd;
+    padding: 20px 24px;
+    border-top: 1px solid #e0e0e0;
     display: flex;
     justify-content: flex-end;
     gap: 10px;
+    flex-shrink: 0;
+    background: #fafafa;
 }
 
 /* Form */
@@ -819,38 +1045,123 @@ body > .modal.active {
     margin-bottom: 15px;
 }
 
+/* Fix for button width inconsistency between 837-860px */
+@media (min-width: 837px) and (max-width: 860px) {
+    .btn-action {
+        min-width: 110px;
+    }
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .header-content {
         flex-direction: column;
         gap: 10px;
     }
-    
+
+    /* Page Header */
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .page-header h1 {
+        font-size: 24px;
+    }
+
+    .page-header button {
+        width: 100%;
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .stat-card {
+        padding: 16px;
+    }
+
+    .stat-icon {
+        font-size: 28px;
+    }
+
+    .stat-value {
+        font-size: 20px;
+    }
+
     .toolbar {
         flex-direction: column;
         align-items: flex-start;
     }
-    
+
+    .toolbar > div {
+        width: 100%;
+    }
+
+    .toolbar select,
+    .toolbar input[type="text"] {
+        width: 100% !important;
+        max-width: 100%;
+    }
+
+    .toolbar button {
+        width: 100%;
+    }
+
     .form-row {
         grid-template-columns: 1fr;
     }
-    
+
     .hydrant-table {
         font-size: 12px;
     }
-    
+
     .hydrant-table th,
     .hydrant-table td {
         padding: 8px;
     }
-    
+
     .btn-action {
         padding: 4px 8px;
         font-size: 12px;
     }
-    
+
     .map-container {
         height: 300px;
+    }
+
+    /* Modal responsive */
+    .modal-content {
+        max-width: 95%;
+        max-height: 95vh;
+    }
+
+    .modal-header {
+        padding: 16px 20px;
+    }
+
+    .modal-title {
+        font-size: 18px;
+    }
+
+    .modal-close {
+        width: 32px;
+        height: 32px;
+        font-size: 20px;
+    }
+
+    .modal-body {
+        padding: 20px;
+    }
+
+    .modal-footer {
+        padding: 16px 20px;
+        flex-direction: column;
+    }
+
+    .modal-footer button {
+        width: 100%;
     }
 }
 
@@ -922,6 +1233,15 @@ body > .modal.active {
     .snapshots-table,
     .logs-table {
         border: 0;
+        border-collapse: separate !important;
+        display: block !important;
+    }
+
+    .hydrant-table tbody,
+    .marker-types-table tbody,
+    .snapshots-table tbody,
+    .logs-table tbody {
+        display: block !important;
     }
 
     .hydrant-table thead,
@@ -936,30 +1256,56 @@ body > .modal.active {
     .snapshots-table tbody tr,
     .logs-table tbody tr {
         display: block;
-        margin-bottom: 15px;
-        border: 1px solid #ddd;
-        border-radius: 8px;
+        margin-bottom: 8px;
+        border-left: 3px solid #ddd;
+        border-radius: 0;
         background: white;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        box-shadow: none;
+        padding: 8px 12px;
+        border-bottom: 1px solid #f0f0f0;
+        position: relative;
     }
 
     .hydrant-table tbody tr:hover,
     .marker-types-table tbody tr:hover,
-    .snapshots-table tbody tr:hover,
-    .logs-table tbody tr:hover {
+    .snapshots-table tbody tr:hover {
         box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+
+    .logs-table tbody tr:hover {
+        background: #fafafa;
+    }
+
+    /* Timeline-Farben für Log-Actions */
+    .logs-table tbody tr:has(.badge-success) {
+        border-left-color: #4CAF50; /* CREATE = grün */
+    }
+
+    .logs-table tbody tr:has(.badge-primary) {
+        border-left-color: #2196F3; /* UPDATE = blau */
+    }
+
+    .logs-table tbody tr:has(.badge-danger) {
+        border-left-color: #F44336; /* DELETE = rot */
     }
 
     .hydrant-table td,
     .marker-types-table td,
-    .snapshots-table td,
-    .logs-table td {
+    .snapshots-table td {
         display: flex;
         justify-content: space-between;
         align-items: center;
         padding: 12px 15px;
         border-bottom: 1px solid #f0f0f0;
         font-size: 14px;
+    }
+
+    /* Logs-Tabelle: Kompakte Darstellung */
+    .logs-table td {
+        display: inline;
+        padding: 2px 0;
+        border-bottom: 0;
+        font-size: 13px;
     }
 
     .hydrant-table td:last-child,
@@ -972,13 +1318,41 @@ body > .modal.active {
     /* Label vor jedem Wert anzeigen */
     .hydrant-table td:before,
     .marker-types-table td:before,
-    .snapshots-table td:before,
-    .logs-table td:before {
+    .snapshots-table td:before {
         content: attr(data-label);
         font-weight: bold;
         color: #666;
         flex-shrink: 0;
         margin-right: 10px;
+    }
+
+    /* Logs: Nur ausgewählte Labels anzeigen */
+    .logs-table td:before {
+        content: "";
+        font-weight: 600;
+        color: #999;
+        font-size: 11px;
+        margin-right: 6px;
+    }
+
+    /* Zeitstempel prominent */
+    .logs-table td:nth-child(2):before {
+        content: "🕐 ";
+    }
+
+    /* User */
+    .logs-table td:nth-child(3):before {
+        content: "👤 ";
+    }
+
+    /* Resource */
+    .logs-table td:nth-child(5):before {
+        content: "📄 ";
+    }
+
+    /* IP */
+    .logs-table td:nth-child(7):before {
+        content: "📍 ";
     }
 
     /* Aktionen-Spalte anders darstellen */
@@ -990,6 +1364,68 @@ body > .modal.active {
         justify-content: center;
         flex-wrap: wrap;
         gap: 8px;
+    }
+
+    /* Logs-Tabelle: IP-Adresse normal darstellen */
+    .logs-table td:last-child {
+        background: transparent;
+        justify-content: space-between;
+        flex-wrap: nowrap;
+    }
+
+    /* Logs: Strukturierung */
+    .logs-table td:first-child {
+        display: none; /* # ausblenden */
+    }
+
+    /* Zeitstempel + Aktion in erster Zeile */
+    .logs-table td:nth-child(2),
+    .logs-table td:nth-child(4) {
+        display: inline-block;
+        font-weight: 600;
+    }
+
+    .logs-table td:nth-child(2) {
+        margin-right: 8px;
+        color: #333;
+    }
+
+    /* Aktion-Badge inline */
+    .logs-table .badge {
+        margin-right: 8px;
+        padding: 2px 6px;
+        font-size: 11px;
+    }
+
+    /* User + Resource in zweiter Zeile */
+    .logs-table td:nth-child(3),
+    .logs-table td:nth-child(5) {
+        display: inline-block;
+        margin-right: 12px;
+        color: #666;
+    }
+
+    /* Details: Neue Zeile mit Einzug */
+    .logs-table td:nth-child(6) {
+        display: block;
+        margin-top: 4px;
+        padding-left: 16px;
+        font-size: 12px;
+        color: #888;
+        font-family: monospace;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        max-width: 100%;
+    }
+
+    /* IP: Kleine, graue Anzeige - rechts oben */
+    .logs-table td:nth-child(7) {
+        position: absolute;
+        top: 8px;
+        right: 12px;
+        font-size: 11px;
+        color: #999;
     }
 
     .btn-icon {
@@ -1432,16 +1868,29 @@ body > .modal.active {
 }
 
 /* Snapshot Actions */
-.snapshots-list .actions {
+.snapshots-list .actions,
+.snapshots-table .actions {
     display: flex;
     gap: 8px;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
+    justify-content: center;
+    align-items: center;
 }
 
 .snapshots-list .btn-small {
     padding: 6px 12px;
     font-size: 0.85rem;
     white-space: nowrap;
+}
+
+/* Ensure buttons stay in a row */
+.snapshots-table td.actions {
+    white-space: nowrap;
+}
+
+.snapshots-table .btn-icon {
+    display: inline-flex;
+    margin: 0;
 }
 
 /* Snapshot Preview Table */
@@ -1485,12 +1934,23 @@ body > .modal.active {
 
 /* Responsive Snapshots */
 @media (max-width: 768px) {
-    .snapshots-list .actions {
-        flex-direction: column;
+    .snapshots-list .actions,
+    .snapshots-table .actions {
+        flex-direction: row;
+        justify-content: center;
+        gap: 6px;
+        flex-wrap: nowrap;
     }
 
     .snapshots-list .btn-small {
-        width: 100%;
+        width: auto;
+    }
+
+    .snapshots-table .btn-icon {
+        min-width: 40px;
+        min-height: 32px;
+        font-size: 16px;
+        padding: 4px 8px;
     }
 
     .data-table {
@@ -1548,5 +2008,160 @@ body > .modal.active {
         width: 45px;
         height: 45px;
         font-size: 20px;
+    }
+}
+
+/* === Install Prompt === */
+.install-prompt {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background: linear-gradient(135deg, #cc0000 0%, #aa0000 100%);
+    padding: 20px 24px;
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(204, 0, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+    max-width: 360px;
+    z-index: 1500;
+    animation: slideInRight 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(400px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOutRight {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(400px);
+        opacity: 0;
+    }
+}
+
+.install-prompt.slide-out {
+    animation: slideOutRight 0.3s ease forwards;
+}
+
+.install-prompt::before {
+    content: "📱";
+    font-size: 28px;
+    position: absolute;
+    top: -14px;
+    left: 20px;
+    background: linear-gradient(135deg, #cc0000 0%, #aa0000 100%);
+    border-radius: 10px;
+    padding: 6px 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    line-height: 1;
+}
+
+.install-prompt p {
+    margin: 20px 0 0 0;
+    padding-top: 4px;
+    font-weight: 600;
+    font-size: 16px;
+    color: white;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    line-height: 1.4;
+}
+
+.install-prompt .install-actions {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+    margin-top: 4px;
+}
+
+.install-prompt button {
+    margin: 0;
+    flex: 1;
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+}
+
+.install-prompt #installButton {
+    background: white;
+    color: #cc0000;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.install-prompt #installButton:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    background: #f5f5f5;
+}
+
+.install-prompt #installButton:active {
+    transform: translateY(0);
+}
+
+.install-prompt #dismissInstall {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.install-prompt #dismissInstall:hover {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+.install-prompt #dismissInstall:active {
+    transform: scale(0.98);
+}
+
+@media (max-width: 768px) {
+    .install-prompt {
+        bottom: 20px;
+        right: 20px;
+        left: 20px;
+        max-width: calc(100% - 40px);
+        padding: 20px 18px 16px 18px;
+    }
+
+    .install-prompt::before {
+        font-size: 24px;
+        top: -12px;
+        left: 16px;
+        padding: 5px 8px;
+    }
+
+    .install-prompt p {
+        font-size: 15px;
+        margin: 16px 0 0 0;
+    }
+
+    .install-prompt .install-actions {
+        flex-direction: column;
+    }
+
+    .install-prompt button {
+        width: 100%;
+    }
+}
+
+@media print {
+    .install-prompt {
+        display: none !important;
     }
 }
