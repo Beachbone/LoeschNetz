@@ -19,29 +19,32 @@ const App = {
 // === DOM Ready ===
 document.addEventListener('DOMContentLoaded', () => {
     console.log('🚒 LoeschNetz wird geladen...');
-    
+
     // Cookie-Consent prüfen
     checkCookieConsent();
-    
+
     // Online/Offline Events
     window.addEventListener('online', handleOnlineStatus);
     window.addEventListener('offline', handleOnlineStatus);
-    
+
     // Install Prompt Event
     window.addEventListener('beforeinstallprompt', handleInstallPrompt);
-    
+
     // Info Modal
     document.getElementById('infoButton')?.addEventListener('click', openInfoModal);
     document.getElementById('closeInfo')?.addEventListener('click', closeInfoModal);
-    
+
     // Legende Toggle
     document.getElementById('legendToggle')?.addEventListener('click', toggleLegend);
-    
+
     // GPS Button
     document.getElementById('gpsButton')?.addEventListener('click', gotoUserLocation);
 
     // Reload Button
     document.getElementById('reloadButton')?.addEventListener('click', reloadData);
+
+    // Back-Button Handler für Photo-Overlay
+    window.addEventListener('popstate', handleBackButton);
 
     // Legende auf Mobile standardmäßig eingeklappt
     if (window.innerWidth <= 600) {
@@ -161,10 +164,10 @@ async function reloadData() {
         }
 
         // Seite komplett neu laden (mit Cache-Busting)
-        // Füge Timestamp an URL an, um Browser-Cache zu umgehen
-        const url = new URL(window.location.href);
-        url.searchParams.set('_reload', Date.now());
-        window.location.href = url.toString();
+        // Verwende replace() statt href, um keinen neuen History-Entry zu erstellen
+        const baseUrl = window.location.href.split('?')[0].split('#')[0];
+        const reloadUrl = `${baseUrl}?_reload=${Date.now()}`;
+        window.location.replace(reloadUrl);
 
     } catch (error) {
         console.error('❌ Fehler beim Neuladen:', error);
@@ -667,6 +670,10 @@ function openPhotoOverlay(src, alt) {
         startY: 0
     };
 
+    // History-State für Back-Button auf Mobile
+    // Pushe neuen State, damit Back-Button das Overlay schließt statt die App zu verlassen
+    history.pushState({ photoOverlay: true }, '');
+
     // Initialisiere Zoom-Funktionalität
     setTimeout(() => initPhotoZoom(), 100);
 }
@@ -775,15 +782,36 @@ function resetPhotoZoom() {
     updatePhotoTransform();
 }
 
-function closePhotoOverlay() {
+function closePhotoOverlay(fromBackButton = false) {
     const overlay = document.getElementById('photoOverlay');
-    if (overlay) {
+    if (overlay && overlay.classList.contains('active')) {
         overlay.classList.remove('active');
         // Erlaube Body-Scroll wieder
         document.body.style.overflow = '';
+
+        // Reset Zoom
+        resetPhotoZoom();
+
+        // Wenn nicht vom Back-Button aufgerufen, gehe in der History zurück
+        // um den gepushten State zu entfernen
+        if (!fromBackButton && history.state && history.state.photoOverlay) {
+            history.back();
+        }
     }
-    // Reset Zoom
-    resetPhotoZoom();
+}
+
+// === Back-Button Handler ===
+function handleBackButton(event) {
+    const overlay = document.getElementById('photoOverlay');
+
+    // Wenn Photo-Overlay aktiv ist, schließe es statt die App zu verlassen
+    if (overlay && overlay.classList.contains('active')) {
+        event.preventDefault();
+        closePhotoOverlay(true);
+        return;
+    }
+
+    // Ansonsten normale Browser-Navigation
 }
 
 // === Fehler anzeigen ===
