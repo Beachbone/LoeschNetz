@@ -140,46 +140,31 @@ async function reloadData() {
         button?.classList.add('loading');
         button.disabled = true;
 
-        console.log('🔄 Daten werden neu geladen...');
+        console.log('🔄 Cache wird geleert und App wird neu geladen...');
 
-        // 1. Config neu laden (mit Cache-Busting)
-        await loadConfig(true);
+        // Cache-API: Alle Caches löschen
+        if ('caches' in window) {
+            const cacheNames = await caches.keys();
+            await Promise.all(
+                cacheNames.map(cacheName => caches.delete(cacheName))
+            );
+            console.log('✅ Alle Caches gelöscht');
+        }
 
-        // 2. Theme neu anwenden
-        applyTheme();
-
-        // 3. Marker-Typen neu laden (mit Cache-Busting)
-        await loadMarkerTypes(true);
-
-        // 4. Hydranten neu laden (mit Cache-Busting)
-        await loadHydrants(true);
-
-        // 5. Bestehende Marker von der Karte entfernen
-        App.markers.forEach(marker => {
-            App.map.removeLayer(marker);
-        });
-        App.markers = [];
-
-        // 6. Neue Marker hinzufügen
-        addMarkers();
-
-        // 7. Karte neu zentrieren auf Bounds
-        if (App.hydrants && App.hydrants.length > 0) {
-            const bounds = calculateBounds(App.hydrants);
-            if (bounds) {
-                App.map.fitBounds(bounds, { padding: [50, 50] });
+        // Service Worker: Update erzwingen
+        if ('serviceWorker' in navigator) {
+            const registration = await navigator.serviceWorker.getRegistration();
+            if (registration) {
+                await registration.update();
+                console.log('✅ Service Worker aktualisiert');
             }
         }
 
-        console.log('✅ Daten erfolgreich neu geladen!');
-
-        // Erfolgsmeldung kurz anzeigen
-        button?.classList.remove('loading');
-        button.textContent = '✅';
-        setTimeout(() => {
-            button.textContent = '🔄';
-            button.disabled = false;
-        }, 1500);
+        // Seite komplett neu laden (mit Cache-Busting)
+        // Füge Timestamp an URL an, um Browser-Cache zu umgehen
+        const url = new URL(window.location.href);
+        url.searchParams.set('_reload', Date.now());
+        window.location.href = url.toString();
 
     } catch (error) {
         console.error('❌ Fehler beim Neuladen:', error);
@@ -192,7 +177,9 @@ async function reloadData() {
             button.disabled = false;
         }, 2000);
 
-        alert('Fehler beim Neuladen der Daten. Bitte versuchen Sie es erneut.');
+        // Fallback: Normale Seiten-Reload
+        alert('Fehler beim Cache-Löschen. Seite wird trotzdem neu geladen.');
+        location.reload();
     }
 }
 
@@ -461,8 +448,13 @@ function addMarkers() {
         
         // Popup
         const popupContent = createPopupContent(hydrant, markerType);
-        marker.bindPopup(popupContent);
-        
+        const popup = marker.bindPopup(popupContent);
+
+        // Event-Listener für Bilder nach Popup-Öffnung
+        marker.on('popupopen', () => {
+            attachPhotoListeners();
+        });
+
         // Zur Karte hinzufügen
         marker.addTo(App.map);
         App.markers.push(marker);
@@ -492,7 +484,9 @@ function createPopupContent(hydrant, markerType) {
                 <img src="${photoPath}"
                      alt="${hydrant.title}"
                      loading="lazy"
-                     onclick="openPhotoOverlay('${photoPath}', '${hydrant.title}')">
+                     class="popup-photo"
+                     data-photo="${photoPath}"
+                     data-title="${hydrant.title}">
             `;
         });
         html += '</div>';
@@ -503,12 +497,38 @@ function createPopupContent(hydrant, markerType) {
             <img src="/uploads/${hydrant.photo}"
                  alt="${hydrant.title}"
                  loading="lazy"
-                 onclick="openPhotoOverlay('/uploads/${hydrant.photo}', '${hydrant.title}')">
+                 class="popup-photo"
+                 data-photo="/uploads/${hydrant.photo}"
+                 data-title="${hydrant.title}">
         `;
     }
 
     html += '</div>';
     return html;
+}
+
+// === Event-Listener für Popup-Bilder ===
+function attachPhotoListeners() {
+    const photos = document.querySelectorAll('.popup-photo');
+    photos.forEach(img => {
+        // Click-Event
+        img.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const src = this.dataset.photo;
+            const alt = this.dataset.title;
+            openPhotoOverlay(src, alt);
+        });
+
+        // Touch-Event für bessere Mobile-Unterstützung
+        img.addEventListener('touchend', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const src = this.dataset.photo;
+            const alt = this.dataset.title;
+            openPhotoOverlay(src, alt);
+        });
+    });
 }
 
 // === Legende erstellen ===
@@ -594,6 +614,17 @@ function closeInfoModal() {
 }
 
 // === Photo Overlay (Fullscreen-Zoom) ===
+let photoZoom = {
+    scale: 1,
+    posX: 0,
+    posY: 0,
+    initialDistance: 0,
+    initialScale: 1,
+    isDragging: false,
+    startX: 0,
+    startY: 0
+};
+
 function openPhotoOverlay(src, alt) {
     // Erstelle Overlay wenn nicht vorhanden
     let overlay = document.getElementById('photoOverlay');
@@ -601,20 +632,158 @@ function openPhotoOverlay(src, alt) {
         overlay = document.createElement('div');
         overlay.id = 'photoOverlay';
         overlay.className = 'photo-overlay';
-        overlay.onclick = closePhotoOverlay;
+
+        // Click zum Schließen (nur auf Overlay-Hintergrund)
+        overlay.addEventListener('click', function(e) {
+            if (e.target === overlay) {
+                closePhotoOverlay();
+            }
+        });
+
         document.body.appendChild(overlay);
     }
-    
-    // Setze Bild
-    overlay.innerHTML = `<img src="${src}" alt="${alt}">`;
+
+    // Setze Bild mit Schließen-Button
+    overlay.innerHTML = `
+        <button class="photo-overlay-close" onclick="closePhotoOverlay()" aria-label="Schließen">✕</button>
+        <div class="photo-container">
+            <img src="${src}" alt="${alt}" id="zoomablePhoto">
+        </div>
+    `;
     overlay.classList.add('active');
+
+    // Verhindere Body-Scroll
+    document.body.style.overflow = 'hidden';
+
+    // Reset Zoom-State
+    photoZoom = {
+        scale: 1,
+        posX: 0,
+        posY: 0,
+        initialDistance: 0,
+        initialScale: 1,
+        isDragging: false,
+        startX: 0,
+        startY: 0
+    };
+
+    // Initialisiere Zoom-Funktionalität
+    setTimeout(() => initPhotoZoom(), 100);
+}
+
+function initPhotoZoom() {
+    const img = document.getElementById('zoomablePhoto');
+    if (!img) return;
+
+    // Touch Events für Pinch-to-Zoom
+    img.addEventListener('touchstart', handleTouchStart, { passive: false });
+    img.addEventListener('touchmove', handleTouchMove, { passive: false });
+    img.addEventListener('touchend', handleTouchEnd, { passive: false });
+
+    // Double-tap zum Zoomen (separater Event-Handler)
+    let lastTap = 0;
+    let doubleTapTimeout = null;
+
+    img.addEventListener('touchstart', function(e) {
+        const currentTime = new Date().getTime();
+        const tapLength = currentTime - lastTap;
+
+        if (tapLength < 300 && tapLength > 0 && e.touches.length === 1) {
+            // Double-tap erkannt
+            e.preventDefault();
+            clearTimeout(doubleTapTimeout);
+
+            if (photoZoom.scale > 1.5) {
+                resetPhotoZoom();
+            } else {
+                photoZoom.scale = 2.5;
+                photoZoom.posX = 0;
+                photoZoom.posY = 0;
+                updatePhotoTransform();
+            }
+
+            lastTap = 0; // Reset für nächsten Double-tap
+        } else {
+            lastTap = currentTime;
+        }
+    });
+}
+
+function handleTouchStart(e) {
+    if (e.touches.length === 2) {
+        // Pinch-Zoom Start
+        e.preventDefault();
+        photoZoom.initialDistance = getDistance(e.touches[0], e.touches[1]);
+        photoZoom.initialScale = photoZoom.scale;
+    } else if (e.touches.length === 1 && photoZoom.scale > 1) {
+        // Drag Start (nur wenn gezoomt)
+        e.preventDefault();
+        photoZoom.isDragging = true;
+        photoZoom.startX = e.touches[0].clientX - photoZoom.posX;
+        photoZoom.startY = e.touches[0].clientY - photoZoom.posY;
+    }
+}
+
+function handleTouchMove(e) {
+    if (e.touches.length === 2) {
+        // Pinch-Zoom
+        e.preventDefault();
+        const currentDistance = getDistance(e.touches[0], e.touches[1]);
+        const scale = (currentDistance / photoZoom.initialDistance) * photoZoom.initialScale;
+        photoZoom.scale = Math.min(Math.max(1, scale), 5); // Min 1x, Max 5x
+        updatePhotoTransform();
+    } else if (e.touches.length === 1 && photoZoom.isDragging && photoZoom.scale > 1) {
+        // Drag
+        e.preventDefault();
+        photoZoom.posX = e.touches[0].clientX - photoZoom.startX;
+        photoZoom.posY = e.touches[0].clientY - photoZoom.startY;
+        updatePhotoTransform();
+    }
+}
+
+function handleTouchEnd(e) {
+    // Nur wenn alle Finger weg sind
+    if (e.touches.length === 0) {
+        photoZoom.isDragging = false;
+        photoZoom.initialDistance = 0;
+
+        // Wenn ausge-zoomt (unter 1.1x), Position zurücksetzen
+        if (photoZoom.scale < 1.1) {
+            photoZoom.scale = 1;
+            resetPhotoZoom();
+        }
+    }
+}
+
+function getDistance(touch1, touch2) {
+    const dx = touch1.clientX - touch2.clientX;
+    const dy = touch1.clientY - touch2.clientY;
+    return Math.sqrt(dx * dx + dy * dy);
+}
+
+function updatePhotoTransform() {
+    const img = document.getElementById('zoomablePhoto');
+    if (img) {
+        img.style.transform = `translate(${photoZoom.posX}px, ${photoZoom.posY}px) scale(${photoZoom.scale})`;
+    }
+}
+
+function resetPhotoZoom() {
+    photoZoom.scale = 1;
+    photoZoom.posX = 0;
+    photoZoom.posY = 0;
+    updatePhotoTransform();
 }
 
 function closePhotoOverlay() {
     const overlay = document.getElementById('photoOverlay');
     if (overlay) {
         overlay.classList.remove('active');
+        // Erlaube Body-Scroll wieder
+        document.body.style.overflow = '';
     }
+    // Reset Zoom
+    resetPhotoZoom();
 }
 
 // === Fehler anzeigen ===
