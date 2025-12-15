@@ -45,7 +45,9 @@ window.Settings = {
         
         // THEME
         document.getElementById('themePrimaryColor').value = this.config.theme.primaryColor;
+        document.getElementById('themePrimaryColorText').value = this.config.theme.primaryColor;
         document.getElementById('themeBackgroundColor').value = this.config.theme.backgroundColor;
+        document.getElementById('themeBackgroundColorText').value = this.config.theme.backgroundColor;
         
         // LEGAL
         document.getElementById('legalImpressum').value = this.config.legal.impressumUrl;
@@ -200,12 +202,49 @@ function setupTabs() {
 }
 
 /**
+ * Color Picker Setup - Synchronizes color inputs with text fields
+ */
+function setupColorPickers() {
+    const colorPickers = [
+        { picker: 'themePrimaryColor', text: 'themePrimaryColorText' },
+        { picker: 'themeBackgroundColor', text: 'themeBackgroundColorText' }
+    ];
+
+    colorPickers.forEach(({ picker, text }) => {
+        const pickerElement = document.getElementById(picker);
+        const textElement = document.getElementById(text);
+
+        if (pickerElement && textElement) {
+            // Update text field when color picker changes
+            pickerElement.addEventListener('input', (e) => {
+                textElement.value = e.target.value;
+            });
+
+            // Update color picker when text field changes (manual input)
+            textElement.addEventListener('input', (e) => {
+                const value = e.target.value;
+                // Validate hex color format
+                if (/^#[0-9A-Fa-f]{6}$/.test(value)) {
+                    pickerElement.value = value;
+                }
+            });
+
+            // Make text field editable
+            textElement.removeAttribute('readonly');
+        }
+    });
+}
+
+/**
  * Event-Listener Setup
  */
 function setupSettings() {
     // Tabs
     setupTabs();
-    
+
+    // Color Pickers
+    setupColorPickers();
+
     // Form Submit
     const form = document.getElementById('settingsForm');
     if (form) {
@@ -215,7 +254,7 @@ function setupSettings() {
             await Settings.saveConfig(formData);
         });
     }
-    
+
     // Config laden
     Settings.loadConfig();
 }

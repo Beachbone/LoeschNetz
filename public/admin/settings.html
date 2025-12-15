@@ -109,16 +109,18 @@
                     <label for="themePrimaryColor">Primärfarbe</label>
                     <div style="display: flex; gap: 10px; align-items: center;">
                         <input type="color" id="themePrimaryColor" name="themePrimaryColor" required>
-                        <input type="text" id="themePrimaryColorText" readonly style="width: 100px;">
+                        <input type="text" id="themePrimaryColorText" placeholder="#d32f2f" pattern="^#[0-9A-Fa-f]{6}$" style="width: 100px; font-family: monospace;">
                     </div>
+                    <small>Hex-Code kann auch manuell eingegeben werden</small>
                 </div>
-                
+
                 <div class="form-group">
                     <label for="themeBackgroundColor">Hintergrundfarbe</label>
                     <div style="display: flex; gap: 10px; align-items: center;">
                         <input type="color" id="themeBackgroundColor" name="themeBackgroundColor" required>
-                        <input type="text" id="themeBackgroundColorText" readonly style="width: 100px;">
+                        <input type="text" id="themeBackgroundColorText" placeholder="#ffffff" pattern="^#[0-9A-Fa-f]{6}$" style="width: 100px; font-family: monospace;">
                     </div>
+                    <small>Hex-Code kann auch manuell eingegeben werden</small>
                 </div>
                 
                 <div class="form-group">
