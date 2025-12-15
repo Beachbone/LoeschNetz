@@ -17,6 +17,7 @@
             <div class="user-info">
                 <span>Angemeldet als: <strong id="userName">...</strong></span>
                 <span class="text-muted text-small" id="userRole"></span>
+                <button id="installAppBtn" class="btn-header" title="App installieren" onclick="showInstallPrompt()" style="display: none;">📱</button>
                 <button id="changePasswordBtn" class="btn-header" title="Passwort ändern">🔑</button>
                 <button class="btn-logout" id="logoutBtn">Abmelden</button>
             </div>
@@ -189,6 +190,87 @@
 
     <!-- Back to Top Button -->
     <button id="backToTop" class="back-to-top" aria-label="Nach oben" title="Nach oben">↑</button>
+
+    <!-- Install Prompt (nur wenn noch nicht installiert) -->
+    <div id="installPrompt" class="install-prompt" style="display: none;">
+        <p>LoeschNetz Admin als App installieren?</p>
+        <div class="install-actions">
+            <button id="installButton">Installieren</button>
+            <button id="dismissInstall">Später</button>
+        </div>
+    </div>
+
+    <!-- PWA Install Prompt -->
+    <script>
+    // PWA Install Prompt
+    let deferredPrompt;
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+
+        // Zeige Install-Button im Header
+        const installBtn = document.getElementById('installAppBtn');
+        if (installBtn && !window.matchMedia('(display-mode: standalone)').matches) {
+            installBtn.style.display = 'inline-block';
+        }
+
+        // Prüfe ob bereits angezeigt wurde
+        const hasSeenInstallPrompt = localStorage.getItem('hasSeenInstallPrompt');
+
+        // Zeige Install-Prompt nur beim ersten Mal automatisch
+        if (!hasSeenInstallPrompt) {
+            setTimeout(() => {
+                const installPrompt = document.getElementById('installPrompt');
+                if (installPrompt && !window.matchMedia('(display-mode: standalone)').matches) {
+                    installPrompt.style.display = 'block';
+                }
+            }, 10000);
+        }
+    });
+
+    // Funktion zum manuellen Anzeigen des Install-Prompts
+    window.showInstallPrompt = function() {
+        const installPrompt = document.getElementById('installPrompt');
+        if (deferredPrompt && installPrompt && !window.matchMedia('(display-mode: standalone)').matches) {
+            installPrompt.style.display = 'block';
+        } else if (window.matchMedia('(display-mode: standalone)').matches) {
+            alert('Die App ist bereits installiert!');
+        } else {
+            alert('Installation ist im Browser nicht verfügbar. Bitte öffnen Sie die Seite im Browser und versuchen Sie es erneut.');
+        }
+    };
+
+    // Install-Button Handler
+    document.getElementById('installButton')?.addEventListener('click', async () => {
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            console.log('Install outcome:', outcome);
+
+            // Markiere als gesehen
+            localStorage.setItem('hasSeenInstallPrompt', 'true');
+
+            // Verstecke Popup
+            document.getElementById('installPrompt').style.display = 'none';
+
+            // Verstecke Header-Button nach Installation
+            if (outcome === 'accepted') {
+                const installBtn = document.getElementById('installAppBtn');
+                if (installBtn) installBtn.style.display = 'none';
+            }
+
+            deferredPrompt = null;
+        }
+    });
+
+    // Dismiss-Button Handler
+    document.getElementById('dismissInstall')?.addEventListener('click', () => {
+        // Markiere als gesehen
+        localStorage.setItem('hasSeenInstallPrompt', 'true');
+        document.getElementById('installPrompt').style.display = 'none';
+    });
+    </script>
 
     <script>
         (function() {

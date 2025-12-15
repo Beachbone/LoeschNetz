@@ -20,13 +20,40 @@ window.Snapshots = {
         document.getElementById('closePreview')?.addEventListener('click', () => this.closePreviewModal());
         document.getElementById('closeRestore')?.addEventListener('click', () => this.closeRestoreModal());
         document.getElementById('closeDelete')?.addEventListener('click', () => this.closeDeleteModal());
-        
+
         document.getElementById('confirmRestoreBtn')?.addEventListener('click', () => this.confirmRestore());
         document.getElementById('cancelRestoreBtn')?.addEventListener('click', () => this.closeRestoreModal());
-        
+
         document.getElementById('confirmDeleteBtn')?.addEventListener('click', () => this.confirmDelete());
         document.getElementById('cancelDeleteBtn')?.addEventListener('click', () => this.closeDeleteModal());
-        
+
+        // Close modals when clicking outside
+        ['previewModal', 'restoreModal', 'deleteModal'].forEach(modalId => {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        if (modalId === 'previewModal') this.closePreviewModal();
+                        else if (modalId === 'restoreModal') this.closeRestoreModal();
+                        else if (modalId === 'deleteModal') this.closeDeleteModal();
+                    }
+                });
+            }
+        });
+
+        // Close modals with ESC key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                if (document.getElementById('previewModal').classList.contains('active')) {
+                    this.closePreviewModal();
+                } else if (document.getElementById('restoreModal').classList.contains('active')) {
+                    this.closeRestoreModal();
+                } else if (document.getElementById('deleteModal').classList.contains('active')) {
+                    this.closeDeleteModal();
+                }
+            }
+        });
+
         // Snapshots laden
         await this.loadSnapshots();
     },
@@ -126,14 +153,14 @@ window.Snapshots = {
                 <td data-label="Größe">${size}</td>
                 <td data-label="Erstellt von">${isAuto ? '🤖 Automatisch' : snapshot.created_by}</td>
                 <td data-label="Aktionen" class="actions">
-                    <button class="btn-action btn-edit" onclick="Snapshots.showPreview('${snapshot.date}')">
-                        👁️ Vorschau
+                    <button class="btn-icon" onclick="Snapshots.showPreview('${snapshot.date}')" title="Vorschau anzeigen">
+                        👁️
                     </button>
-                    <button class="btn-action btn-primary" onclick="Snapshots.showRestoreModal('${snapshot.date}')">
-                        ♻️ Wiederherstellen
+                    <button class="btn-icon" onclick="Snapshots.showRestoreModal('${snapshot.date}')" title="Wiederherstellen">
+                        ♻️
                     </button>
-                    <button class="btn-action btn-delete" onclick="Snapshots.showDeleteModal('${snapshot.date}')">
-                        🗑️ Löschen
+                    <button class="btn-icon btn-danger" onclick="Snapshots.showDeleteModal('${snapshot.date}')" title="Löschen">
+                        🗑️
                     </button>
                 </td>
             </tr>`;

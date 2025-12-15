@@ -272,6 +272,16 @@ function validateAndMergeConfig($current, $new) {
             $merged['photos']['maxSizeKb'] = intval($new['photos']['maxSizeKb']);
         }
     }
-    
+
+    // DEBUG
+    if (isset($new['debug'])) {
+        if (isset($new['debug']['enabled'])) {
+            $merged['debug']['enabled'] = (bool)$new['debug']['enabled'];
+        }
+        if (isset($new['debug']['showReloadButton'])) {
+            $merged['debug']['showReloadButton'] = (bool)$new['debug']['showReloadButton'];
+        }
+    }
+
     return $merged;
 }

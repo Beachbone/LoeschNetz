@@ -6,28 +6,21 @@
     <meta name="description" content="Offline-fähige Hydrantenverwaltung für Feuerwehren">
     
     <title>LoeschNetz - Hydrantenverwaltung</title>
-    
-    <!-- PWA Manifest (dynamisch) -->
+
     <link rel="manifest" href="./manifest.php">
-    
-    <!-- Theme Color (wird aus config geladen) -->
+
     <meta name="theme-color" content="#d32f2f">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    
-    <!-- Favicons -->
+
     <link rel="icon" href="./favicon.ico">
     <link rel="apple-touch-icon" href="./icons/icon-192x192.png">
-    
-    <!-- PWA Meta-Tags -->
+
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="LoeschNetz">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="application-name" content="LoeschNetz">
-    
-    <!-- Leaflet CSS (lokal gehostet) -->
+
     <link rel="stylesheet" href="./leaflet/leaflet.css">
-    
-    <!-- App CSS -->
     <link rel="stylesheet" href="./css/style.css">
 </head>
 <body>
@@ -100,17 +93,15 @@
         <!-- Map Container -->
         <div id="map" class="map-container"></div>
 
-        <!-- Legend (ausklappbar, oben rechts) -->
+        <!-- Legend -->
         <div id="legend" class="legend collapsed">
             <button id="legendToggle" class="legend-toggle" aria-label="Legende umschalten">
                 📍 Legende
             </button>
-            <div id="legendContent" class="legend-content">
-                <!-- Wird dynamisch gefüllt -->
-            </div>
+            <div id="legendContent" class="legend-content"></div>
         </div>
 
-        <!-- GPS Location Button (unten rechts) -->
+        <!-- GPS Location Button -->
         <button id="gpsButton" class="gps-button" aria-label="Zu meinem Standort" title="Zu meinem Standort">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <circle cx="12" cy="12" r="10"/>
@@ -122,19 +113,18 @@
             </svg>
         </button>
 
-        <!-- Reload Button -->
-        <button id="reloadButton" class="reload-button" aria-label="Daten neu laden" title="Daten neu laden">
+        <button id="reloadButton" class="reload-button" aria-label="Daten neu laden" title="Daten neu laden" style="display: none;">
             🔄
         </button>
 
-        <!-- Footer (sticky) -->
+        <!-- Footer -->
         <footer class="app-footer">
-            <a href="./impressum.html" target="_blank">Impressum</a>
+            <a href="#" onclick="openImpressumModal(); return false;">Impressum</a>
             <span>|</span>
-            <a href="./datenschutz.html" target="_blank">Datenschutz</a>
+            <a href="#" onclick="openDatenschutzModal(); return false;">Datenschutz</a>
         </footer>
 
-        <!-- Install Prompt (nur wenn noch nicht installiert) -->
+        <!-- Install Prompt -->
         <div id="installPrompt" class="install-prompt" style="display: none;">
             <p>LoeschNetz als App installieren?</p>
             <div class="install-actions">
@@ -154,7 +144,7 @@
             <button class="modal-close" id="closeInfo">×</button>
             <h2>ℹ️ Über LoeschNetz</h2>
             <p>
-                <strong>LoeschNetz</strong> ist eine Progressive Web App zur 
+                <strong>LoeschNetz</strong> ist eine Progressive Web App zur
                 Verwaltung und Anzeige von Feuerwehr-Hydranten.
             </p>
             <h3>Features:</h3>
@@ -166,18 +156,172 @@
                 <li>✅ GPS-Lokalisierung</li>
             </ul>
             <p class="version">Version 1.0.0 (Dezember 2025)</p>
+
+            <!-- Debug Information (nur wenn Debug-Modus aktiv) -->
+            <div id="debugInfo" class="debug-info" style="display: none;">
+                <h3>🐛 Debug-Informationen</h3>
+                <div class="debug-grid">
+                    <div class="debug-item">
+                        <strong>Cache-Status:</strong>
+                        <span id="debugCacheStatus">-</span>
+                    </div>
+                    <div class="debug-item">
+                        <strong>Service Worker:</strong>
+                        <span id="debugSWStatus">-</span>
+                    </div>
+                    <div class="debug-item">
+                        <strong>Hydranten geladen:</strong>
+                        <span id="debugHydrantCount">-</span>
+                    </div>
+                    <div class="debug-item">
+                        <strong>Marker-Typen:</strong>
+                        <span id="debugMarkerTypes">-</span>
+                    </div>
+                    <div class="debug-item">
+                        <strong>Letzte Aktualisierung:</strong>
+                        <span id="debugLastUpdate">-</span>
+                    </div>
+                    <div class="debug-item">
+                        <strong>Browser:</strong>
+                        <span id="debugBrowser">-</span>
+                    </div>
+                </div>
+
+                <h4 style="margin-top: 16px;">⚡ Performance-Metriken</h4>
+                <div class="debug-grid">
+                    <div class="debug-item">
+                        <strong>App-Start:</strong>
+                        <span id="debugLoadTime">-</span>
+                    </div>
+                    <div class="debug-item">
+                        <strong>Config geladen:</strong>
+                        <span id="debugConfigTime">-</span>
+                    </div>
+                    <div class="debug-item">
+                        <strong>Daten geladen:</strong>
+                        <span id="debugDataTime">-</span>
+                    </div>
+                    <div class="debug-item">
+                        <strong>Karte initialisiert:</strong>
+                        <span id="debugMapTime">-</span>
+                    </div>
+                    <div class="debug-item">
+                        <strong>Gesamt-Ladezeit:</strong>
+                        <span id="debugTotalTime">-</span>
+                    </div>
+                    <div class="debug-item">
+                        <strong>Speicher:</strong>
+                        <span id="debugMemory">-</span>
+                    </div>
+                </div>
+            </div>
+
             <div class="modal-links">
-                <a href="./datenschutz.html">Datenschutz</a>
-                <a href="./impressum.html">Impressum</a>
+                <a href="#" onclick="closeInfoModal(); openDatenschutzModal(); return false;">Datenschutz</a>
+                <a href="#" onclick="closeInfoModal(); openImpressumModal(); return false;">Impressum</a>
             </div>
         </div>
     </div>
 
+    <!-- Impressum Modal -->
+    <div id="impressumModal" class="modal" style="display: none;">
+        <div class="modal-overlay" id="impressumModalOverlay"></div>
+        <div class="modal-content legal-modal">
+            <button class="modal-close" id="closeImpressum">×</button>
+            <h2>Impressum</h2>
+
+            <p><em>Hinweis: Diese Seite wird im Setup-Wizard automatisch generiert. Dies ist nur ein Platzhalter.</em></p>
+
+            <h3>Angaben gemäß § 5 TMG</h3>
+            <p>
+                [Wird im Setup eingefügt]<br>
+                [Adresse]<br>
+                [Kontakt]
+            </p>
+
+            <h3>Vertreten durch</h3>
+            <p>[Wird im Setup eingefügt]</p>
+
+            <h3>Kontakt</h3>
+            <p>
+                E-Mail: [Wird im Setup eingefügt]<br>
+                Telefon: [Wird im Setup eingefügt]
+            </p>
+
+            <h3>Haftungsausschluss</h3>
+
+            <h4>Haftung für Inhalte</h4>
+            <p>
+                Die Inhalte unserer Seiten wurden mit größter Sorgfalt erstellt.
+                Für die Richtigkeit, Vollständigkeit und Aktualität der Inhalte
+                können wir jedoch keine Gewähr übernehmen.
+            </p>
+
+            <h4>Haftung für Links</h4>
+            <p>
+                Unser Angebot enthält Links zu externen Webseiten Dritter, auf deren
+                Inhalte wir keinen Einfluss haben. Deshalb können wir für diese
+                fremden Inhalte auch keine Gewähr übernehmen.
+            </p>
+
+            <p><small>Stand: November 2025</small></p>
+        </div>
+    </div>
+
+    <!-- Datenschutz Modal -->
+    <div id="datenschutzModal" class="modal" style="display: none;">
+        <div class="modal-overlay" id="datenschutzModalOverlay"></div>
+        <div class="modal-content legal-modal">
+            <button class="modal-close" id="closeDatenschutz">×</button>
+            <h2>Datenschutzerklärung</h2>
+
+            <p><em>Hinweis: Diese Seite wird im Setup-Wizard automatisch generiert. Dies ist nur ein Platzhalter.</em></p>
+
+            <h3>1. Verantwortlicher</h3>
+            <p>
+                [Wird im Setup eingefügt]<br>
+                [Adresse]<br>
+                [Kontakt]
+            </p>
+
+            <h3>2. Datenverarbeitung</h3>
+
+            <h4>Public App (ohne Login)</h4>
+            <p><strong>Erhobene Daten:</strong> Keine personenbezogenen Daten</p>
+
+            <p><strong>Externe Dienste:</strong></p>
+            <ul>
+                <li>OpenStreetMap.org (Karten-Tiles)</li>
+                <li>Zweck: Kartendarstellung</li>
+                <li>IP-Übertragung: Ja (technisch notwendig)</li>
+                <li>Rechtsgrundlage: Berechtigtes Interesse (Art. 6 Abs. 1 lit. f DSGVO)</li>
+            </ul>
+
+            <p><strong>Lokale Speicherung:</strong></p>
+            <ul>
+                <li>1 Cookie für DSGVO-Zustimmung (12 Monate)</li>
+                <li>Service Worker Cache (Karten, Hydranten)</li>
+                <li>Löschung: Durch Deinstallation der App</li>
+            </ul>
+
+            <h3>3. Keine Weitergabe an Dritte</h3>
+            <p>Ihre Daten werden nicht an Dritte weitergegeben.</p>
+
+            <h3>4. Ihre Rechte</h3>
+            <ul>
+                <li><strong>Auskunft</strong> (Art. 15 DSGVO)</li>
+                <li><strong>Löschung</strong> (Art. 17 DSGVO)</li>
+                <li><strong>Widerspruch</strong> (Art. 21 DSGVO)</li>
+            </ul>
+
+            <p>Kontakt: [Wird im Setup eingefügt]</p>
+
+            <p><small>Stand: November 2025</small></p>
+        </div>
+    </div>
+
     <!-- Scripts -->
-    <!-- Leaflet.js (lokal gehostet) -->
     <script src="./leaflet/leaflet.js"></script>
-    
-    <!-- App Scripts -->
     <script src="./js/app.js"></script>
     
     <!-- Service Worker Registration -->

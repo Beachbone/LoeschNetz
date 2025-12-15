@@ -771,6 +771,111 @@ html, body {
     text-decoration: underline;
 }
 
+/* === Debug Info === */
+.debug-info {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 2px solid var(--border);
+}
+
+.debug-info h3 {
+    margin-bottom: 12px;
+    font-size: 1.1rem;
+    color: var(--warning);
+}
+
+.debug-info h4 {
+    margin-bottom: 8px;
+    font-size: 1rem;
+    color: var(--text-primary);
+}
+
+.debug-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.debug-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 8px;
+    background: var(--surface);
+    border-radius: 6px;
+    font-size: 0.9rem;
+}
+
+.debug-item strong {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.debug-item span {
+    color: var(--text-primary);
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+}
+
+/* === Legal Modal === */
+.legal-modal {
+    max-width: 700px;
+    padding: 32px;
+}
+
+.legal-modal h2 {
+    color: var(--primary-color);
+    margin-bottom: 20px;
+    font-size: 1.5rem;
+}
+
+.legal-modal h3 {
+    margin-top: 24px;
+    margin-bottom: 12px;
+    font-size: 1.2rem;
+    color: var(--text-primary);
+}
+
+.legal-modal h4 {
+    margin-top: 16px;
+    margin-bottom: 8px;
+    font-size: 1.05rem;
+    color: var(--text-primary);
+}
+
+.legal-modal p {
+    line-height: 1.8;
+    margin-bottom: 12px;
+    color: var(--text-secondary);
+}
+
+.legal-modal em {
+    display: block;
+    padding: 12px;
+    background: var(--surface);
+    border-left: 3px solid var(--primary-color);
+    margin-bottom: 20px;
+    font-style: normal;
+}
+
+.legal-modal ul {
+    margin: 12px 0 16px 0;
+    padding-left: 20px;
+    line-height: 1.8;
+}
+
+.legal-modal li {
+    margin-bottom: 8px;
+    color: var(--text-secondary);
+}
+
+.legal-modal small {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+}
+
 /* === Leaflet Popup === */
 .leaflet-popup-content-wrapper {
     border-radius: 8px;
@@ -1055,11 +1160,6 @@ html, body {
     .map-container {
         margin-bottom: 0;
     }
-}
-
-/* === Dark Mode Support (optional) === */
-@media (prefers-color-scheme: dark) {
-    /* Wird in Phase 4 implementiert wenn gewünscht */
 }
 
 /* === Reduced Motion === */

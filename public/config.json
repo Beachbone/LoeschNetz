@@ -70,5 +70,9 @@
         "durationError": 10,
         "durationWarning": 8,
         "durationInfo": 5
+    },
+    "debug": {
+        "enabled": false,
+        "showReloadButton": true
     }
 }

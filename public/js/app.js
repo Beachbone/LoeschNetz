@@ -6,45 +6,47 @@
 
 // === Globale App-State ===
 const App = {
-    config: null,       // Geladene Config
+    config: null,
     map: null,
     markers: [],
     markerTypes: [],
     hydrants: [],
-    userLocationMarker: null,  // GPS-Marker
+    userLocationMarker: null,
     isOnline: navigator.onLine,
-    deferredPrompt: null
+    deferredPrompt: null,
+    performance: {
+        startTime: performance.now(),
+        configTime: 0,
+        dataTime: 0,
+        mapTime: 0,
+        totalTime: 0
+    }
 };
 
 // === DOM Ready ===
 document.addEventListener('DOMContentLoaded', () => {
     console.log('🚒 LoeschNetz wird geladen...');
 
-    // Cookie-Consent prüfen
     checkCookieConsent();
 
-    // Online/Offline Events
     window.addEventListener('online', handleOnlineStatus);
     window.addEventListener('offline', handleOnlineStatus);
-
-    // Install Prompt Event
     window.addEventListener('beforeinstallprompt', handleInstallPrompt);
+    window.addEventListener('popstate', handleBackButton);
 
-    // Info Modal
     document.getElementById('infoButton')?.addEventListener('click', openInfoModal);
     document.getElementById('closeInfo')?.addEventListener('click', closeInfoModal);
+    document.getElementById('infoModalOverlay')?.addEventListener('click', closeInfoModal);
 
-    // Legende Toggle
+    document.getElementById('closeImpressum')?.addEventListener('click', closeImpressumModal);
+    document.getElementById('impressumModalOverlay')?.addEventListener('click', closeImpressumModal);
+
+    document.getElementById('closeDatenschutz')?.addEventListener('click', closeDatenschutzModal);
+    document.getElementById('datenschutzModalOverlay')?.addEventListener('click', closeDatenschutzModal);
+
     document.getElementById('legendToggle')?.addEventListener('click', toggleLegend);
-
-    // GPS Button
     document.getElementById('gpsButton')?.addEventListener('click', gotoUserLocation);
-
-    // Reload Button
     document.getElementById('reloadButton')?.addEventListener('click', reloadData);
-
-    // Back-Button Handler für Photo-Overlay
-    window.addEventListener('popstate', handleBackButton);
 
     // Legende auf Mobile standardmäßig eingeklappt
     if (window.innerWidth <= 600) {
@@ -57,13 +59,10 @@ function checkCookieConsent() {
     const consent = getCookie('loeschnetz_consent');
     
     if (consent === 'accepted') {
-        // Cookie akzeptiert → App laden
         initApp();
     } else if (consent === 'declined') {
-        // Cookie abgelehnt → Declined Message
         showCookieDeclined();
     } else {
-        // Noch nicht entschieden → Banner zeigen
         showCookieBanner();
     }
 }
@@ -101,24 +100,27 @@ async function initApp() {
     try {
         // 1. Config laden
         await loadConfig();
-        
+
         // 2. Theme anwenden
         applyTheme();
-        
-        // 3. Marker-Typen laden
+
+        // 3. Debug-Einstellungen anwenden
+        applyDebugSettings();
+
+        // 4. Marker-Typen laden
         await loadMarkerTypes();
         
-        // 4. Hydranten laden
+        // 5. Hydranten laden
         await loadHydrants();
-        
+
         // WICHTIG: UI ERST zeigen, DANN Karte initialisieren!
         document.getElementById('loadingScreen').style.display = 'none';
         document.getElementById('app').style.display = 'flex';
         
         // Kurz warten damit der Browser das Layout berechnen kann
         await new Promise(resolve => setTimeout(resolve, 50));
-        
-        // 5. JETZT Karte initialisieren (Container ist sichtbar!)
+
+        // 6. JETZT Karte initialisieren (Container ist sichtbar!)
         initMap();
         
         // Online-Status
@@ -188,14 +190,16 @@ async function reloadData() {
 
 // === Config laden ===
 async function loadConfig(forceReload = false) {
+    const startTime = performance.now();
     try {
         const url = forceReload
             ? `/config.json?_=${Date.now()}`
             : '/config.json';
         const response = await fetch(url, forceReload ? { cache: 'no-cache' } : {});
         if (!response.ok) throw new Error('Config nicht gefunden');
-        
+
         App.config = await response.json();
+        App.performance.configTime = performance.now() - startTime;
         console.log('✅ Config geladen');
     } catch (error) {
         console.warn('⚠️ Config nicht gefunden, nutze Defaults');
@@ -240,8 +244,35 @@ function applyTheme() {
     console.log('✅ Theme angewendet');
 }
 
+// === Debug-Einstellungen anwenden ===
+function applyDebugSettings() {
+    if (!App.config?.debug) return;
+
+    const reloadButton = document.getElementById('reloadButton');
+    if (reloadButton) {
+        if (App.config.debug.showReloadButton === true) {
+            reloadButton.style.display = 'flex';
+            console.log('✅ Debug-Modus: Reload-Button aktiviert');
+        } else {
+            reloadButton.style.display = 'none';
+            console.log('ℹ️ Reload-Button deaktiviert (Debug-Modus aus)');
+        }
+    }
+
+    const debugInfo = document.getElementById('debugInfo');
+    if (debugInfo) {
+        if (App.config.debug.enabled === true) {
+            debugInfo.style.display = 'block';
+            console.log('✅ Debug-Modus: Debug-Informationen aktiviert');
+        } else {
+            debugInfo.style.display = 'none';
+        }
+    }
+}
+
 // === Marker-Typen laden ===
 async function loadMarkerTypes(forceReload = false) {
+    const startTime = performance.now();
     try {
         let url = App.config?.data?.markerTypes || '/data/marker-types.json';
         if (forceReload) {
@@ -272,10 +303,12 @@ async function loadMarkerTypes(forceReload = false) {
         console.warn('⚠️ Nutze Fallback-Marker-Typen');
         createLegend();
     }
+    App.performance.dataTime += performance.now() - startTime;
 }
 
 // === Hydranten laden ===
 async function loadHydrants(forceReload = false) {
+    const startTime = performance.now();
     try {
         let url = App.config?.data?.hydrants || '/data/hydrants.json';
         if (forceReload) {
@@ -305,10 +338,12 @@ async function loadHydrants(forceReload = false) {
             App.hydrants = [];
         }
     }
+    App.performance.dataTime += performance.now() - startTime;
 }
 
 // === Karte initialisieren ===
 function initMap() {
+    const startTime = performance.now();
     console.log('🗺️ Initialisiere Karte...');
     
     if (typeof L === 'undefined') {
@@ -328,11 +363,9 @@ function initMap() {
         return;
     }
     
-    // Tile-Layer aus Config
     const tileServers = App.config?.map?.tileServers || {};
     const baseLayers = {};
-    
-    // OSM Layer
+
     if (tileServers.osm) {
         const osmLayer = L.tileLayer(tileServers.osm.url, {
             maxZoom: tileServers.osm.maxZoom || 19,
@@ -342,8 +375,7 @@ function initMap() {
         osmLayer.addTo(App.map);
         baseLayers[tileServers.osm.name || 'Karte'] = osmLayer;
     }
-    
-    // Satellit Layer
+
     if (tileServers.satellite) {
         const satelliteLayer = L.tileLayer(tileServers.satellite.url, {
             maxZoom: tileServers.satellite.maxZoom || 19,
@@ -352,13 +384,11 @@ function initMap() {
         });
         baseLayers[tileServers.satellite.name || 'Satellit'] = satelliteLayer;
     }
-    
-    // Layer-Control
+
     if (Object.keys(baseLayers).length > 1) {
         L.control.layers(baseLayers).addTo(App.map);
     }
-    
-    // Maßstab
+
     L.control.scale({ imperial: false }).addTo(App.map);
     console.log('✅ Tile-Layer hinzugefügt');
     
@@ -390,8 +420,10 @@ function initMap() {
             App.map.fitBounds(bounds, { padding: [50, 50] });
         }
     });
-    
+
     console.log('✅ Karte initialisiert');
+    App.performance.mapTime = performance.now() - startTime;
+    App.performance.totalTime = performance.now() - App.performance.startTime;
 }
 
 // === Bounds aus Hydranten berechnen ===
@@ -435,30 +467,25 @@ function addMarkers() {
             return;
         }
         
-        // Custom Icon
         const icon = L.icon({
             iconUrl: `/icons/${markerType.icon}`,
             iconSize: [25, 41],
             iconAnchor: [12, 41],
             popupAnchor: [0, -29]
         });
-        
-        // Marker erstellen
+
         const marker = L.marker([hydrant.lat, hydrant.lng], {
             icon: icon,
             title: hydrant.title
         });
-        
-        // Popup
+
         const popupContent = createPopupContent(hydrant, markerType);
         const popup = marker.bindPopup(popupContent);
 
-        // Event-Listener für Bilder nach Popup-Öffnung
         marker.on('popupopen', () => {
             attachPhotoListeners();
         });
 
-        // Zur Karte hinzufügen
         marker.addTo(App.map);
         App.markers.push(marker);
     });
@@ -609,11 +636,72 @@ function checkInstallPrompt() {
 
 // === Info Modal ===
 function openInfoModal() {
+    updateDebugInfo();
     document.getElementById('infoModal').style.display = 'flex';
 }
 
 function closeInfoModal() {
     document.getElementById('infoModal').style.display = 'none';
+}
+
+// === Debug-Informationen aktualisieren ===
+function updateDebugInfo() {
+    if (!App.config?.debug?.enabled) return;
+
+    document.getElementById('debugHydrantCount').textContent = App.hydrants.length;
+    document.getElementById('debugMarkerTypes').textContent = App.markerTypes.length;
+
+    const now = new Date();
+    document.getElementById('debugLastUpdate').textContent = now.toLocaleString('de-DE');
+
+    const browser = navigator.userAgent.split(/[()]/)[1] || navigator.userAgent.substring(0, 50);
+    document.getElementById('debugBrowser').textContent = browser;
+
+    if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+        document.getElementById('debugSWStatus').textContent = '✅ Aktiv';
+    } else {
+        document.getElementById('debugSWStatus').textContent = '❌ Inaktiv';
+    }
+
+    if ('caches' in window) {
+        caches.keys().then(keys => {
+            document.getElementById('debugCacheStatus').textContent = keys.length > 0 ? `✅ ${keys.length} Cache(s)` : '❌ Leer';
+        });
+    } else {
+        document.getElementById('debugCacheStatus').textContent = '❌ Nicht verfügbar';
+    }
+
+    document.getElementById('debugLoadTime').textContent = App.performance.startTime.toFixed(2) + ' ms';
+    document.getElementById('debugConfigTime').textContent = App.performance.configTime.toFixed(2) + ' ms';
+    document.getElementById('debugDataTime').textContent = App.performance.dataTime.toFixed(2) + ' ms';
+    document.getElementById('debugMapTime').textContent = App.performance.mapTime.toFixed(2) + ' ms';
+    document.getElementById('debugTotalTime').textContent = App.performance.totalTime.toFixed(2) + ' ms';
+
+    if (performance.memory) {
+        const usedMB = (performance.memory.usedJSHeapSize / 1024 / 1024).toFixed(2);
+        const limitMB = (performance.memory.jsHeapSizeLimit / 1024 / 1024).toFixed(2);
+        document.getElementById('debugMemory').textContent = `${usedMB} / ${limitMB} MB`;
+    } else {
+        document.getElementById('debugMemory').textContent = 'Nicht verfügbar';
+    }
+}
+
+// === Impressum Modal ===
+function openImpressumModal() {
+    document.getElementById('impressumModal').style.display = 'flex';
+}
+
+function closeImpressumModal() {
+    document.getElementById('impressumModal').style.display = 'none';
+}
+
+// === Datenschutz Modal ===
+function openDatenschutzModal() {
+    document.getElementById('datenschutzModal').style.display = 'flex';
+}
+
+function closeDatenschutzModal() {
+    document.getElementById('datenschutzModal').style.display = 'none';
 }
 
 // === Photo Overlay (Fullscreen-Zoom) ===

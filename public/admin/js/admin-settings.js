@@ -78,11 +78,19 @@ window.Settings = {
             document.getElementById('toastDurationWarning').value = this.config.toast.durationWarning || 8;
             document.getElementById('toastDurationInfo').value = this.config.toast.durationInfo || 5;
         } else {
-            // Default values if not in config
             document.getElementById('toastDurationSuccess').value = 5;
             document.getElementById('toastDurationError').value = 10;
             document.getElementById('toastDurationWarning').value = 8;
             document.getElementById('toastDurationInfo').value = 5;
+        }
+
+        // DEBUG
+        if (this.config.debug) {
+            document.getElementById('debugEnabled').checked = this.config.debug.enabled || false;
+            document.getElementById('debugShowReloadButton').checked = this.config.debug.showReloadButton || false;
+        } else {
+            document.getElementById('debugEnabled').checked = false;
+            document.getElementById('debugShowReloadButton').checked = false;
         }
     },
     
@@ -140,9 +148,13 @@ window.Settings = {
                 durationError: parseInt(formData.get('toastDurationError')),
                 durationWarning: parseInt(formData.get('toastDurationWarning')),
                 durationInfo: parseInt(formData.get('toastDurationInfo'))
+            },
+            debug: {
+                enabled: formData.get('debugEnabled') === 'on',
+                showReloadButton: formData.get('debugShowReloadButton') === 'on'
             }
         };
-        
+
         try {
             const result = await API.put('../api/config.php?endpoint=update', newConfig);
 

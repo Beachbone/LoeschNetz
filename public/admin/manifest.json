@@ -2,7 +2,7 @@
     "name": "LoeschNetz Admin",
     "short_name": "LoeschNetz Admin",
     "description": "Verwaltungs-Interface für LoeschNetz Hydrantenplan",
-    "start_url": "./index.html",
+    "start_url": "./",
     "scope": "./",
     "display": "standalone",
     "orientation": "any",
@@ -74,7 +74,7 @@
             "icons": [{ "src": "../icons/icon-96x96.png", "sizes": "96x96" }]
         },
         {
-            "name": "CRUD Logs",
+            "name": "Logging",
             "short_name": "Logs",
             "description": "Änderungsprotokoll ansehen",
             "url": "./logs.html",

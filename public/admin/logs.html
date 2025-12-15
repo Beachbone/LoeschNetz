@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CRUD Logs - LoeschNetz Admin</title>
+    <title>Logging - LoeschNetz Admin</title>
 
     <!-- Admin CSS -->
-    <link rel="stylesheet" href="./css/admin.css">
+    <link rel="stylesheet" href="./css/admin.css?v=6">
 </head>
 <body>
     <!-- Header -->
@@ -18,6 +18,7 @@
             <div class="user-info">
                 <span>Angemeldet als: <strong id="userName">...</strong></span>
                 <span class="text-muted text-small" id="userRole"></span>
+                <button id="installAppBtn" class="btn-header" title="App installieren" onclick="showInstallPrompt()" style="display: none;">📱</button>
                 <button id="changePasswordBtn" class="btn-header" title="Passwort ändern">🔑</button>
                 <button class="btn-logout" id="logoutBtn">Abmelden</button>
             </div>
@@ -32,22 +33,50 @@
         <!-- Message Container -->
         <div id="messageContainer"></div>
 
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">📋</div>
+                <div class="stat-content">
+                    <div class="stat-label">Gesamt</div>
+                    <div class="stat-value" id="statTotal">0</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="color: #4CAF50;">➕</div>
+                <div class="stat-content">
+                    <div class="stat-label">Erstellt</div>
+                    <div class="stat-value" id="statCreate">0</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="color: #2196F3;">✏️</div>
+                <div class="stat-content">
+                    <div class="stat-label">Bearbeitet</div>
+                    <div class="stat-value" id="statUpdate">0</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="color: #F44336;">🗑️</div>
+                <div class="stat-content">
+                    <div class="stat-label">Gelöscht</div>
+                    <div class="stat-value" id="statDelete">0</div>
+                </div>
+            </div>
+        </div>
+
         <!-- Toolbar -->
         <div class="toolbar">
-            <div class="toolbar-info">
-                <strong id="statTotal">0</strong> Log-Einträge
-                <span id="statInfo" class="text-muted"></span>
-            </div>
-            <div style="display: flex; gap: 10px; align-items: center;">
+            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; flex: 1;">
                 <select id="filterAction" style="padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px;">
                     <option value="">Alle Aktionen</option>
                     <option value="CREATE">CREATE</option>
                     <option value="UPDATE">UPDATE</option>
                     <option value="DELETE">DELETE</option>
                 </select>
-                <input type="text" id="searchInput" placeholder="🔍 Suchen (User, Details)..." style="padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; width: 250px;">
-                <button class="btn-secondary" id="refreshBtn">🔄 Aktualisieren</button>
+                <input type="text" id="searchInput" placeholder="🔍 Suchen (User, Details)..." style="padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; flex: 1; max-width: 300px;">
             </div>
+            <button class="btn-secondary" id="refreshBtn">🔄 Aktualisieren</button>
         </div>
 
         <!-- Table -->
@@ -176,6 +205,87 @@
 
     <!-- Back to Top Button -->
     <button id="backToTop" class="back-to-top" aria-label="Nach oben" title="Nach oben">↑</button>
+
+    <!-- Install Prompt (nur wenn noch nicht installiert) -->
+    <div id="installPrompt" class="install-prompt" style="display: none;">
+        <p>LoeschNetz Admin als App installieren?</p>
+        <div class="install-actions">
+            <button id="installButton">Installieren</button>
+            <button id="dismissInstall">Später</button>
+        </div>
+    </div>
+
+    <!-- PWA Install Prompt -->
+    <script>
+    // PWA Install Prompt
+    let deferredPrompt;
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+
+        // Zeige Install-Button im Header
+        const installBtn = document.getElementById('installAppBtn');
+        if (installBtn && !window.matchMedia('(display-mode: standalone)').matches) {
+            installBtn.style.display = 'inline-block';
+        }
+
+        // Prüfe ob bereits angezeigt wurde
+        const hasSeenInstallPrompt = localStorage.getItem('hasSeenInstallPrompt');
+
+        // Zeige Install-Prompt nur beim ersten Mal automatisch
+        if (!hasSeenInstallPrompt) {
+            setTimeout(() => {
+                const installPrompt = document.getElementById('installPrompt');
+                if (installPrompt && !window.matchMedia('(display-mode: standalone)').matches) {
+                    installPrompt.style.display = 'block';
+                }
+            }, 10000);
+        }
+    });
+
+    // Funktion zum manuellen Anzeigen des Install-Prompts
+    window.showInstallPrompt = function() {
+        const installPrompt = document.getElementById('installPrompt');
+        if (deferredPrompt && installPrompt && !window.matchMedia('(display-mode: standalone)').matches) {
+            installPrompt.style.display = 'block';
+        } else if (window.matchMedia('(display-mode: standalone)').matches) {
+            alert('Die App ist bereits installiert!');
+        } else {
+            alert('Installation ist im Browser nicht verfügbar. Bitte öffnen Sie die Seite im Browser und versuchen Sie es erneut.');
+        }
+    };
+
+    // Install-Button Handler
+    document.getElementById('installButton')?.addEventListener('click', async () => {
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            console.log('Install outcome:', outcome);
+
+            // Markiere als gesehen
+            localStorage.setItem('hasSeenInstallPrompt', 'true');
+
+            // Verstecke Popup
+            document.getElementById('installPrompt').style.display = 'none';
+
+            // Verstecke Header-Button nach Installation
+            if (outcome === 'accepted') {
+                const installBtn = document.getElementById('installAppBtn');
+                if (installBtn) installBtn.style.display = 'none';
+            }
+
+            deferredPrompt = null;
+        }
+    });
+
+    // Dismiss-Button Handler
+    document.getElementById('dismissInstall')?.addEventListener('click', () => {
+        // Markiere als gesehen
+        localStorage.setItem('hasSeenInstallPrompt', 'true');
+        document.getElementById('installPrompt').style.display = 'none';
+    });
+    </script>
 
     <script>
         (function() {

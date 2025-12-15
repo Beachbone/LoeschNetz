@@ -41,7 +41,7 @@ const MENU_CONFIG = [
         adminOnly: false
     },
     {
-        label: 'CRUD Logs',
+        label: 'Logging',
         href: './logs.html',
         icon: '📋',
         adminOnly: false

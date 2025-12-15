@@ -1,4 +1,4 @@
-// admin-logs.js - CRUD Logs anzeigen
+// admin-logs.js - Logging anzeigen
 
 window.Logs = {
     // Alle Log-Einträge
@@ -208,25 +208,31 @@ window.Logs = {
      */
     updateStats(data) {
         const totalEl = document.getElementById('statTotal');
-        const infoEl = document.getElementById('statInfo');
+        const createEl = document.getElementById('statCreate');
+        const updateEl = document.getElementById('statUpdate');
+        const deleteEl = document.getElementById('statDelete');
 
+        // Zähle Aktionen
+        const counts = this.list.reduce((acc, entry) => {
+            acc[entry.action] = (acc[entry.action] || 0) + 1;
+            return acc;
+        }, {});
+
+        // Aktualisiere Stat Cards
         if (totalEl) {
             totalEl.textContent = data.total || this.list.length;
         }
 
-        if (infoEl) {
-            const counts = this.list.reduce((acc, entry) => {
-                acc[entry.action] = (acc[entry.action] || 0) + 1;
-                return acc;
-            }, {});
+        if (createEl) {
+            createEl.textContent = counts.CREATE || 0;
+        }
 
-            const parts = Object.entries(counts).map(([action, count]) =>
-                `${count}× ${action}`
-            );
+        if (updateEl) {
+            updateEl.textContent = counts.UPDATE || 0;
+        }
 
-            infoEl.textContent = parts.length > 0
-                ? `(${parts.join(', ')})`
-                : '';
+        if (deleteEl) {
+            deleteEl.textContent = counts.DELETE || 0;
         }
     },
 

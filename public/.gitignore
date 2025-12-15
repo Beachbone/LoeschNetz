@@ -1,0 +1,24 @@
+# Session data
+data/sessions.json
+
+# Backup files
+*.backup
+*.backup.json
+
+# Logs
+data/crud.log
+
+# Snapshots
+data/snapshots/
+
+# Uploaded files
+uploads/
+
+# IDE files
+*.geany
+.vscode/
+.idea/
+
+# Temporary files
+*.tmp
+*.temp

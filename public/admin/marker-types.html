@@ -16,6 +16,7 @@
             <div class="user-info">
                 <span>Angemeldet als: <strong id="userName">...</strong></span>
                 <span class="text-muted text-small" id="userRole"></span>
+                <button id="installAppBtn" class="btn-header" title="App installieren" onclick="showInstallPrompt()" style="display: none;">📱</button>
                 <button id="changePasswordBtn" class="btn-header" title="Passwort ändern">🔐</button>
                 <button class="btn-logout" id="logoutBtn">Abmelden</button>
             </div>
@@ -95,12 +96,28 @@
 
                     <div class="form-group">
                         <label for="markerTypeColor">Farbe *</label>
-                        <div style="display: flex; gap: 10px; align-items: center;">
-                            <input type="color" name="color" id="markerTypeColor" required 
-                                   value="#0000FF" style="width: 60px; height: 40px; cursor: pointer;">
-                            <div id="colorPreview" class="color-preview">#0000FF</div>
+                        <div class="color-picker-container">
+                            <div class="color-preview-large" id="colorPreviewLarge">
+                                <div class="color-sample" id="colorSample"></div>
+                                <div class="color-info">
+                                    <span id="colorHex">#0000FF</span>
+                                    <small>Marker-Farbe</small>
+                                </div>
+                            </div>
+                            <input type="color" name="color" id="markerTypeColor" required
+                                   value="#0000FF" class="color-input-hidden">
+                            <div class="color-presets">
+                                <button type="button" class="color-preset" data-color="#FF0000" style="background: #FF0000;" title="Rot"></button>
+                                <button type="button" class="color-preset" data-color="#FF8800" style="background: #FF8800;" title="Orange"></button>
+                                <button type="button" class="color-preset" data-color="#0000FF" style="background: #0000FF;" title="Blau"></button>
+                                <button type="button" class="color-preset" data-color="#3388FF" style="background: #3388FF;" title="Hellblau"></button>
+                                <button type="button" class="color-preset" data-color="#00AA00" style="background: #00AA00;" title="Grün"></button>
+                                <button type="button" class="color-preset" data-color="#666666" style="background: #666666;" title="Grau"></button>
+                                <button type="button" class="color-preset" data-color="#000000" style="background: #000000;" title="Schwarz"></button>
+                                <button type="button" class="color-preset" data-color="#8B4513" style="background: #8B4513;" title="Braun"></button>
+                            </div>
                         </div>
-                        <small>Icons werden automatisch in dieser Farbe generiert</small>
+                        <small style="color: #666; margin-top: 8px; display: block;">💡 Icons werden automatisch in dieser Farbe generiert</small>
                     </div>
 
                     <div class="form-group">
@@ -255,8 +272,56 @@
             setupMarkerTypes();
             setupDesktopSort();
             setupMobileSort();
+            setupColorPicker();
         }
-        
+
+        // Color Picker Setup
+        function setupColorPicker() {
+            const colorInput = document.getElementById('markerTypeColor');
+            const colorSample = document.getElementById('colorSample');
+            const colorHex = document.getElementById('colorHex');
+            const colorPreviewLarge = document.getElementById('colorPreviewLarge');
+            const colorPresets = document.querySelectorAll('.color-preset');
+
+            if (!colorInput || !colorSample || !colorHex) return;
+
+            // Update preview when color changes
+            function updateColorPreview(color) {
+                colorSample.style.background = color;
+                colorHex.textContent = color.toUpperCase();
+                colorInput.value = color;
+
+                // Update active preset
+                colorPresets.forEach(preset => {
+                    if (preset.dataset.color.toUpperCase() === color.toUpperCase()) {
+                        preset.classList.add('active');
+                    } else {
+                        preset.classList.remove('active');
+                    }
+                });
+            }
+
+            // Click on preview to open color picker
+            colorPreviewLarge.addEventListener('click', () => {
+                colorInput.click();
+            });
+
+            // When color input changes
+            colorInput.addEventListener('input', (e) => {
+                updateColorPreview(e.target.value);
+            });
+
+            // Preset button clicks
+            colorPresets.forEach(preset => {
+                preset.addEventListener('click', () => {
+                    updateColorPreview(preset.dataset.color);
+                });
+            });
+
+            // Initialize with current color
+            updateColorPreview(colorInput.value);
+        }
+
         // Logout
         function setupLogout() {
             const logoutBtn = document.getElementById('logoutBtn');
@@ -273,6 +338,87 @@
 
     <!-- Back to Top Button -->
     <button id="backToTop" class="back-to-top" aria-label="Nach oben" title="Nach oben">↑</button>
+
+    <!-- Install Prompt (nur wenn noch nicht installiert) -->
+    <div id="installPrompt" class="install-prompt" style="display: none;">
+        <p>LoeschNetz Admin als App installieren?</p>
+        <div class="install-actions">
+            <button id="installButton">Installieren</button>
+            <button id="dismissInstall">Später</button>
+        </div>
+    </div>
+
+    <!-- PWA Install Prompt -->
+    <script>
+    // PWA Install Prompt
+    let deferredPrompt;
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+
+        // Zeige Install-Button im Header
+        const installBtn = document.getElementById('installAppBtn');
+        if (installBtn && !window.matchMedia('(display-mode: standalone)').matches) {
+            installBtn.style.display = 'inline-block';
+        }
+
+        // Prüfe ob bereits angezeigt wurde
+        const hasSeenInstallPrompt = localStorage.getItem('hasSeenInstallPrompt');
+
+        // Zeige Install-Prompt nur beim ersten Mal automatisch
+        if (!hasSeenInstallPrompt) {
+            setTimeout(() => {
+                const installPrompt = document.getElementById('installPrompt');
+                if (installPrompt && !window.matchMedia('(display-mode: standalone)').matches) {
+                    installPrompt.style.display = 'block';
+                }
+            }, 10000);
+        }
+    });
+
+    // Funktion zum manuellen Anzeigen des Install-Prompts
+    window.showInstallPrompt = function() {
+        const installPrompt = document.getElementById('installPrompt');
+        if (deferredPrompt && installPrompt && !window.matchMedia('(display-mode: standalone)').matches) {
+            installPrompt.style.display = 'block';
+        } else if (window.matchMedia('(display-mode: standalone)').matches) {
+            alert('Die App ist bereits installiert!');
+        } else {
+            alert('Installation ist im Browser nicht verfügbar. Bitte öffnen Sie die Seite im Browser und versuchen Sie es erneut.');
+        }
+    };
+
+    // Install-Button Handler
+    document.getElementById('installButton')?.addEventListener('click', async () => {
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            console.log('Install outcome:', outcome);
+
+            // Markiere als gesehen
+            localStorage.setItem('hasSeenInstallPrompt', 'true');
+
+            // Verstecke Popup
+            document.getElementById('installPrompt').style.display = 'none';
+
+            // Verstecke Header-Button nach Installation
+            if (outcome === 'accepted') {
+                const installBtn = document.getElementById('installAppBtn');
+                if (installBtn) installBtn.style.display = 'none';
+            }
+
+            deferredPrompt = null;
+        }
+    });
+
+    // Dismiss-Button Handler
+    document.getElementById('dismissInstall')?.addEventListener('click', () => {
+        // Markiere als gesehen
+        localStorage.setItem('hasSeenInstallPrompt', 'true');
+        document.getElementById('installPrompt').style.display = 'none';
+    });
+    </script>
 
     <script>
         (function() {

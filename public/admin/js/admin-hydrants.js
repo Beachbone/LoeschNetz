@@ -147,22 +147,25 @@ window.Hydrants = {
     updateStats() {
         const totalEl = document.getElementById('statTotal');
         const typesEl = document.getElementById('statTypes');
-        
+        const visibleEl = document.getElementById('statVisible');
+
         if (totalEl) {
             totalEl.textContent = this.list.length;
         }
-        
+
         if (typesEl) {
             const counts = this.list.reduce((acc, h) => {
                 acc[h.type] = (acc[h.type] || 0) + 1;
                 return acc;
             }, {});
-            
-            const parts = Object.entries(counts).map(([type, count]) => 
-                `${count}× ${this.getTypeLabel(type)}`
-            );
-            
-            typesEl.textContent = parts.join(', ') || 'Keine';
+
+            const typeCount = Object.keys(counts).length;
+            typesEl.textContent = typeCount > 0 ? typeCount : '-';
+        }
+
+        if (visibleEl) {
+            // Zeige die Anzahl der gefilterten/sichtbaren Hydranten
+            visibleEl.textContent = this.filteredList ? this.filteredList.length : this.list.length;
         }
     },
     
