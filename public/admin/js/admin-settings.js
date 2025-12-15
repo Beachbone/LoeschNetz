@@ -45,9 +45,11 @@ window.Settings = {
         
         // THEME
         document.getElementById('themePrimaryColor').value = this.config.theme.primaryColor;
-        document.getElementById('themePrimaryColorText').value = this.config.theme.primaryColor;
+        document.getElementById('themePrimaryColorText').value = this.config.theme.primaryColor.toUpperCase();
+        document.getElementById('primaryColorSample').style.background = this.config.theme.primaryColor;
         document.getElementById('themeBackgroundColor').value = this.config.theme.backgroundColor;
-        document.getElementById('themeBackgroundColorText').value = this.config.theme.backgroundColor;
+        document.getElementById('themeBackgroundColorText').value = this.config.theme.backgroundColor.toUpperCase();
+        document.getElementById('backgroundColorSample').style.background = this.config.theme.backgroundColor;
         
         // LEGAL
         document.getElementById('legalImpressum').value = this.config.legal.impressumUrl;
@@ -202,36 +204,112 @@ function setupTabs() {
 }
 
 /**
- * Color Picker Setup - Synchronizes color inputs with text fields
+ * Color Picker Setup - Enhanced with preview and presets
  */
 function setupColorPickers() {
-    const colorPickers = [
-        { picker: 'themePrimaryColor', text: 'themePrimaryColorText' },
-        { picker: 'themeBackgroundColor', text: 'themeBackgroundColorText' }
+    const colorConfigs = [
+        {
+            picker: 'themePrimaryColor',
+            text: 'themePrimaryColorText',
+            sample: 'primaryColorSample',
+            preview: 'primaryColorPreview',
+            target: 'primary'
+        },
+        {
+            picker: 'themeBackgroundColor',
+            text: 'themeBackgroundColorText',
+            sample: 'backgroundColorSample',
+            preview: 'backgroundColorPreview',
+            target: 'background'
+        }
     ];
 
-    colorPickers.forEach(({ picker, text }) => {
+    colorConfigs.forEach(({ picker, text, sample, preview, target }) => {
         const pickerElement = document.getElementById(picker);
         const textElement = document.getElementById(text);
+        const sampleElement = document.getElementById(sample);
+        const previewElement = document.getElementById(preview);
 
-        if (pickerElement && textElement) {
-            // Update text field when color picker changes
-            pickerElement.addEventListener('input', (e) => {
-                textElement.value = e.target.value;
-            });
+        if (!pickerElement || !textElement || !sampleElement) return;
 
-            // Update color picker when text field changes (manual input)
-            textElement.addEventListener('input', (e) => {
-                const value = e.target.value;
-                // Validate hex color format
-                if (/^#[0-9A-Fa-f]{6}$/.test(value)) {
-                    pickerElement.value = value;
+        // Function to update all color displays
+        function updateColor(color) {
+            if (!/^#[0-9A-Fa-f]{6}$/.test(color)) return;
+
+            pickerElement.value = color;
+            textElement.value = color.toUpperCase();
+            sampleElement.style.background = color;
+
+            // Update active state of preset buttons
+            const presets = document.querySelectorAll(`.color-preset[data-target="${target}"]`);
+            presets.forEach(preset => {
+                if (preset.dataset.color.toUpperCase() === color.toUpperCase()) {
+                    preset.classList.add('active');
+                } else {
+                    preset.classList.remove('active');
                 }
             });
-
-            // Make text field editable
-            textElement.removeAttribute('readonly');
         }
+
+        // Color picker input event
+        pickerElement.addEventListener('input', (e) => {
+            updateColor(e.target.value);
+        });
+
+        // Text field input event (manual entry)
+        textElement.addEventListener('input', (e) => {
+            const value = e.target.value.trim();
+            if (/^#[0-9A-Fa-f]{6}$/.test(value)) {
+                updateColor(value);
+            }
+        });
+
+        // Text field blur event (validate and format)
+        textElement.addEventListener('blur', (e) => {
+            let value = e.target.value.trim();
+            // Add # if missing
+            if (/^[0-9A-Fa-f]{6}$/.test(value)) {
+                value = '#' + value;
+            }
+            if (/^#[0-9A-Fa-f]{6}$/.test(value)) {
+                updateColor(value);
+            } else {
+                // Reset to picker value if invalid
+                textElement.value = pickerElement.value.toUpperCase();
+            }
+        });
+
+        // Click on preview to open color picker
+        if (previewElement) {
+            previewElement.addEventListener('click', () => {
+                pickerElement.click();
+            });
+        }
+    });
+
+    // Setup color preset buttons
+    document.querySelectorAll('.color-preset').forEach(preset => {
+        preset.addEventListener('click', (e) => {
+            e.preventDefault();
+            const color = preset.dataset.color;
+            const target = preset.dataset.target;
+
+            if (target === 'primary') {
+                document.getElementById('themePrimaryColor').value = color;
+                document.getElementById('themePrimaryColorText').value = color.toUpperCase();
+                document.getElementById('primaryColorSample').style.background = color;
+            } else if (target === 'background') {
+                document.getElementById('themeBackgroundColor').value = color;
+                document.getElementById('themeBackgroundColorText').value = color.toUpperCase();
+                document.getElementById('backgroundColorSample').style.background = color;
+            }
+
+            // Update active state
+            document.querySelectorAll(`.color-preset[data-target="${target}"]`).forEach(p => {
+                p.classList.remove('active');
+            });
+            preset.classList.add('active');
+        });
     });
 }
 

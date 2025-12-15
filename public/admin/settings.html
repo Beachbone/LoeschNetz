@@ -107,20 +107,60 @@
                 
                 <div class="form-group">
                     <label for="themePrimaryColor">Primärfarbe</label>
-                    <div style="display: flex; gap: 10px; align-items: center;">
-                        <input type="color" id="themePrimaryColor" name="themePrimaryColor" required>
-                        <input type="text" id="themePrimaryColorText" placeholder="#d32f2f" pattern="^#[0-9A-Fa-f]{6}$" style="width: 100px; font-family: monospace;">
+                    <div class="color-picker-container">
+                        <div class="color-preview-large" id="primaryColorPreview">
+                            <div class="color-sample" id="primaryColorSample" style="background: #d32f2f;"></div>
+                            <div class="color-info">
+                                <input type="text" id="themePrimaryColorText" placeholder="#d32f2f" pattern="^#[0-9A-Fa-f]{6}$"
+                                       style="font-size: 22px; font-weight: 700; font-family: 'Courier New', monospace;
+                                              border: 2px solid #e0e0e0; border-radius: 6px; padding: 8px 12px;
+                                              width: 140px; letter-spacing: 1px; text-align: center;"
+                                       title="Hex-Code manuell eingeben">
+                                <small>Primärfarbe der Anwendung</small>
+                            </div>
+                            <input type="color" id="themePrimaryColor" name="themePrimaryColor" required class="color-input-hidden">
+                        </div>
+                        <div class="color-presets">
+                            <button type="button" class="color-preset" data-color="#d32f2f" data-target="primary" style="background: #d32f2f;" title="Standard Rot"></button>
+                            <button type="button" class="color-preset" data-color="#c62828" data-target="primary" style="background: #c62828;" title="Dunkelrot"></button>
+                            <button type="button" class="color-preset" data-color="#1976d2" data-target="primary" style="background: #1976d2;" title="Blau"></button>
+                            <button type="button" class="color-preset" data-color="#388e3c" data-target="primary" style="background: #388e3c;" title="Grün"></button>
+                            <button type="button" class="color-preset" data-color="#f57c00" data-target="primary" style="background: #f57c00;" title="Orange"></button>
+                            <button type="button" class="color-preset" data-color="#7b1fa2" data-target="primary" style="background: #7b1fa2;" title="Lila"></button>
+                            <button type="button" class="color-preset" data-color="#0097a7" data-target="primary" style="background: #0097a7;" title="Cyan"></button>
+                            <button type="button" class="color-preset" data-color="#5d4037" data-target="primary" style="background: #5d4037;" title="Braun"></button>
+                        </div>
                     </div>
-                    <small>Hex-Code kann auch manuell eingegeben werden</small>
+                    <small style="color: #888; font-style: italic;">💡 Klicken Sie auf die Farbvorschau oder wählen Sie eine Voreinstellung</small>
                 </div>
 
                 <div class="form-group">
                     <label for="themeBackgroundColor">Hintergrundfarbe</label>
-                    <div style="display: flex; gap: 10px; align-items: center;">
-                        <input type="color" id="themeBackgroundColor" name="themeBackgroundColor" required>
-                        <input type="text" id="themeBackgroundColorText" placeholder="#ffffff" pattern="^#[0-9A-Fa-f]{6}$" style="width: 100px; font-family: monospace;">
+                    <div class="color-picker-container">
+                        <div class="color-preview-large" id="backgroundColorPreview">
+                            <div class="color-sample" id="backgroundColorSample" style="background: #ffffff;"></div>
+                            <div class="color-info">
+                                <input type="text" id="themeBackgroundColorText" placeholder="#ffffff" pattern="^#[0-9A-Fa-f]{6}$"
+                                       style="font-size: 22px; font-weight: 700; font-family: 'Courier New', monospace;
+                                              border: 2px solid #e0e0e0; border-radius: 6px; padding: 8px 12px;
+                                              width: 140px; letter-spacing: 1px; text-align: center;"
+                                       title="Hex-Code manuell eingeben">
+                                <small>Hintergrundfarbe der Anwendung</small>
+                            </div>
+                            <input type="color" id="themeBackgroundColor" name="themeBackgroundColor" required class="color-input-hidden">
+                        </div>
+                        <div class="color-presets">
+                            <button type="button" class="color-preset" data-color="#ffffff" data-target="background" style="background: #ffffff; border: 2px solid #ddd;" title="Weiß"></button>
+                            <button type="button" class="color-preset" data-color="#fafafa" data-target="background" style="background: #fafafa; border: 2px solid #ddd;" title="Hellgrau"></button>
+                            <button type="button" class="color-preset" data-color="#f5f5f5" data-target="background" style="background: #f5f5f5; border: 2px solid #ddd;" title="Grau"></button>
+                            <button type="button" class="color-preset" data-color="#e8eaf6" data-target="background" style="background: #e8eaf6;" title="Hellblau"></button>
+                            <button type="button" class="color-preset" data-color="#e0f2f1" data-target="background" style="background: #e0f2f1;" title="Mintgrün"></button>
+                            <button type="button" class="color-preset" data-color="#fff3e0" data-target="background" style="background: #fff3e0;" title="Creme"></button>
+                            <button type="button" class="color-preset" data-color="#fce4ec" data-target="background" style="background: #fce4ec;" title="Rosa"></button>
+                            <button type="button" class="color-preset" data-color="#212121" data-target="background" style="background: #212121;" title="Dunkel"></button>
+                        </div>
                     </div>
-                    <small>Hex-Code kann auch manuell eingegeben werden</small>
+                    <small style="color: #888; font-style: italic;">💡 Klicken Sie auf die Farbvorschau oder wählen Sie eine Voreinstellung</small>
                 </div>
                 
                 <div class="form-group">
