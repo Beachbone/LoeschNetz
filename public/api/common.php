@@ -529,6 +529,12 @@ function rotateLogFile($logFile) {
  */
 function logCrudAction($action, $resource, $details = []) {
     try {
+        // Check if logging is enabled
+        $config = readJson(CONFIG_FILE);
+        if (!isset($config['logging']['enabled']) || !$config['logging']['enabled']) {
+            return; // Logging is disabled, skip
+        }
+
         // Log file location
         $logFile = DATA_DIR . 'crud.log';
 

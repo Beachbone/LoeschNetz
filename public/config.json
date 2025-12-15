@@ -50,7 +50,7 @@
         "sessionTimeout": 1800
     },
     "logging": {
-        "level": 2,
+        "enabled": true,
         "maxSizeKb": 1024,
         "retentionDays": 365
     },

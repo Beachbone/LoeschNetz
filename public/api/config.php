@@ -225,12 +225,8 @@ function validateAndMergeConfig($current, $new) {
     
     // LOGGING
     if (isset($new['logging'])) {
-        if (isset($new['logging']['level'])) {
-            $level = intval($new['logging']['level']);
-            if ($level < 0 || $level > 4) {
-                throw new Exception('Log-Level muss zwischen 0 und 4 liegen');
-            }
-            $merged['logging']['level'] = $level;
+        if (isset($new['logging']['enabled'])) {
+            $merged['logging']['enabled'] = (bool)$new['logging']['enabled'];
         }
         if (isset($new['logging']['maxSizeKb'])) {
             $merged['logging']['maxSizeKb'] = intval($new['logging']['maxSizeKb']);

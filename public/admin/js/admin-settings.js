@@ -56,7 +56,7 @@ window.Settings = {
         document.getElementById('securitySessionTimeout').value = this.config.security.sessionTimeout;
         
         // LOGGING
-        document.getElementById('loggingLevel').value = this.config.logging.level;
+        document.getElementById('loggingEnabled').checked = this.config.logging.enabled;
         document.getElementById('loggingMaxSize').value = this.config.logging.maxSizeKb;
         document.getElementById('loggingRetention').value = this.config.logging.retentionDays;
         
@@ -128,7 +128,7 @@ window.Settings = {
                 sessionTimeout: parseInt(formData.get('securitySessionTimeout'))
             },
             logging: {
-                level: parseInt(formData.get('loggingLevel')),
+                enabled: formData.get('loggingEnabled') === 'on',
                 maxSizeKb: parseInt(formData.get('loggingMaxSize')),
                 retentionDays: parseInt(formData.get('loggingRetention'))
             },
