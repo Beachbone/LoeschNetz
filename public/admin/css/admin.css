@@ -304,61 +304,94 @@ body {
     font-weight: bold;
 }
 
-/* Color Picker */
+/* Color Picker - Enhanced for Marker Types */
 .color-picker-container {
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: 18px;
+    padding: 4px;
 }
 
 .color-preview-large {
     display: flex;
     align-items: center;
-    gap: 14px;
-    padding: 14px;
-    background: #f8f8f8;
-    border-radius: 10px;
+    gap: 18px;
+    padding: 18px;
+    background: linear-gradient(135deg, #f8f8f8 0%, #ffffff 100%);
+    border-radius: 12px;
     border: 2px solid #e0e0e0;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.color-preview-large::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(211, 47, 47, 0) 0%, rgba(211, 47, 47, 0.03) 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.color-preview-large:hover::before {
+    opacity: 1;
 }
 
 .color-preview-large:hover {
-    border-color: #cc0000;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    border-color: #d32f2f;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(211, 47, 47, 0.15), 0 2px 8px rgba(0,0,0,0.1);
 }
 
 .color-sample {
-    width: 68px;
-    height: 68px;
-    border-radius: 7px;
+    width: 80px;
+    height: 80px;
+    border-radius: 10px;
     background: #0000FF;
-    border: 3px solid white;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.2), inset 0 0 0 1px rgba(0,0,0,0.1);
-    transition: transform 0.2s ease;
+    border: 4px solid white;
+    box-shadow:
+        0 4px 12px rgba(0,0,0,0.15),
+        inset 0 2px 4px rgba(255,255,255,0.3),
+        inset 0 0 0 1px rgba(0,0,0,0.1);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    z-index: 1;
 }
 
 .color-preview-large:hover .color-sample {
-    transform: scale(1.05);
+    transform: scale(1.08) rotate(2deg);
+    box-shadow:
+        0 6px 16px rgba(0,0,0,0.2),
+        inset 0 2px 4px rgba(255,255,255,0.4),
+        inset 0 0 0 1px rgba(0,0,0,0.15);
 }
 
 .color-info {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 6px;
+    position: relative;
+    z-index: 1;
 }
 
 .color-info span {
-    font-size: 20px;
-    font-weight: bold;
+    font-size: 22px;
+    font-weight: 700;
     color: #333;
-    font-family: monospace;
+    font-family: 'Courier New', monospace;
+    letter-spacing: 1px;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.05);
 }
 
 .color-info small {
-    color: #666;
-    font-size: 12px;
+    color: #888;
+    font-size: 13px;
+    font-weight: 500;
 }
 
 .color-input-hidden {
@@ -369,37 +402,62 @@ body {
 
 .color-presets {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(42px, 1fr));
-    gap: 7px;
-    padding: 10px;
-    background: #f8f8f8;
-    border-radius: 7px;
-    border: 1px solid #e0e0e0;
+    grid-template-columns: repeat(auto-fit, minmax(48px, 1fr));
+    gap: 10px;
+    padding: 14px;
+    background: linear-gradient(135deg, #f8f8f8 0%, #fafafa 100%);
+    border-radius: 10px;
+    border: 2px solid #e8e8e8;
 }
 
 .color-preset {
     width: 100%;
-    height: 42px;
-    border-radius: 5px;
+    height: 48px;
+    border-radius: 8px;
     border: 3px solid white;
     cursor: pointer;
-    transition: all 0.2s ease;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow:
+        0 2px 6px rgba(0,0,0,0.12),
+        inset 0 1px 2px rgba(255,255,255,0.3);
+    position: relative;
+}
+
+.color-preset::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 5px;
+    background: linear-gradient(135deg, rgba(255,255,255,0.3) 0%, transparent 100%);
+    opacity: 0;
+    transition: opacity 0.25s ease;
+}
+
+.color-preset:hover::after {
+    opacity: 1;
 }
 
 .color-preset:hover {
-    transform: translateY(-3px) scale(1.05);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    transform: translateY(-4px) scale(1.08);
+    box-shadow:
+        0 8px 16px rgba(0,0,0,0.2),
+        inset 0 2px 4px rgba(255,255,255,0.4);
     border-color: #fff;
+    z-index: 10;
 }
 
 .color-preset:active {
-    transform: translateY(-1px) scale(1.02);
+    transform: translateY(-2px) scale(1.05);
+    transition: all 0.1s ease;
 }
 
 .color-preset.active {
-    border-color: #cc0000;
-    box-shadow: 0 0 0 2px #cc0000, 0 4px 12px rgba(204,0,0,0.3);
+    border-color: #d32f2f;
+    box-shadow:
+        0 0 0 3px #d32f2f,
+        0 6px 16px rgba(211, 47, 47, 0.4),
+        inset 0 2px 4px rgba(255,255,255,0.3);
+    transform: translateY(-2px);
 }
 
 /* Marker Types Specific */
