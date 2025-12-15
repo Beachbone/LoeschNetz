@@ -461,6 +461,69 @@ function validateCsrfToken() {
 }
 
 /**
+ * Log Rotation
+ * Rotates log files when they exceed maxSizeKb and deletes old logs beyond retentionDays
+ */
+function rotateLogFile($logFile) {
+    try {
+        // Check if log file exists
+        if (!file_exists($logFile)) {
+            return;
+        }
+
+        // Get config for rotation settings
+        $config = readJson(CONFIG_FILE);
+        $maxSizeKb = $config['logging']['maxSizeKb'] ?? 1024;
+        $retentionDays = $config['logging']['retentionDays'] ?? 365;
+
+        // Get current file size in KB
+        $fileSizeKb = filesize($logFile) / 1024;
+
+        // Rotate if file exceeds max size
+        if ($fileSizeKb >= $maxSizeKb) {
+            // Create rotated filename with timestamp
+            $timestamp = date('Y-m-d_His');
+            $rotatedFile = $logFile . '.' . $timestamp;
+
+            // Rename current log file
+            if (rename($logFile, $rotatedFile)) {
+                error_log("Log rotated: $logFile -> $rotatedFile");
+            } else {
+                error_log("Failed to rotate log: $logFile");
+                return;
+            }
+        }
+
+        // Clean up old rotated logs
+        $logDir = dirname($logFile);
+        $logBasename = basename($logFile);
+
+        // Find all rotated log files
+        $rotatedLogs = glob($logDir . '/' . $logBasename . '.*');
+
+        if ($rotatedLogs) {
+            $cutoffTime = time() - ($retentionDays * 86400); // 86400 seconds per day
+
+            foreach ($rotatedLogs as $oldLog) {
+                // Get file modification time
+                $fileTime = filemtime($oldLog);
+
+                // Delete if older than retention period
+                if ($fileTime < $cutoffTime) {
+                    if (unlink($oldLog)) {
+                        error_log("Deleted old log: $oldLog (older than $retentionDays days)");
+                    } else {
+                        error_log("Failed to delete old log: $oldLog");
+                    }
+                }
+            }
+        }
+    } catch (Exception $e) {
+        error_log("Log rotation error: " . $e->getMessage());
+    }
+}
+
+/**
  * CRUD Action Logging
  * Logs all Create, Read, Update, Delete operations with timestamp, user, and details
  */
@@ -468,6 +531,9 @@ function logCrudAction($action, $resource, $details = []) {
     try {
         // Log file location
         $logFile = DATA_DIR . 'crud.log';
+
+        // Rotate log file if needed
+        rotateLogFile($logFile);
 
         // Get current user (or 'anonymous' if not logged in)
         $user = getCurrentUser();
