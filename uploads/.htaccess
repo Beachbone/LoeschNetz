@@ -1,0 +1,22 @@
+# Uploads-Ordner - Sicherheitseinstellungen
+
+# Verhindere Directory Listing
+Options -Indexes
+
+# Erlaube nur Bilder
+<FilesMatch "\.(jpg|jpeg|png|gif|webp)$">
+    Order Allow,Deny
+    Allow from all
+</FilesMatch>
+
+# Blockiere PHP-Ausführung (Sicherheit)
+<FilesMatch "\.(php|phtml|php3|php4|php5|php7|phar)$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+
+# Blockiere ausführbare Dateien
+<FilesMatch "\.(pl|py|sh|cgi)$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
