@@ -12,6 +12,7 @@ window.PasswordManager = {
         const notice = document.getElementById('passwordChangeNotice');
         const cancelBtn = document.getElementById('cancelPasswordChange');
         const closeBtn = document.getElementById('closeChangePassword');
+        const currentPasswordField = document.getElementById('currentPassword');
         
         console.log('Modal Element:', modal);
         console.log('Notice Element:', notice);
@@ -25,18 +26,31 @@ window.PasswordManager = {
             notice.style.display = 'block';
             cancelBtn.style.display = 'none';
             closeBtn.style.display = 'none';
+            
+            // Autocomplete deaktivieren bei erzwungenem Wechsel
+            if (currentPasswordField) {
+                currentPasswordField.setAttribute('autocomplete', 'off');
+                currentPasswordField.value = '';
+            }
         } else {
             notice.style.display = 'none';
             cancelBtn.style.display = 'inline-block';
             closeBtn.style.display = 'block';
+            
+            // Autocomplete wieder aktivieren
+            if (currentPasswordField) {
+                currentPasswordField.setAttribute('autocomplete', 'current-password');
+            }
         }
         
         modal.classList.add('active');
         console.log('✅ Modal-Klasse "active" hinzugefügt');
         
-        const passwordField = document.getElementById('currentPassword');
-        if (passwordField) {
-            passwordField.focus();
+        // Form zurücksetzen
+        document.getElementById('changePasswordForm').reset();
+        
+        if (currentPasswordField) {
+            currentPasswordField.focus();
         }
     },
     
@@ -70,29 +84,22 @@ window.PasswordManager = {
         }
         
         try {
-            const response = await fetch('../api/auth.php?endpoint=change-password', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                credentials: 'include',
-                body: JSON.stringify({
-                    current_password: currentPassword,
-                    new_password: newPassword
-                })
+            const data = await API.post('../api/auth.php?endpoint=change-password', {
+                current_password: currentPassword,
+                new_password: newPassword
             });
-            
-            const data = await response.json();
-            
-            if (data.success) {
-                this.showSuccess('Passwort erfolgreich geändert');
-                this.closeModal();
-                
-                // Session-Check aktualisieren
+
+            this.showSuccess('Passwort erfolgreich geändert. Du wirst abgemeldet...');
+            this.closeModal();
+
+            // Nach 2 Sekunden ausloggen
+            setTimeout(() => {
                 if (window.Auth) {
-                    await Auth.checkSession();
+                    Auth.logout();
+                } else {
+                    window.location.href = './login.html';
                 }
-            } else {
-                throw new Error(data.error || 'Passwort-Änderung fehlgeschlagen');
-            }
+            }, 2000);
         } catch (error) {
             console.error('Fehler beim Passwort ändern:', error);
             this.showError(error.message);
@@ -104,6 +111,12 @@ window.PasswordManager = {
      */
     checkPasswordStrength(password) {
         const strengthEl = document.getElementById('passwordStrength');
+        
+        // Element existiert nicht (z.B. auf users.html) → Silent Return
+        if (!strengthEl) {
+            return;
+        }
+        
         if (!password) {
             strengthEl.innerHTML = '';
             return;

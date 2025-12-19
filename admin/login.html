@@ -4,6 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - LoeschNetz Admin</title>
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="./manifest.json">
+    <meta name="theme-color" content="#d32f2f">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <link rel="apple-touch-icon" href="../icons/icon-192x192.png">
+
     <style>
         * {
             margin: 0;
@@ -214,8 +221,14 @@
                 });
                 
                 const data = await response.json();
-                
+
                 if (data.success) {
+                    // CSRF Token speichern
+                    if (data.data && data.data.csrf_token) {
+                        sessionStorage.setItem('csrf_token', data.data.csrf_token);
+                        console.log('✅ CSRF Token gespeichert');
+                    }
+
                     // Login erfolgreich
                     window.location.href = './index.html';
                 } else {

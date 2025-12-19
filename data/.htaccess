@@ -1,7 +1,4 @@
-# Kein direkter Zugriff auf Datenbank-Dateien!
-Order Deny,Allow
-Deny from all
-
-<Files ".gitkeep">
-    Allow from all
-</Files>
+  <Files>
+      Order Deny,Allow
+      Deny from all
+  </Files>

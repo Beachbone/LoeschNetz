@@ -3,19 +3,59 @@
 window.Auth = {
     // Aktueller User
     currentUser: null,
-    
+
+    // CSRF Token
+    csrfToken: null,
+
+    /**
+     * CSRF Token speichern
+     */
+    setCsrfToken(token) {
+        this.csrfToken = token;
+        if (token) {
+            sessionStorage.setItem('csrf_token', token);
+        } else {
+            sessionStorage.removeItem('csrf_token');
+        }
+    },
+
+    /**
+     * CSRF Token abrufen
+     */
+    getCsrfToken() {
+        if (!this.csrfToken) {
+            this.csrfToken = sessionStorage.getItem('csrf_token');
+        }
+        return this.csrfToken;
+    },
+
     /**
      * Session prüfen
      */
     async checkSession() {
+        console.log('=== Checking session ===');
         try {
             const response = await fetch('../api/auth.php?endpoint=check', {
                 credentials: 'include'
             });
             const data = await response.json();
-            
+
+            console.log('Session check response:', {
+                success: data.success,
+                logged_in: data.data?.logged_in,
+                user: data.data?.user?.username,
+                has_csrf_token: !!data.data?.csrf_token
+            });
+
             if (data.success && data.data.logged_in) {
                 this.currentUser = data.data.user;
+                // CSRF Token aus Response speichern
+                if (data.data.csrf_token) {
+                    console.log('✓ Setting CSRF token from session check:', data.data.csrf_token.substring(0, 20) + '...');
+                    this.setCsrfToken(data.data.csrf_token);
+                } else {
+                    console.error('✗ No CSRF token in session check response!');
+                }
                 return true;
             } else {
                 return false;
@@ -42,11 +82,12 @@ window.Auth = {
                 method: 'POST',
                 credentials: 'include'
             });
-            
+
             const data = await response.json();
-            
+
             if (data.success) {
                 this.currentUser = null;
+                this.setCsrfToken(null); // CSRF Token löschen
                 window.location.href = './login.html';
             } else {
                 throw new Error(data.error || 'Logout fehlgeschlagen');
@@ -129,9 +170,7 @@ function setupLogout() {
     if (logoutBtn) {
         logoutBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            if (confirm('Möchtest du dich wirklich abmelden?')) {
-                Auth.logout();
-            }
+            Auth.logout();
         });
     }
 }

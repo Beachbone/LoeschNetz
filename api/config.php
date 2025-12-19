@@ -8,6 +8,23 @@ $endpoint = $_GET['endpoint'] ?? 'get';
 
 error_log("CONFIG API - Method: $method, Endpoint: $endpoint");
 
+// Public Zugriff erlauben (nur Marker-Typen)
+if (isset($_GET['public']) && $_GET['public'] === 'true') {
+    // Versuche marker-types.json zu lesen
+    $markerTypesFile = __DIR__ . '/../data/marker-types.json';
+    $markerTypes = [];
+    
+    if (file_exists($markerTypesFile)) {
+        $markerTypesData = readJson($markerTypesFile);
+        $markerTypes = $markerTypesData['types'] ?? []; // 'types' nicht 'marker_types'
+    }
+    
+    sendSuccess([
+        'marker_types' => $markerTypes
+    ]);
+    exit;
+}
+
 // Router
 switch ($endpoint) {
     case 'get':
@@ -34,9 +51,17 @@ switch ($endpoint) {
  * Config laden
  */
 function handleGet() {
+    if (!file_exists(CONFIG_FILE)) {
+        error_log('CONFIG.PHP ERROR - File not found: ' . CONFIG_FILE);
+        error_log('CONFIG.PHP ERROR - Working directory: ' . getcwd());
+        error_log('CONFIG.PHP ERROR - __DIR__: ' . __DIR__);
+        sendError('Config-Datei nicht gefunden: ' . basename(CONFIG_FILE), 500);
+    }
+    
     $config = readJson(CONFIG_FILE);
     if (!$config) {
-        sendError('Konnte Config nicht laden', 500);
+        error_log('CONFIG.PHP ERROR - readJson failed for: ' . CONFIG_FILE);
+        sendError('Konnte Config nicht laden (JSON invalid?)', 500);
     }
     
     sendSuccess($config);
@@ -47,7 +72,10 @@ function handleGet() {
  */
 function handleUpdate() {
     requireAdmin();
-    
+
+    // CSRF-Schutz
+    validateCsrfToken();
+
     $input = getJsonInput();
     
     if (empty($input)) {
@@ -197,12 +225,8 @@ function validateAndMergeConfig($current, $new) {
     
     // LOGGING
     if (isset($new['logging'])) {
-        if (isset($new['logging']['level'])) {
-            $level = intval($new['logging']['level']);
-            if ($level < 0 || $level > 4) {
-                throw new Exception('Log-Level muss zwischen 0 und 4 liegen');
-            }
-            $merged['logging']['level'] = $level;
+        if (isset($new['logging']['enabled'])) {
+            $merged['logging']['enabled'] = (bool)$new['logging']['enabled'];
         }
         if (isset($new['logging']['maxSizeKb'])) {
             $merged['logging']['maxSizeKb'] = intval($new['logging']['maxSizeKb']);
@@ -244,6 +268,16 @@ function validateAndMergeConfig($current, $new) {
             $merged['photos']['maxSizeKb'] = intval($new['photos']['maxSizeKb']);
         }
     }
-    
+
+    // DEBUG
+    if (isset($new['debug'])) {
+        if (isset($new['debug']['enabled'])) {
+            $merged['debug']['enabled'] = (bool)$new['debug']['enabled'];
+        }
+        if (isset($new['debug']['showReloadButton'])) {
+            $merged['debug']['showReloadButton'] = (bool)$new['debug']['showReloadButton'];
+        }
+    }
+
     return $merged;
 }

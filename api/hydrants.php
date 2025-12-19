@@ -13,6 +13,25 @@
 
 require_once 'common.php';
 
+/**
+ * Gültige Marker-Typen aus marker-types.json laden
+ */
+function getValidMarkerTypes() {
+    $markerTypesData = readJson(MARKER_TYPES_FILE);
+    if (!$markerTypesData || !isset($markerTypesData['types'])) {
+        // Fallback auf leeres Array wenn nicht ladbar
+        error_log('WARNUNG: Konnte marker-types.json nicht laden');
+        return [];
+    }
+
+    $validTypes = [];
+    foreach ($markerTypesData['types'] as $type) {
+        $validTypes[] = $type['id'];
+    }
+
+    return $validTypes;
+}
+
 // Request-Daten
 $method = $_SERVER['REQUEST_METHOD'];
 $path = $_SERVER['PATH_INFO'] ?? '/';
@@ -78,9 +97,6 @@ function handleGetHydrants() {
 function handleCreateHydrant() {
     // Auth erforderlich
     $user = requireAuth();
-
-    // CSRF-Schutz
-    validateCsrfToken();
     
     // Input validieren
     $input = getJsonInput();
@@ -101,8 +117,11 @@ function handleCreateHydrant() {
         sendError('Ungültige Koordinaten', 400, 'VALIDATION_ERROR');
     }
     
-    // Typ validieren
-    $validTypes = ['h80', 'h100', 'h125', 'h150', 'reservoir', 'building'];
+    // Typ validieren (dynamisch aus marker-types.json)
+    $validTypes = getValidMarkerTypes();
+    if (empty($validTypes)) {
+        sendError('Marker-Typen konnten nicht geladen werden', 500, 'SYSTEM_ERROR');
+    }
     if (!in_array($input['type'], $validTypes)) {
         sendError('Ungültiger Typ. Erlaubt: ' . implode(', ', $validTypes), 400, 'VALIDATION_ERROR');
     }
@@ -154,11 +173,21 @@ function handleCreateHydrant() {
     $data['hydrants'][] = $newHydrant;
     $data['last_updated'] = $now;
     
+    // Auto-Snapshot erstellen (vor Speichern)
+    autoSnapshot();
+    
     // Speichern
     if (!writeJson(HYDRANTS_FILE, $data)) {
         sendError('Hydrant konnte nicht gespeichert werden', 500, 'SYSTEM_ERROR');
     }
-    
+
+    // Log CRUD action
+    logCrudAction('CREATE', 'hydrant', [
+        'id' => $newId,
+        'type' => $input['type'],
+        'title' => $newHydrant['title']
+    ]);
+
     sendSuccess([
         'hydrant' => $newHydrant
     ], 'Hydrant erfolgreich erstellt', 201);
@@ -171,10 +200,7 @@ function handleCreateHydrant() {
 function handleUpdateHydrant($id) {
     // Auth erforderlich
     $user = requireAuth();
-
-    // CSRF-Schutz
-    validateCsrfToken();
-
+    
     error_log("UPDATE HYDRANT - ID: $id, User: " . $user['username']);
     
     // Input validieren
@@ -221,9 +247,13 @@ function handleUpdateHydrant($id) {
     }
     
     if (isset($input['type'])) {
-        $validTypes = ['h80', 'h100', 'h125', 'h150', 'reservoir', 'building'];
+        // Typ validieren (dynamisch aus marker-types.json)
+        $validTypes = getValidMarkerTypes();
+        if (empty($validTypes)) {
+            sendError('Marker-Typen konnten nicht geladen werden', 500, 'SYSTEM_ERROR');
+        }
         if (!in_array($input['type'], $validTypes)) {
-            sendError('Ungültiger Typ', 400, 'VALIDATION_ERROR');
+            sendError('Ungültiger Typ. Erlaubt: ' . implode(', ', $validTypes), 400, 'VALIDATION_ERROR');
         }
         $hydrant['type'] = $input['type'];
     }
@@ -250,11 +280,25 @@ function handleUpdateHydrant($id) {
     
     $data['last_updated'] = $now;
     
+    // Auto-Snapshot erstellen (vor Speichern)
+    autoSnapshot();
+    
     // Speichern
     if (!writeJson(HYDRANTS_FILE, $data)) {
         sendError('Hydrant konnte nicht aktualisiert werden', 500, 'SYSTEM_ERROR');
     }
-    
+
+    // Log CRUD action - track which fields were updated
+    $updatedFields = array_keys(array_filter($input, function($key) {
+        return in_array($key, ['lat', 'lng', 'type', 'title', 'description', 'photo']);
+    }, ARRAY_FILTER_USE_KEY));
+
+    logCrudAction('UPDATE', 'hydrant', [
+        'id' => $id,
+        'updated_fields' => $updatedFields,
+        'title' => $hydrant['title']
+    ]);
+
     sendSuccess([
         'hydrant' => $hydrant
     ], 'Hydrant erfolgreich aktualisiert');
@@ -267,9 +311,6 @@ function handleUpdateHydrant($id) {
 function handleDeleteHydrant($id) {
     // Auth erforderlich (Admin ODER Editor!)
     $user = requireAuth();
-
-    // CSRF-Schutz
-    validateCsrfToken();
     
     // Daten laden
     $data = readJson(HYDRANTS_FILE);
@@ -297,13 +338,115 @@ function handleDeleteHydrant($id) {
     // last_updated aktualisieren
     $data['last_updated'] = now();
     
+    // Auto-Snapshot erstellen (vor Speichern)
+    autoSnapshot();
+    
     // Speichern
     if (!writeJson(HYDRANTS_FILE, $data)) {
         sendError('Hydrant konnte nicht gelöscht werden', 500, 'SYSTEM_ERROR');
     }
-    
+
+    // Log CRUD action
+    logCrudAction('DELETE', 'hydrant', [
+        'id' => $id,
+        'type' => $deletedHydrant['type'],
+        'title' => $deletedHydrant['title']
+    ]);
+
     sendSuccess([
         'id' => $id,
         'deleted' => $deletedHydrant
     ], 'Hydrant erfolgreich gelöscht');
+}
+
+/**
+ * Auto-Snapshot vor Änderungen erstellen
+ */
+function autoSnapshot() {
+    // Config laden
+    $configData = readJson(CONFIG_FILE);
+    $config = $configData['snapshots'] ?? ['enabled' => true, 'max_count' => 20, 'auto_create' => true];
+    
+    // Auto-Create deaktiviert?
+    if (!($config['auto_create'] ?? true)) {
+        return;
+    }
+    
+    // Snapshots deaktiviert?
+    if (!($config['enabled'] ?? true)) {
+        return;
+    }
+    
+    // Snapshots-Verzeichnis
+    $snapshotsDir = DATA_DIR . 'snapshots/';
+    if (!is_dir($snapshotsDir)) {
+        mkdir($snapshotsDir, 0755, true);
+    }
+    
+    $today = date('Y-m-d');
+    $filename = $snapshotsDir . "hydrants_{$today}.json";
+    
+    // Bereits heute erstellt? Dann skip (1 pro Tag)
+    if (file_exists($filename)) {
+        error_log("AUTO-SNAPSHOT - Bereits vorhanden für heute: $filename");
+        return;
+    }
+    
+    try {
+        // Hydranten laden
+        $hydrants = readJson(HYDRANTS_FILE);
+        if (!$hydrants) {
+            throw new Exception('Konnte hydrants.json nicht laden');
+        }
+        
+        // Snapshot-Daten mit Metadaten
+        $snapshotData = [
+            '_snapshot_meta' => [
+                'created' => date('c'),
+                'hydrant_count' => count($hydrants['hydrants'] ?? []),
+                'created_by' => getCurrentUser()['username'] ?? 'auto',
+                'auto' => true
+            ],
+            'hydrants' => $hydrants['hydrants'] ?? []
+        ];
+        
+        // Snapshot speichern
+        $result = writeJson($filename, $snapshotData);
+        if (!$result) {
+            throw new Exception('Konnte Snapshot nicht schreiben');
+        }
+        
+        error_log("AUTO-SNAPSHOT - Erstellt: $filename");
+        
+        // Rotation durchführen
+        rotateSnapshotsInline($snapshotsDir, $config['max_count'] ?? 20);
+        
+    } catch (Exception $e) {
+        error_log("AUTO-SNAPSHOT FEHLER: " . $e->getMessage());
+    }
+}
+
+/**
+ * Snapshot-Rotation (älteste löschen)
+ */
+function rotateSnapshotsInline($snapshotsDir, $maxCount) {
+    $files = glob($snapshotsDir . 'hydrants_*.json');
+    
+    if (count($files) <= $maxCount) {
+        return; // Nichts zu tun
+    }
+    
+    // Nach Datum sortieren (älteste zuerst)
+    usort($files, function($a, $b) {
+        return filemtime($a) - filemtime($b);
+    });
+    
+    // Zu viele? Älteste löschen
+    while (count($files) > $maxCount) {
+        $oldest = array_shift($files);
+        if (file_exists($oldest)) {
+            unlink($oldest);
+            error_log("AUTO-SNAPSHOT - Rotiert (gelöscht): " . basename($oldest));
+        }
+    }
 }

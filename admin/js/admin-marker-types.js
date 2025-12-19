@@ -2,23 +2,18 @@
 
 window.MarkerTypes = {
     markerTypes: [],
+    sortField: 'id',
+    sortAscending: true,
     
     /**
      * Lade alle Marker-Typen
      */
     async loadMarkerTypes() {
         try {
-            const response = await fetch('../api/marker-types.php?endpoint=list', {
-                credentials: 'include'
-            });
-            const data = await response.json();
-            
-            if (data.success) {
-                this.markerTypes = data.data.types || [];
-                this.renderTable();
-            } else {
-                throw new Error(data.error || 'Fehler beim Laden');
-            }
+            const data = await API.get('../api/marker-types.php?endpoint=list');
+
+            this.markerTypes = data.data.types || [];
+            this.renderTable();
         } catch (error) {
             console.error('Fehler beim Laden der Marker-Typen:', error);
             showMessage('Fehler beim Laden der Marker-Typen: ' + error.message, 'error');
@@ -26,32 +21,58 @@ window.MarkerTypes = {
     },
     
     /**
+     * Marker-Typen sortieren
+     */
+    sortMarkerTypes() {
+        this.markerTypes.sort((a, b) => {
+            let aVal = a[this.sortField];
+            let bVal = b[this.sortField];
+
+            // Null-Werte behandeln
+            if (!aVal) aVal = '';
+            if (!bVal) bVal = '';
+
+            let comparison = 0;
+            if (typeof aVal === 'string') {
+                comparison = aVal.localeCompare(bVal);
+            } else {
+                comparison = aVal < bVal ? -1 : (aVal > bVal ? 1 : 0);
+            }
+
+            return this.sortAscending ? comparison : -comparison;
+        });
+    },
+
+    /**
      * Tabelle rendern
      */
     renderTable() {
         const tbody = document.querySelector('#markerTypesTable tbody');
         if (!tbody) return;
-        
+
         if (this.markerTypes.length === 0) {
             tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">Keine Marker-Typen vorhanden</td></tr>';
             return;
         }
+
+        // Sortieren vor dem Rendern
+        this.sortMarkerTypes();
         
         tbody.innerHTML = this.markerTypes.map(type => `
             <tr data-id="${type.id}">
-                <td>
-                    <img src="../icons/${type.icon}" alt="${type.label}" 
+                <td data-label="Icon">
+                    <img src="../icons/${type.icon}" alt="${type.label}"
                          style="width: 25px; height: 41px; vertical-align: middle;">
                 </td>
-                <td><strong>${type.id}</strong></td>
-                <td>${type.label}</td>
-                <td>
+                <td data-label="ID"><strong>${type.id}</strong></td>
+                <td data-label="Bezeichnung">${type.label}</td>
+                <td data-label="Farbe">
                     <span class="color-badge" style="background: ${type.color};" title="${type.color}">
                         ${type.color}
                     </span>
                 </td>
-                <td>${type.description}</td>
-                <td class="actions">
+                <td data-label="Beschreibung">${type.description}</td>
+                <td data-label="Aktionen" class="actions">
                     <button class="btn-icon" onclick="MarkerTypes.editMarkerType('${type.id}')" title="Bearbeiten">
                         ✏️
                     </button>
@@ -148,28 +169,17 @@ window.MarkerTypes = {
         };
         
         try {
-            const url = isEdit 
+            const url = isEdit
                 ? `../api/marker-types.php?endpoint=update&id=${id}`
                 : '../api/marker-types.php?endpoint=create';
-            
-            const response = await fetch(url, {
-                method: isEdit ? 'PUT' : 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                credentials: 'include',
-                body: JSON.stringify(data)
-            });
-            
-            const result = await response.json();
-            
-            if (result.success) {
-                showMessage(result.data.message || 'Marker-Typ gespeichert', 'success');
-                this.closeModal();
-                await this.loadMarkerTypes();
-            } else {
-                throw new Error(result.error || 'Fehler beim Speichern');
-            }
+
+            const result = isEdit
+                ? await API.put(url, data)
+                : await API.post(url, data);
+
+            showMessage(result.data.message || 'Marker-Typ gespeichert', 'success');
+            this.closeModal();
+            await this.loadMarkerTypes();
         } catch (error) {
             console.error('Fehler beim Speichern:', error);
             showMessage('Fehler: ' + error.message, 'error');
@@ -188,19 +198,10 @@ window.MarkerTypes = {
         }
         
         try {
-            const response = await fetch(`../api/marker-types.php?endpoint=delete&id=${id}`, {
-                method: 'DELETE',
-                credentials: 'include'
-            });
-            
-            const result = await response.json();
-            
-            if (result.success) {
-                showMessage('Marker-Typ gelöscht', 'success');
-                await this.loadMarkerTypes();
-            } else {
-                throw new Error(result.error || 'Fehler beim Löschen');
-            }
+            await API.delete(`../api/marker-types.php?endpoint=delete&id=${id}`);
+
+            showMessage('Marker-Typ gelöscht', 'success');
+            await this.loadMarkerTypes();
         } catch (error) {
             console.error('Fehler beim Löschen:', error);
             showMessage('Fehler: ' + error.message, 'error');

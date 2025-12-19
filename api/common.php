@@ -20,13 +20,100 @@ set_error_handler(function($errno, $errstr, $errfile, $errline) {
     exit(1);
 });
 
-// CORS Headers für lokale Entwicklung
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type');
+// ============================================================================
+// CORS CONFIGURATION - Cross-Origin Resource Sharing
+// ============================================================================
+//
+// IMPORTANT: This controls which websites can access your API
+//
+// Choose ONE of the presets below by uncommenting it:
+//
+// PRESET 1: SAME ORIGIN (Default - Most Secure)
+// - Admin and API are on the same domain (e.g., yourdomain.com/admin + yourdomain.com/api)
+// - No CORS headers needed - browser allows same-origin by default
+// - RECOMMENDED for production if frontend and API are on same domain
+//
+$corsMode = 'SAME_ORIGIN';
+
+// PRESET 2: LOCALHOST DEVELOPMENT
+// - Use when testing locally (http://localhost or http://127.0.0.1)
+// - Allows any localhost port (e.g., :8080, :3000)
+//
+// $corsMode = 'LOCALHOST';
+
+// PRESET 3: SPECIFIC DOMAINS (Whitelist)
+// - Use when admin and API are on different domains
+// - Add your production and development domains to the whitelist below
+//
+// $corsMode = 'WHITELIST';
+// $allowedOrigins = [
+//     'https://yourdomain.com',           // Production domain
+//     'https://admin.yourdomain.com',     // Admin subdomain
+//     'http://localhost',                 // Local development
+//     'http://localhost:8080'             // Local development with port
+// ];
+
+// PRESET 4: ALLOW ALL (⚠️ INSECURE - Development Only!)
+// - Allows ANY website to access your API
+// - ONLY use for testing/debugging
+// - NEVER use in production!
+//
+// $corsMode = 'ALLOW_ALL';
+
+// ============================================================================
+// CORS Implementation (Do not modify below this line)
+// ============================================================================
+
+$origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+$corsAllowed = false;
+
+switch ($corsMode) {
+    case 'SAME_ORIGIN':
+        // No CORS headers needed - same domain access is automatic
+        // This is the most secure option when frontend and API are on same domain
+        $corsAllowed = false;
+        break;
+
+    case 'LOCALHOST':
+        // Allow all localhost variations for development
+        if (preg_match('/^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/', $origin)) {
+            $corsAllowed = true;
+        }
+        break;
+
+    case 'WHITELIST':
+        // Check if origin is in whitelist
+        if (isset($allowedOrigins) && in_array($origin, $allowedOrigins)) {
+            $corsAllowed = true;
+        }
+        break;
+
+    case 'ALLOW_ALL':
+        // WARNING: Security risk - allows ANY website to access your API
+        error_log('⚠️ WARNING: CORS set to ALLOW_ALL - this is insecure!');
+        header('Access-Control-Allow-Origin: *');
+        header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
+        header('Access-Control-Allow-Headers: Content-Type');
+        $corsAllowed = true;
+        break;
+
+    default:
+        error_log('ERROR: Invalid CORS mode: ' . $corsMode);
+        $corsAllowed = false;
+}
+
+// Apply CORS headers if allowed
+if ($corsAllowed && $origin) {
+    header('Access-Control-Allow-Origin: ' . $origin);
+    header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
+    header('Access-Control-Allow-Headers: Content-Type');
+    header('Access-Control-Allow-Credentials: true');
+}
+
+// Set default content type
 header('Content-Type: application/json');
 
-// Handle OPTIONS preflight
+// Handle OPTIONS preflight requests
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
     exit();
@@ -72,7 +159,28 @@ define('USERS_FILE', DATA_DIR . 'users.json');
 define('SESSIONS_FILE', DATA_DIR . 'sessions.json');
 define('HYDRANTS_FILE', DATA_DIR . 'hydrants.json');
 define('MARKER_TYPES_FILE', DATA_DIR . 'marker-types.json');
-define('CONFIG_FILE', str_replace('/data/', '/', DATA_DIR) . 'config.json');
+
+// Config-Datei suchen (mehrere Orte möglich)
+$possibleConfigFiles = [
+    dirname(rtrim(DATA_DIR, '/')) . '/config.json',  // Normalerweise eine Ebene über data/
+    DATA_DIR . 'config.json',                        // Fallback: direkt in data/
+    __DIR__ . '/../config.json',                     // Relativ zu api/
+];
+
+$configFile = null;
+foreach ($possibleConfigFiles as $file) {
+    if (file_exists($file)) {
+        $configFile = $file;
+        break;
+    }
+}
+
+if (!$configFile) {
+    // Wenn nicht gefunden, nutze Standard-Pfad (wird später Fehler werfen)
+    $configFile = dirname(rtrim(DATA_DIR, '/')) . '/config.json';
+}
+
+define('CONFIG_FILE', $configFile);
 
 // Debug-Modus: Bei Fehler Pfade ausgeben
 if (!file_exists(USERS_FILE)) {
@@ -80,6 +188,13 @@ if (!file_exists(USERS_FILE)) {
     error_log('Suchpfad: ' . USERS_FILE);
     error_log('DATA_DIR: ' . DATA_DIR);
     error_log('__DIR__: ' . __DIR__);
+}
+
+// Config-File auch prüfen
+if (!file_exists(CONFIG_FILE)) {
+    error_log('LoeschNetz API Error: config.json nicht gefunden!');
+    error_log('CONFIG_FILE: ' . CONFIG_FILE);
+    error_log('Expected at: ' . dirname(rtrim(DATA_DIR, '/')) . '/config.json');
 }
 
 /**
@@ -209,6 +324,27 @@ function requireAdmin() {
 }
 
 /**
+ * Aktuellen User abrufen
+ */
+function getCurrentUser() {
+    // Session starten falls noch nicht gestartet
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+    
+    if (!isset($_SESSION['user_id']) || !isset($_SESSION['username'])) {
+        return null;
+    }
+    
+    return [
+        'user_id' => $_SESSION['user_id'],
+        'username' => $_SESSION['username'],
+        'role' => $_SESSION['role'] ?? 'editor',
+        'is_admin' => $_SESSION['is_admin'] ?? false
+    ];
+}
+
+/**
  * JSON-Input aus php://input lesen
  */
 function getJsonInput() {
@@ -262,19 +398,19 @@ function now() {
  */
 function checkRateLimit($identifier, $maxAttempts = 5, $timeWindow = 900) {
     $key = 'rate_limit_' . $identifier;
-    
+
     if (!isset($_SESSION[$key])) {
         $_SESSION[$key] = ['count' => 0, 'first' => time()];
     }
-    
+
     $data = $_SESSION[$key];
-    
+
     // Reset nach Time Window
     if (time() - $data['first'] > $timeWindow) {
         $_SESSION[$key] = ['count' => 1, 'first' => time()];
         return true;
     }
-    
+
     // Limit erreicht?
     if ($data['count'] >= $maxAttempts) {
         $remainingTime = $timeWindow - (time() - $data['first']);
@@ -284,7 +420,7 @@ function checkRateLimit($identifier, $maxAttempts = 5, $timeWindow = 900) {
             'RATE_LIMIT_EXCEEDED'
         );
     }
-    
+
     // Count erhöhen
     $_SESSION[$key]['count']++;
 
@@ -292,36 +428,7 @@ function checkRateLimit($identifier, $maxAttempts = 5, $timeWindow = 900) {
 }
 
 /**
- * CSRF Token generieren
- */
-function generateCsrfToken() {
-    // Session starten falls noch nicht gestartet
-    if (session_status() === PHP_SESSION_NONE) {
-        session_start();
-    }
-
-    // Token bereits vorhanden?
-    if (!isset($_SESSION['csrf_token'])) {
-        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-    }
-
-    return $_SESSION['csrf_token'];
-}
-
-/**
- * CSRF Token abrufen
- */
-function getCsrfToken() {
-    // Session starten falls noch nicht gestartet
-    if (session_status() === PHP_SESSION_NONE) {
-        session_start();
-    }
-
-    return $_SESSION['csrf_token'] ?? null;
-}
-
-/**
- * CSRF Token validieren
+ * CSRF Token Validierung
  */
 function validateCsrfToken() {
     // Session starten falls noch nicht gestartet
@@ -329,60 +436,135 @@ function validateCsrfToken() {
         session_start();
     }
 
-    // Token aus Session
-    $sessionToken = $_SESSION['csrf_token'] ?? null;
+    // CSRF Token aus Header holen
+    $token = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? null;
 
-    if (!$sessionToken) {
-        sendError('CSRF-Token fehlt in Session', 403, 'CSRF_TOKEN_MISSING');
+    // Für FormData-Uploads kann Token auch im POST sein
+    if (!$token && isset($_POST['csrf_token'])) {
+        $token = $_POST['csrf_token'];
     }
 
-    // Token aus Request (Header oder POST)
-    $requestToken = null;
-
-    // 1. Versuch: X-CSRF-Token Header
-    if (isset($_SERVER['HTTP_X_CSRF_TOKEN'])) {
-        $requestToken = $_SERVER['HTTP_X_CSRF_TOKEN'];
-    }
-    // 2. Versuch: POST-Parameter
-    elseif (isset($_POST['csrf_token'])) {
-        $requestToken = $_POST['csrf_token'];
-    }
-    // 3. Versuch: JSON-Body
-    else {
-        $input = json_decode(file_get_contents('php://input'), true);
-        if (isset($input['csrf_token'])) {
-            $requestToken = $input['csrf_token'];
-        }
+    // Token prüfen
+    if (!$token) {
+        sendError('CSRF Token fehlt', 403, 'CSRF_TOKEN_MISSING');
     }
 
-    if (!$requestToken) {
-        sendError('CSRF-Token fehlt im Request', 403, 'CSRF_TOKEN_REQUIRED');
+    if (!isset($_SESSION['csrf_token'])) {
+        sendError('Keine Session vorhanden', 403, 'CSRF_TOKEN_INVALID');
     }
 
-    // Timing-safe Vergleich
-    if (!hash_equals($sessionToken, $requestToken)) {
-        sendError('Ungültiges CSRF-Token', 403, 'CSRF_TOKEN_INVALID');
+    if (!hash_equals($_SESSION['csrf_token'], $token)) {
+        sendError('CSRF Token ungültig', 403, 'CSRF_TOKEN_INVALID');
     }
 
     return true;
 }
 
 /**
- * Aktuellen User aus Session holen
+ * Log Rotation
+ * Rotates log files when they exceed maxSizeKb and deletes old logs beyond retentionDays
  */
-function getCurrentUser() {
-    // Session starten falls noch nicht gestartet
-    if (session_status() === PHP_SESSION_NONE) {
-        session_start();
-    }
+function rotateLogFile($logFile) {
+    try {
+        // Check if log file exists
+        if (!file_exists($logFile)) {
+            return;
+        }
 
-    if (!isset($_SESSION['user_id']) || !isset($_SESSION['username'])) {
-        return null;
-    }
+        // Get config for rotation settings
+        $config = readJson(CONFIG_FILE);
+        $maxSizeKb = $config['logging']['maxSizeKb'] ?? 1024;
+        $retentionDays = $config['logging']['retentionDays'] ?? 365;
 
-    return [
-        'user_id' => $_SESSION['user_id'],
-        'username' => $_SESSION['username'],
-        'is_admin' => $_SESSION['is_admin'] ?? false
-    ];
+        // Get current file size in KB
+        $fileSizeKb = filesize($logFile) / 1024;
+
+        // Rotate if file exceeds max size
+        if ($fileSizeKb >= $maxSizeKb) {
+            // Create rotated filename with timestamp
+            $timestamp = date('Y-m-d_His');
+            $rotatedFile = $logFile . '.' . $timestamp;
+
+            // Rename current log file
+            if (rename($logFile, $rotatedFile)) {
+                error_log("Log rotated: $logFile -> $rotatedFile");
+            } else {
+                error_log("Failed to rotate log: $logFile");
+                return;
+            }
+        }
+
+        // Clean up old rotated logs
+        $logDir = dirname($logFile);
+        $logBasename = basename($logFile);
+
+        // Find all rotated log files
+        $rotatedLogs = glob($logDir . '/' . $logBasename . '.*');
+
+        if ($rotatedLogs) {
+            $cutoffTime = time() - ($retentionDays * 86400); // 86400 seconds per day
+
+            foreach ($rotatedLogs as $oldLog) {
+                // Get file modification time
+                $fileTime = filemtime($oldLog);
+
+                // Delete if older than retention period
+                if ($fileTime < $cutoffTime) {
+                    if (unlink($oldLog)) {
+                        error_log("Deleted old log: $oldLog (older than $retentionDays days)");
+                    } else {
+                        error_log("Failed to delete old log: $oldLog");
+                    }
+                }
+            }
+        }
+    } catch (Exception $e) {
+        error_log("Log rotation error: " . $e->getMessage());
+    }
+}
+
+/**
+ * CRUD Action Logging
+ * Logs all Create, Read, Update, Delete operations with timestamp, user, and details
+ */
+function logCrudAction($action, $resource, $details = []) {
+    try {
+        // Check if logging is enabled
+        $config = readJson(CONFIG_FILE);
+        if (!isset($config['logging']['enabled']) || !$config['logging']['enabled']) {
+            return; // Logging is disabled, skip
+        }
+
+        // Log file location
+        $logFile = DATA_DIR . 'crud.log';
+
+        // Rotate log file if needed
+        rotateLogFile($logFile);
+
+        // Get current user (or 'anonymous' if not logged in)
+        $user = getCurrentUser();
+        $username = $user ? $user['username'] : 'anonymous';
+
+        // Build log entry
+        $logEntry = [
+            'timestamp' => now(),
+            'user' => $username,
+            'action' => $action,
+            'resource' => $resource,
+            'details' => $details,
+            'ip' => $_SERVER['REMOTE_ADDR'] ?? 'unknown'
+        ];
+
+        // Format as JSON line
+        $logLine = json_encode($logEntry, JSON_UNESCAPED_UNICODE) . "\n";
+
+        // Append to log file
+        $result = file_put_contents($logFile, $logLine, FILE_APPEND | LOCK_EX);
+
+        if ($result === false) {
+            error_log("CRUD Log Error: Could not write to $logFile");
+        }
+    } catch (Exception $e) {
+        error_log("CRUD Log Exception: " . $e->getMessage());
+    }
 }

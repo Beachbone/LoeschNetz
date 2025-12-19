@@ -21,14 +21,12 @@ window.AdminMap = {
         try {
             // Leaflet-Karte erstellen
             this.map = L.map('map', { tap: false });
-            console.log('AdminMap: Karte erstellt');
             
             // OSM Tiles
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 maxZoom: 19,
                 attribution: '© <a href="https://www.openstreetmap.org/">OpenStreetMap</a>'
             }).addTo(this.map);
-            console.log('AdminMap: Tiles hinzugefügt');
             
             // Maßstab
             L.control.scale({imperial: false}).addTo(this.map);
@@ -36,11 +34,9 @@ window.AdminMap = {
             // Kartenausschnitt (Kappel-Kludenbach)
             const bounds = [[50.00387062220833, 7.351999282836915], [49.9865245373314, 7.3771047592163095]];
             this.map.fitBounds(bounds);
-            console.log('AdminMap: Bounds gesetzt');
             
             // Icons definieren (async laden)
             await this.defineIcons();
-            console.log('AdminMap: Icons definiert', this.icons);
             
             console.log('AdminMap.initMainMap() - Erfolgreich abgeschlossen');
         } catch (error) {
@@ -111,7 +107,6 @@ window.AdminMap = {
             return;
         }
         
-        console.log('AdminMap: Karte vorhanden, Icons:', this.icons);
         
         // Alte Marker entfernen
         this.markers.forEach(marker => marker.remove());
@@ -119,7 +114,6 @@ window.AdminMap = {
         
         // Neue Marker erstellen
         hydrants.forEach((hydrant, index) => {
-            console.log(`AdminMap: Setze Marker ${index + 1}:`, hydrant.title, hydrant.lat, hydrant.lng, hydrant.type);
             
             try {
                 const icon = this.icons[hydrant.type] || this.icons.h100;
@@ -127,24 +121,33 @@ window.AdminMap = {
                 const marker = L.marker([hydrant.lat, hydrant.lng], { icon })
                     .addTo(this.map);
                 
-                console.log(`AdminMap: Marker ${index + 1} erfolgreich gesetzt`);
                 
                 // Popup
                 let popupContent = `<div style="padding: 10px;">`;
                 popupContent += `<strong>${this.escapeHtml(hydrant.title)}</strong><br>`;
                 popupContent += `<span style="color: #666;">${Hydrants.getTypeLabel(hydrant.type)}</span><br>`;
-                
+
                 if (hydrant.description) {
                     popupContent += `<p style="margin: 10px 0;">${this.escapeHtml(hydrant.description)}</p>`;
                 }
-                
-                if (hydrant.photo) {
+
+                // Support new photos array structure
+                if (hydrant.photos && Array.isArray(hydrant.photos) && hydrant.photos.length > 0) {
+                    popupContent += `<div style="display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px;">`;
+                    hydrant.photos.forEach(photo => {
+                        const photoPath = `../uploads/hydrants/${hydrant.id}/${photo.filename}`;
+                        popupContent += `<img src="${photoPath}" style="width: 100%; max-width: 150px; border-radius: 4px;">`;
+                    });
+                    popupContent += `</div>`;
+                }
+                // Fallback for old single photo field
+                else if (hydrant.photo) {
                     popupContent += `<img src="../uploads/${hydrant.photo}" style="width: 100%; max-width: 200px; border-radius: 4px; margin-top: 5px;">`;
                 }
-                
+
                 popupContent += `<button onclick="Hydrants.edit('${hydrant.id}')" style="margin-top: 10px; padding: 6px 12px; background: #cc0000; color: white; border: none; border-radius: 3px; cursor: pointer;">Bearbeiten</button>`;
                 popupContent += `</div>`;
-                
+
                 marker.bindPopup(popupContent);
                 
                 this.markers.push(marker);
@@ -153,7 +156,6 @@ window.AdminMap = {
             }
         });
         
-        console.log(`AdminMap: ${this.markers.length} Marker erfolgreich gesetzt`);
     },
     
     /**
@@ -165,14 +167,12 @@ window.AdminMap = {
         // Icons definieren falls noch nicht geschehen
         if (Object.keys(this.icons).length === 0) {
             await this.defineIcons();
-            console.log('AdminMap: Icons für Modal definiert');
         }
         
         // Alte Karte aufräumen
         if (this.modalMap) {
             this.modalMap.remove();
             this.modalMap = null;
-            console.log('AdminMap: Alte Modal-Karte entfernt');
         }
         
         // Neue Karte erstellen
@@ -182,18 +182,15 @@ window.AdminMap = {
             return;
         }
         
-        console.log('AdminMap: modalMap Element gefunden', mapEl);
         
         try {
             this.modalMap = L.map('modalMap', { tap: false });
-            console.log('AdminMap: Modal-Karte erstellt');
             
             // OSM Tiles
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 maxZoom: 19,
                 attribution: '© OSM'
             }).addTo(this.modalMap);
-            console.log('AdminMap: Modal-Tiles hinzugefügt');
             
             // Position aus Formular
             const form = document.getElementById('hydrantForm');
@@ -204,7 +201,6 @@ window.AdminMap = {
             const lng = parseFloat(lngField.value) || 7.360;
             const type = typeField.value || 'h100';
             
-            console.log('AdminMap: Position:', lat, lng, 'Typ:', type);
             
             // Karte zentrieren
             this.modalMap.setView([lat, lng], 16);
@@ -216,7 +212,6 @@ window.AdminMap = {
                 icon: icon
             }).addTo(this.modalMap);
             
-            console.log('AdminMap: Modal-Marker gesetzt');
             
             // Marker verschieben -> Koordinaten aktualisieren
             this.modalMarker.on('dragend', (e) => {
@@ -251,13 +246,115 @@ window.AdminMap = {
             // Karte neu rendern (Leaflet Bug-Fix)
             setTimeout(() => {
                 this.modalMap.invalidateSize();
-                console.log('AdminMap: invalidateSize() aufgerufen');
             }, 100);
-            
+
+            // GPS-Button Event-Listener
+            this.setupGpsButton();
+
             console.log('AdminMap.initModalMap() - Erfolgreich abgeschlossen');
         } catch (error) {
             console.error('AdminMap.initModalMap() - FEHLER:', error);
         }
+    },
+
+    /**
+     * GPS-Button einrichten
+     */
+    setupGpsButton() {
+        const gpsButton = document.getElementById('modalGpsButton');
+        if (!gpsButton) {
+            console.warn('AdminMap: GPS-Button nicht gefunden');
+            return;
+        }
+
+        gpsButton.addEventListener('click', () => {
+            this.getHighAccuracyPosition();
+        });
+    },
+
+    /**
+     * GPS-Position mit hoher Genauigkeit abrufen
+     */
+    getHighAccuracyPosition() {
+        const gpsButton = document.getElementById('modalGpsButton');
+
+        if (!navigator.geolocation) {
+            showMessage('GPS wird von diesem Browser nicht unterstützt', 'error');
+            return;
+        }
+
+        // Button-Status: Wird geladen
+        gpsButton.classList.add('active');
+        gpsButton.disabled = true;
+
+        console.log('AdminMap: Starte hochgenaue GPS-Ortung...');
+
+        const options = {
+            enableHighAccuracy: true,
+            timeout: 30000,
+            maximumAge: 0
+        };
+
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                console.log('AdminMap: GPS-Position erfolgreich:', position.coords);
+
+                const lat = position.coords.latitude;
+                const lng = position.coords.longitude;
+                const accuracy = position.coords.accuracy;
+
+                // Formularfelder aktualisieren
+                const form = document.getElementById('hydrantForm');
+                const latField = form.querySelector('[name="lat"]');
+                const lngField = form.querySelector('[name="lng"]');
+
+                latField.value = lat.toFixed(6);
+                lngField.value = lng.toFixed(6);
+
+                // Marker und Karte aktualisieren
+                if (this.modalMarker && this.modalMap) {
+                    this.modalMarker.setLatLng([lat, lng]);
+                    this.modalMap.setView([lat, lng], 18);
+                }
+
+                // Button zurücksetzen
+                gpsButton.classList.remove('active', 'error');
+                gpsButton.disabled = false;
+
+                // Erfolgs-Nachricht mit Genauigkeit
+                showMessage(`GPS-Position erfolgreich ermittelt (±${Math.round(accuracy)}m Genauigkeit)`, 'success');
+            },
+            (error) => {
+                console.error('AdminMap: GPS-Fehler:', error);
+
+                // Button-Status: Fehler
+                gpsButton.classList.remove('active');
+                gpsButton.classList.add('error');
+                gpsButton.disabled = false;
+
+                // Fehler-Nachricht
+                let errorMessage = 'GPS-Position konnte nicht ermittelt werden';
+                switch (error.code) {
+                    case error.PERMISSION_DENIED:
+                        errorMessage = 'GPS-Zugriff verweigert. Bitte erlaube den Zugriff in den Browser-Einstellungen.';
+                        break;
+                    case error.POSITION_UNAVAILABLE:
+                        errorMessage = 'GPS-Position nicht verfügbar. Bitte prüfe deine Verbindung.';
+                        break;
+                    case error.TIMEOUT:
+                        errorMessage = 'GPS-Timeout. Bitte versuche es erneut.';
+                        break;
+                }
+
+                showMessage(errorMessage, 'error');
+
+                // Fehler-Status nach 3 Sekunden zurücksetzen
+                setTimeout(() => {
+                    gpsButton.classList.remove('error');
+                }, 3000);
+            },
+            options
+        );
     },
     
     /**

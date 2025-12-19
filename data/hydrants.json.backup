@@ -21,6 +21,26 @@
             ]
         },
         {
+            "id": "h80_liesch_faust",
+            "type": "h80",
+            "lat": 50.001782,
+            "lng": 7.362643,
+            "title": "Grenze Anwesen Liesch\/Lagerfläche Ortsgemeinde",
+            "description": "Vor der ehemaligen Lagerfläche (ehemals Faustgelände)",
+            "created_at": "2025-01-15T11:00:00Z",
+            "created_by": "admin",
+            "updated_at": "2025-01-15T11:00:00Z",
+            "updated_by": "admin",
+            "photos": [
+                {
+                    "filename": "h80_liesch_faust.jpg",
+                    "uploaded_at": "2025-12-05 05:36:50",
+                    "uploaded_by": "migration",
+                    "migrated_from": "photo_field"
+                }
+            ]
+        },
+        {
             "id": "h80_mohr",
             "type": "h80",
             "lat": 49.99985,
@@ -803,13 +823,13 @@
         {
             "id": "weiher_marx",
             "type": "reservoir",
-            "lat": 50.00293278321956,
-            "lng": 7.378638982772828,
+            "lat": 50.002857,
+            "lng": 7.378392,
             "title": "Fischweiher Marx ca 500m³",
             "description": "Darf als Wasserentnahmestelle genutzt werden",
             "created_at": "2025-01-16T13:10:00Z",
             "created_by": "admin",
-            "updated_at": "2025-01-16T13:10:00Z",
+            "updated_at": "2025-12-09T16:12:39Z",
             "updated_by": "admin",
             "photos": [
                 {
@@ -1083,14 +1103,14 @@
         {
             "id": "building_1",
             "type": "building",
-            "lat": 50.000007,
-            "lng": 7.360368,
+            "lat": 49.999974,
+            "lng": 7.360325,
             "title": "Werkstatt",
             "description": "Scheen",
             "photo": "",
             "created_at": "2025-12-05T05:42:03Z",
             "created_by": "admin",
-            "updated_at": "2025-12-06T08:11:37Z",
+            "updated_at": "2025-12-11T19:47:01Z",
             "updated_by": "admin",
             "photos": [
                 {
@@ -1105,5 +1125,6 @@
                 }
             ]
         }
-    ]
+    ],
+    "last_updated": "2025-12-11T19:48:13Z"
 }

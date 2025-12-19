@@ -128,7 +128,7 @@ function handleLogin() {
     }
     
     // Account gesperrt?
-    if ($user['locked_until'] && strtotime($user['locked_until']) > time()) {
+    if (!empty($user['locked_until']) && strtotime($user['locked_until']) > time()) {
         $remaining = strtotime($user['locked_until']) - time();
         $minutes = ceil($remaining / 60);
         sendError(
@@ -151,31 +151,35 @@ function handleLogin() {
     // Session erstellen
     $_SESSION['user_id'] = $user['id'];
     $_SESSION['username'] = $user['username'];
-    $_SESSION['is_admin'] = $user['is_admin'];
+    $_SESSION['role'] = ($user['is_admin'] ?? false) ? 'admin' : 'editor';
+    $_SESSION['is_admin'] = $user['is_admin'] ?? false;
+    $_SESSION['force_password_change'] = $user['force_password_change'] ?? false;
     $_SESSION['last_activity'] = time();
 
     // CSRF Token generieren
-    $csrfToken = generateCsrfToken();
-
+    if (!isset($_SESSION['csrf_token'])) {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+    
     // Session in sessions.json speichern
     saveSession($user);
-
+    
     // Last login aktualisieren
     updateLastLogin($user['id']);
-
+    
     // Response
     $config = readJson(CONFIG_FILE);
     $timeout = $config['security']['sessionTimeout'] ?? 1800;
-
+    
     sendSuccess([
         'user' => [
             'id' => $user['id'],
             'username' => $user['username'],
             'is_admin' => $user['is_admin']
         ],
-        'csrf_token' => $csrfToken,
         'session_expires' => date('Y-m-d\TH:i:s\Z', time() + $timeout),
-        'force_password_change' => $user['force_password_change'] ?? false
+        'force_password_change' => $user['force_password_change'] ?? false,
+        'csrf_token' => $_SESSION['csrf_token']
     ], 'Login erfolgreich');
 }
 
@@ -211,23 +215,28 @@ function handleLogout() {
  */
 function handleCheck() {
     $user = requireAuth();
-    
+
+    // CSRF Token generieren falls nicht vorhanden
+    if (!isset($_SESSION['csrf_token'])) {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+
     // Andere aktive Sessions finden
     $sessions = readJson(SESSIONS_FILE);
     $activeSessions = [];
-    
+
     if ($sessions && isset($sessions['sessions'])) {
         foreach ($sessions['sessions'] as $session) {
             if ($session['user_id'] !== $user['user_id']) {
                 // Andere User interessieren nicht
                 continue;
             }
-            
+
             // Eigene Session interessiert nicht
             if ($session['session_id'] === session_id()) {
                 continue;
             }
-            
+
             // Ist die Session noch aktiv? (max. 30min)
             $lastActivity = strtotime($session['last_activity']);
             if (time() - $lastActivity < 1800) {
@@ -238,18 +247,16 @@ function handleCheck() {
             }
         }
     }
-    
-    // CSRF Token generieren falls noch nicht vorhanden
-    $csrfToken = generateCsrfToken();
 
     sendSuccess([
         'logged_in' => true,
         'user' => [
             'id' => $user['user_id'],
             'username' => $user['username'],
-            'is_admin' => $user['is_admin']
+            'is_admin' => $user['is_admin'],
+            'force_password_change' => $_SESSION['force_password_change'] ?? false
         ],
-        'csrf_token' => $csrfToken,
+        'csrf_token' => $_SESSION['csrf_token'],
         'active_sessions' => $activeSessions
     ]);
 }
@@ -361,13 +368,9 @@ function removeSession($userId) {
  */
 function handleChangePassword() {
     error_log("=== CHANGE PASSWORD START ===");
-
+    
     try {
         $user = requireAuth();
-
-        // CSRF-Schutz
-        validateCsrfToken();
-
         error_log("User authenticated: " . $user['user_id']);
         
         $input = getJsonInput();

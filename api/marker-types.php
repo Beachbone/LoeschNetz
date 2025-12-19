@@ -66,7 +66,10 @@ function handleList() {
  */
 function handleCreate() {
     requireAdmin();
-    
+
+    // CSRF-Schutz
+    validateCsrfToken();
+
     $input = getJsonInput();
     
     // Validierung
@@ -101,7 +104,8 @@ function handleCreate() {
     }
     
     // Icon generieren oder wiederverwenden
-    $color = ltrim($input['color'], '#');
+    // Farbe normalisieren (lowercase, ohne #)
+    $color = strtolower(ltrim($input['color'], '#'));
     $iconFilename = getIconFilename($color);
     $iconPath = __DIR__ . '/../icons/' . $iconFilename;
     
@@ -157,7 +161,10 @@ function handleCreate() {
  */
 function handleUpdate() {
     requireAdmin();
-    
+
+    // CSRF-Schutz
+    validateCsrfToken();
+
     $id = $_GET['id'] ?? '';
     if (empty($id)) {
         sendError('ID erforderlich', 400);
@@ -190,19 +197,23 @@ function handleUpdate() {
     if (isset($input['label'])) {
         $data['types'][$typeIndex]['label'] = $input['label'];
     }
-    
+
     if (isset($input['description'])) {
         $data['types'][$typeIndex]['description'] = $input['description'];
     }
-    
-    // Farbe geändert?
-    if (isset($input['color']) && $input['color'] !== $oldType['color']) {
+
+    // Farbe geändert oder aktualisiert?
+    // Normalisiere Farben für Vergleich (lowercase, ohne #)
+    $oldColorNormalized = strtolower(ltrim($oldType['color'], '#'));
+    $newColorNormalized = isset($input['color']) ? strtolower(ltrim($input['color'], '#')) : null;
+
+    if ($newColorNormalized !== null && $newColorNormalized !== $oldColorNormalized) {
         // Farbe validieren
         if (!preg_match('/^#?[0-9A-Fa-f]{6}$/', $input['color'])) {
             sendError('Ungültiges Farbformat', 400);
         }
-        
-        $newColor = ltrim($input['color'], '#');
+
+        $newColor = $newColorNormalized;
         $newIconFilename = getIconFilename($newColor);
         $newIconPath = __DIR__ . '/../icons/' . $newIconFilename;
         
@@ -241,14 +252,25 @@ function handleUpdate() {
         }
         
         if (!$iconUsedElsewhere && file_exists($oldIconPath)) {
-            unlink($oldIconPath);
-            error_log("Altes Icon gelöscht: " . $oldType['icon']);
+            try {
+                if (unlink($oldIconPath)) {
+                    error_log("Altes Icon gelöscht: " . $oldType['icon']);
+                } else {
+                    error_log("Warnung: Konnte altes Icon nicht löschen: " . $oldType['icon']);
+                }
+            } catch (Exception $e) {
+                error_log("Fehler beim Löschen des alten Icons: " . $e->getMessage());
+                // Nicht abbrechen - Icon-Löschung ist nicht kritisch
+            }
         }
         
         $data['types'][$typeIndex]['color'] = '#' . $newColor;
         $data['types'][$typeIndex]['icon'] = $newIconFilename;
+    } elseif ($newColorNormalized !== null) {
+        // Farbe nicht geändert, aber normalisieren für Konsistenz
+        $data['types'][$typeIndex]['color'] = '#' . $newColorNormalized;
     }
-    
+
     $data['last_updated'] = date('Y-m-d\TH:i:s\Z');
     
     // Speichern
@@ -267,7 +289,10 @@ function handleUpdate() {
  */
 function handleDelete() {
     requireAdmin();
-    
+
+    // CSRF-Schutz
+    validateCsrfToken();
+
     $id = $_GET['id'] ?? '';
     if (empty($id)) {
         sendError('ID erforderlich', 400);

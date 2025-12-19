@@ -11,23 +11,20 @@
     <div class="header">
         <div class="header-content">
             <div class="logo">
-                <h1>🔥 LoeschNetz Admin</h1>
+                <span>🔥 LoeschNetz Admin</span>
             </div>
             <div class="user-info">
                 <span>Angemeldet als: <strong id="userName">...</strong></span>
                 <span class="text-muted text-small" id="userRole"></span>
+                <button id="installAppBtn" class="btn-header" title="App installieren" onclick="showInstallPrompt()" style="display: none;">📱</button>
                 <button id="changePasswordBtn" class="btn-header" title="Passwort ändern">🔐</button>
                 <button class="btn-logout" id="logoutBtn">Abmelden</button>
             </div>
         </div>
     </div>
 
-    <!-- Navigation -->
-    <nav class="nav-tabs">
-        <a href="./index.html">📍 Hydranten</a>
-        <a href="./marker-types.html" data-admin-only>🎨 Marker-Typen</a>
-        <a href="./settings.html" class="active" data-admin-only>⚙️ Einstellungen</a>
-    </nav>
+    <!-- Navigation (dynamically generated) -->
+    <div id="nav-menu"></div>
 
     <!-- Container -->
     <div class="container">
@@ -110,18 +107,60 @@
                 
                 <div class="form-group">
                     <label for="themePrimaryColor">Primärfarbe</label>
-                    <div style="display: flex; gap: 10px; align-items: center;">
-                        <input type="color" id="themePrimaryColor" name="themePrimaryColor" required>
-                        <input type="text" id="themePrimaryColorText" readonly style="width: 100px;">
+                    <div class="color-picker-container">
+                        <div class="color-preview-large" id="primaryColorPreview">
+                            <div class="color-sample" id="primaryColorSample" style="background: #d32f2f;"></div>
+                            <div class="color-info">
+                                <input type="text" id="themePrimaryColorText" placeholder="#d32f2f" pattern="^#[0-9A-Fa-f]{6}$"
+                                       style="font-size: 22px; font-weight: 700; font-family: 'Courier New', monospace;
+                                              border: 2px solid #e0e0e0; border-radius: 6px; padding: 8px 12px;
+                                              width: 140px; letter-spacing: 1px; text-align: center;"
+                                       title="Hex-Code manuell eingeben">
+                                <small>Primärfarbe der Anwendung</small>
+                            </div>
+                            <input type="color" id="themePrimaryColor" name="themePrimaryColor" required class="color-input-hidden">
+                        </div>
+                        <div class="color-presets">
+                            <button type="button" class="color-preset" data-color="#d32f2f" data-target="primary" style="background: #d32f2f;" title="Standard Rot"></button>
+                            <button type="button" class="color-preset" data-color="#c62828" data-target="primary" style="background: #c62828;" title="Dunkelrot"></button>
+                            <button type="button" class="color-preset" data-color="#1976d2" data-target="primary" style="background: #1976d2;" title="Blau"></button>
+                            <button type="button" class="color-preset" data-color="#388e3c" data-target="primary" style="background: #388e3c;" title="Grün"></button>
+                            <button type="button" class="color-preset" data-color="#f57c00" data-target="primary" style="background: #f57c00;" title="Orange"></button>
+                            <button type="button" class="color-preset" data-color="#7b1fa2" data-target="primary" style="background: #7b1fa2;" title="Lila"></button>
+                            <button type="button" class="color-preset" data-color="#0097a7" data-target="primary" style="background: #0097a7;" title="Cyan"></button>
+                            <button type="button" class="color-preset" data-color="#5d4037" data-target="primary" style="background: #5d4037;" title="Braun"></button>
+                        </div>
                     </div>
+                    <small style="color: #888; font-style: italic;">💡 Klicken Sie auf die Farbvorschau oder wählen Sie eine Voreinstellung</small>
                 </div>
-                
+
                 <div class="form-group">
                     <label for="themeBackgroundColor">Hintergrundfarbe</label>
-                    <div style="display: flex; gap: 10px; align-items: center;">
-                        <input type="color" id="themeBackgroundColor" name="themeBackgroundColor" required>
-                        <input type="text" id="themeBackgroundColorText" readonly style="width: 100px;">
+                    <div class="color-picker-container">
+                        <div class="color-preview-large" id="backgroundColorPreview">
+                            <div class="color-sample" id="backgroundColorSample" style="background: #ffffff;"></div>
+                            <div class="color-info">
+                                <input type="text" id="themeBackgroundColorText" placeholder="#ffffff" pattern="^#[0-9A-Fa-f]{6}$"
+                                       style="font-size: 22px; font-weight: 700; font-family: 'Courier New', monospace;
+                                              border: 2px solid #e0e0e0; border-radius: 6px; padding: 8px 12px;
+                                              width: 140px; letter-spacing: 1px; text-align: center;"
+                                       title="Hex-Code manuell eingeben">
+                                <small>Hintergrundfarbe der Anwendung</small>
+                            </div>
+                            <input type="color" id="themeBackgroundColor" name="themeBackgroundColor" required class="color-input-hidden">
+                        </div>
+                        <div class="color-presets">
+                            <button type="button" class="color-preset" data-color="#ffffff" data-target="background" style="background: #ffffff; border: 2px solid #ddd;" title="Weiß"></button>
+                            <button type="button" class="color-preset" data-color="#fafafa" data-target="background" style="background: #fafafa; border: 2px solid #ddd;" title="Hellgrau"></button>
+                            <button type="button" class="color-preset" data-color="#f5f5f5" data-target="background" style="background: #f5f5f5; border: 2px solid #ddd;" title="Grau"></button>
+                            <button type="button" class="color-preset" data-color="#e8eaf6" data-target="background" style="background: #e8eaf6;" title="Hellblau"></button>
+                            <button type="button" class="color-preset" data-color="#e0f2f1" data-target="background" style="background: #e0f2f1;" title="Mintgrün"></button>
+                            <button type="button" class="color-preset" data-color="#fff3e0" data-target="background" style="background: #fff3e0;" title="Creme"></button>
+                            <button type="button" class="color-preset" data-color="#fce4ec" data-target="background" style="background: #fce4ec;" title="Rosa"></button>
+                            <button type="button" class="color-preset" data-color="#212121" data-target="background" style="background: #212121;" title="Dunkel"></button>
+                        </div>
                     </div>
+                    <small style="color: #888; font-style: italic;">💡 Klicken Sie auf die Farbvorschau oder wählen Sie eine Voreinstellung</small>
                 </div>
                 
                 <div class="form-group">
@@ -182,30 +221,52 @@
             <!-- TAB: Erweitert -->
             <div id="tabAdvanced" class="tab-pane">
                 <h2>⚙️ Erweiterte Einstellungen</h2>
-                
-                <h3>📝 Logging</h3>
+
+                <h3>💬 Toast-Benachrichtigungen</h3>
+                <p style="margin-bottom: 15px; color: #666; font-size: 14px;">
+                    Dauer für die automatisch verschwindenden Benachrichtigungen festlegen (in Sekunden)
+                </p>
                 <div class="form-grid">
                     <div class="form-group">
-                        <label for="loggingLevel">Log-Level</label>
-                        <select id="loggingLevel" name="loggingLevel">
-                            <option value="0">0 - Aus</option>
-                            <option value="1">1 - Fehler</option>
-                            <option value="2">2 - Warnungen</option>
-                            <option value="3">3 - Info</option>
-                            <option value="4">4 - Debug</option>
-                        </select>
+                        <label for="toastDurationSuccess">✅ Erfolg (Sekunden)</label>
+                        <input type="number" min="1" max="60" id="toastDurationSuccess" name="toastDurationSuccess" required>
                     </div>
+                    <div class="form-group">
+                        <label for="toastDurationError">❌ Fehler (Sekunden)</label>
+                        <input type="number" min="1" max="60" id="toastDurationError" name="toastDurationError" required>
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="toastDurationWarning">⚠️ Warnung (Sekunden)</label>
+                        <input type="number" min="1" max="60" id="toastDurationWarning" name="toastDurationWarning" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="toastDurationInfo">ℹ️ Info (Sekunden)</label>
+                        <input type="number" min="1" max="60" id="toastDurationInfo" name="toastDurationInfo" required>
+                    </div>
+                </div>
+
+                <h3 style="margin-top: 30px;">📝 Logging</h3>
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="loggingEnabled" name="loggingEnabled">
+                        Logging aktiviert
+                    </label>
+                    <small>Aktiviert/Deaktiviert das Logging von CRUD-Aktionen</small>
+                </div>
+
+                <div class="form-grid">
                     <div class="form-group">
                         <label for="loggingMaxSize">Max. Log-Größe (KB)</label>
                         <input type="number" min="100" id="loggingMaxSize" name="loggingMaxSize" required>
                     </div>
+                    <div class="form-group">
+                        <label for="loggingRetention">Log-Aufbewahrung (Tage)</label>
+                        <input type="number" min="1" max="3650" id="loggingRetention" name="loggingRetention" required>
+                    </div>
                 </div>
-                
-                <div class="form-group">
-                    <label for="loggingRetention">Log-Aufbewahrung (Tage)</label>
-                    <input type="number" min="1" max="3650" id="loggingRetention" name="loggingRetention" required>
-                </div>
-                
+
                 <h3 style="margin-top: 30px;">💾 Snapshots</h3>
                 <div class="form-group">
                     <label class="checkbox-label">
@@ -213,17 +274,38 @@
                         Snapshots aktiviert
                     </label>
                 </div>
-                
+
                 <div class="form-group">
                     <label class="checkbox-label">
                         <input type="checkbox" id="snapshotsAutoCreate" name="snapshotsAutoCreate">
                         Automatische Snapshots
                     </label>
                 </div>
-                
+
                 <div class="form-group">
                     <label for="snapshotsMaxCount">Max. Anzahl Snapshots</label>
                     <input type="number" min="1" max="100" id="snapshotsMaxCount" name="snapshotsMaxCount" required>
+                </div>
+
+                <h3 style="margin-top: 30px;">🐛 Debug-Modus</h3>
+                <p style="margin-bottom: 15px; color: #666; font-size: 14px;">
+                    Debug-Funktionen für Entwicklung und Fehlersuche
+                </p>
+
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="debugEnabled" name="debugEnabled">
+                        Debug-Modus aktiviert
+                    </label>
+                    <small>Aktiviert erweiterte Debug-Funktionen</small>
+                </div>
+
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="debugShowReloadButton" name="debugShowReloadButton">
+                        Reload-Button in Public PWA anzeigen
+                    </label>
+                    <small>Zeigt den Reload-Button in der öffentlichen App an (zum Testen von Service Worker Updates)</small>
                 </div>
             </div>
 
@@ -273,6 +355,7 @@
     <!-- Scripts -->
     <script src="./js/admin-utils.js"></script>
     <script src="./js/admin-auth.js"></script>
+    <script src="./js/admin-menu.js"></script>
     <script src="./js/admin-password.js"></script>
     <script src="./js/admin-settings.js"></script>
     <script>
@@ -283,12 +366,15 @@
                 return;
             }
             Auth.displayUserInfo();
-            
+
             // Admin-Berechtigung erforderlich
             Auth.requireAdmin();
-            
+
             // UI für Rolle anpassen
             Auth.updateUIForRole();
+
+            // Menu generieren (nach Auth-Check!)
+            AdminMenu.generate();
             
             setupLogout();
             setupPasswordChange();
@@ -313,6 +399,117 @@
         }
         
         initApp();
+    </script>
+
+    <!-- Back to Top Button -->
+    <button id="backToTop" class="back-to-top" aria-label="Nach oben" title="Nach oben">↑</button>
+
+    <!-- Install Prompt (nur wenn noch nicht installiert) -->
+    <div id="installPrompt" class="install-prompt" style="display: none;">
+        <p>LoeschNetz Admin als App installieren?</p>
+        <div class="install-actions">
+            <button id="installButton">Installieren</button>
+            <button id="dismissInstall">Später</button>
+        </div>
+    </div>
+
+    <!-- PWA Install Prompt -->
+    <script>
+    // PWA Install Prompt
+    let deferredPrompt;
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+
+        // Zeige Install-Button im Header
+        const installBtn = document.getElementById('installAppBtn');
+        if (installBtn && !window.matchMedia('(display-mode: standalone)').matches) {
+            installBtn.style.display = 'inline-block';
+        }
+
+        // Prüfe ob bereits angezeigt wurde
+        const hasSeenInstallPrompt = localStorage.getItem('hasSeenInstallPrompt');
+
+        // Zeige Install-Prompt nur beim ersten Mal automatisch
+        if (!hasSeenInstallPrompt) {
+            setTimeout(() => {
+                const installPrompt = document.getElementById('installPrompt');
+                if (installPrompt && !window.matchMedia('(display-mode: standalone)').matches) {
+                    installPrompt.style.display = 'block';
+                }
+            }, 10000);
+        }
+    });
+
+    // Funktion zum manuellen Anzeigen des Install-Prompts
+    window.showInstallPrompt = function() {
+        const installPrompt = document.getElementById('installPrompt');
+        if (deferredPrompt && installPrompt && !window.matchMedia('(display-mode: standalone)').matches) {
+            installPrompt.style.display = 'block';
+        } else if (window.matchMedia('(display-mode: standalone)').matches) {
+            alert('Die App ist bereits installiert!');
+        } else {
+            alert('Installation ist im Browser nicht verfügbar. Bitte öffnen Sie die Seite im Browser und versuchen Sie es erneut.');
+        }
+    };
+
+    // Install-Button Handler
+    document.getElementById('installButton')?.addEventListener('click', async () => {
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            console.log('Install outcome:', outcome);
+
+            // Markiere als gesehen
+            localStorage.setItem('hasSeenInstallPrompt', 'true');
+
+            // Verstecke Popup
+            document.getElementById('installPrompt').style.display = 'none';
+
+            // Verstecke Header-Button nach Installation
+            if (outcome === 'accepted') {
+                const installBtn = document.getElementById('installAppBtn');
+                if (installBtn) installBtn.style.display = 'none';
+            }
+
+            deferredPrompt = null;
+        }
+    });
+
+    // Dismiss-Button Handler
+    document.getElementById('dismissInstall')?.addEventListener('click', () => {
+        // Markiere als gesehen
+        localStorage.setItem('hasSeenInstallPrompt', 'true');
+        document.getElementById('installPrompt').style.display = 'none';
+    });
+    </script>
+
+    <script>
+        (function() {
+            const backToTopButton = document.getElementById('backToTop');
+            const scrollThreshold = 300;
+
+            function toggleBackToTopButton() {
+                if (window.pageYOffset > scrollThreshold || document.documentElement.scrollTop > scrollThreshold) {
+                    backToTopButton.classList.add('visible');
+                } else {
+                    backToTopButton.classList.remove('visible');
+                }
+            }
+
+            function scrollToTop() {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            }
+
+            window.addEventListener('scroll', toggleBackToTopButton);
+            backToTopButton.addEventListener('click', scrollToTop);
+
+            toggleBackToTopButton();
+        })();
     </script>
 </body>
 </html>

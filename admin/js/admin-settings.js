@@ -8,17 +8,16 @@ window.Settings = {
      */
     async loadConfig() {
         try {
-            const response = await fetch('../api/config.php?endpoint=get', {
-                credentials: 'include'
-            });
-            const data = await response.json();
-            
-            if (data.success) {
-                this.config = data.data;
-                this.populateForm();
-            } else {
-                throw new Error(data.error || 'Fehler beim Laden');
+            const data = await API.get('../api/config.php?endpoint=get');
+
+            this.config = data.data;
+
+            // Toast-Konfiguration in localStorage speichern
+            if (window.setToastConfig && this.config.toast) {
+                setToastConfig(this.config.toast);
             }
+
+            this.populateForm();
         } catch (error) {
             console.error('Fehler beim Laden der Config:', error);
             showMessage('Fehler beim Laden der Einstellungen: ' + error.message, 'error');
@@ -46,7 +45,11 @@ window.Settings = {
         
         // THEME
         document.getElementById('themePrimaryColor').value = this.config.theme.primaryColor;
+        document.getElementById('themePrimaryColorText').value = this.config.theme.primaryColor.toUpperCase();
+        document.getElementById('primaryColorSample').style.background = this.config.theme.primaryColor;
         document.getElementById('themeBackgroundColor').value = this.config.theme.backgroundColor;
+        document.getElementById('themeBackgroundColorText').value = this.config.theme.backgroundColor.toUpperCase();
+        document.getElementById('backgroundColorSample').style.background = this.config.theme.backgroundColor;
         
         // LEGAL
         document.getElementById('legalImpressum').value = this.config.legal.impressumUrl;
@@ -57,7 +60,7 @@ window.Settings = {
         document.getElementById('securitySessionTimeout').value = this.config.security.sessionTimeout;
         
         // LOGGING
-        document.getElementById('loggingLevel').value = this.config.logging.level;
+        document.getElementById('loggingEnabled').checked = this.config.logging.enabled;
         document.getElementById('loggingMaxSize').value = this.config.logging.maxSizeKb;
         document.getElementById('loggingRetention').value = this.config.logging.retentionDays;
         
@@ -71,6 +74,28 @@ window.Settings = {
         document.getElementById('photosMaxHeight').value = this.config.photos.maxHeight;
         document.getElementById('photosQuality').value = this.config.photos.quality;
         document.getElementById('photosMaxSize').value = this.config.photos.maxSizeKb;
+
+        // TOAST MESSAGES
+        if (this.config.toast) {
+            document.getElementById('toastDurationSuccess').value = this.config.toast.durationSuccess || 5;
+            document.getElementById('toastDurationError').value = this.config.toast.durationError || 10;
+            document.getElementById('toastDurationWarning').value = this.config.toast.durationWarning || 8;
+            document.getElementById('toastDurationInfo').value = this.config.toast.durationInfo || 5;
+        } else {
+            document.getElementById('toastDurationSuccess').value = 5;
+            document.getElementById('toastDurationError').value = 10;
+            document.getElementById('toastDurationWarning').value = 8;
+            document.getElementById('toastDurationInfo').value = 5;
+        }
+
+        // DEBUG
+        if (this.config.debug) {
+            document.getElementById('debugEnabled').checked = this.config.debug.enabled || false;
+            document.getElementById('debugShowReloadButton').checked = this.config.debug.showReloadButton || false;
+        } else {
+            document.getElementById('debugEnabled').checked = false;
+            document.getElementById('debugShowReloadButton').checked = false;
+        }
     },
     
     /**
@@ -107,7 +132,7 @@ window.Settings = {
                 sessionTimeout: parseInt(formData.get('securitySessionTimeout'))
             },
             logging: {
-                level: parseInt(formData.get('loggingLevel')),
+                enabled: formData.get('loggingEnabled') === 'on',
                 maxSizeKb: parseInt(formData.get('loggingMaxSize')),
                 retentionDays: parseInt(formData.get('loggingRetention'))
             },
@@ -121,27 +146,29 @@ window.Settings = {
                 maxHeight: parseInt(formData.get('photosMaxHeight')),
                 quality: parseInt(formData.get('photosQuality')),
                 maxSizeKb: parseInt(formData.get('photosMaxSize'))
+            },
+            toast: {
+                durationSuccess: parseInt(formData.get('toastDurationSuccess')),
+                durationError: parseInt(formData.get('toastDurationError')),
+                durationWarning: parseInt(formData.get('toastDurationWarning')),
+                durationInfo: parseInt(formData.get('toastDurationInfo'))
+            },
+            debug: {
+                enabled: formData.get('debugEnabled') === 'on',
+                showReloadButton: formData.get('debugShowReloadButton') === 'on'
             }
         };
-        
+
         try {
-            const response = await fetch('../api/config.php?endpoint=update', {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                credentials: 'include',
-                body: JSON.stringify(newConfig)
-            });
-            
-            const result = await response.json();
-            
-            if (result.success) {
-                showMessage(result.data.message || 'Einstellungen gespeichert', 'success');
-                this.config = result.data.config;
-            } else {
-                throw new Error(result.error || 'Fehler beim Speichern');
+            const result = await API.put('../api/config.php?endpoint=update', newConfig);
+
+            // Toast-Konfiguration auch in localStorage speichern für sofortige Verfügbarkeit
+            if (window.setToastConfig && newConfig.toast) {
+                setToastConfig(newConfig.toast);
             }
+
+            showMessage(result.data.message || 'Einstellungen gespeichert', 'success');
+            this.config = result.data.config;
         } catch (error) {
             console.error('Fehler beim Speichern:', error);
             showMessage('Fehler: ' + error.message, 'error');
@@ -177,12 +204,125 @@ function setupTabs() {
 }
 
 /**
+ * Color Picker Setup - Enhanced with preview and presets
+ */
+function setupColorPickers() {
+    const colorConfigs = [
+        {
+            picker: 'themePrimaryColor',
+            text: 'themePrimaryColorText',
+            sample: 'primaryColorSample',
+            preview: 'primaryColorPreview',
+            target: 'primary'
+        },
+        {
+            picker: 'themeBackgroundColor',
+            text: 'themeBackgroundColorText',
+            sample: 'backgroundColorSample',
+            preview: 'backgroundColorPreview',
+            target: 'background'
+        }
+    ];
+
+    colorConfigs.forEach(({ picker, text, sample, preview, target }) => {
+        const pickerElement = document.getElementById(picker);
+        const textElement = document.getElementById(text);
+        const sampleElement = document.getElementById(sample);
+        const previewElement = document.getElementById(preview);
+
+        if (!pickerElement || !textElement || !sampleElement) return;
+
+        // Function to update all color displays
+        function updateColor(color) {
+            if (!/^#[0-9A-Fa-f]{6}$/.test(color)) return;
+
+            pickerElement.value = color;
+            textElement.value = color.toUpperCase();
+            sampleElement.style.background = color;
+
+            // Update active state of preset buttons
+            const presets = document.querySelectorAll(`.color-preset[data-target="${target}"]`);
+            presets.forEach(preset => {
+                if (preset.dataset.color.toUpperCase() === color.toUpperCase()) {
+                    preset.classList.add('active');
+                } else {
+                    preset.classList.remove('active');
+                }
+            });
+        }
+
+        // Color picker input event
+        pickerElement.addEventListener('input', (e) => {
+            updateColor(e.target.value);
+        });
+
+        // Text field input event (manual entry)
+        textElement.addEventListener('input', (e) => {
+            const value = e.target.value.trim();
+            if (/^#[0-9A-Fa-f]{6}$/.test(value)) {
+                updateColor(value);
+            }
+        });
+
+        // Text field blur event (validate and format)
+        textElement.addEventListener('blur', (e) => {
+            let value = e.target.value.trim();
+            // Add # if missing
+            if (/^[0-9A-Fa-f]{6}$/.test(value)) {
+                value = '#' + value;
+            }
+            if (/^#[0-9A-Fa-f]{6}$/.test(value)) {
+                updateColor(value);
+            } else {
+                // Reset to picker value if invalid
+                textElement.value = pickerElement.value.toUpperCase();
+            }
+        });
+
+        // Click on preview to open color picker
+        if (previewElement) {
+            previewElement.addEventListener('click', () => {
+                pickerElement.click();
+            });
+        }
+    });
+
+    // Setup color preset buttons
+    document.querySelectorAll('.color-preset').forEach(preset => {
+        preset.addEventListener('click', (e) => {
+            e.preventDefault();
+            const color = preset.dataset.color;
+            const target = preset.dataset.target;
+
+            if (target === 'primary') {
+                document.getElementById('themePrimaryColor').value = color;
+                document.getElementById('themePrimaryColorText').value = color.toUpperCase();
+                document.getElementById('primaryColorSample').style.background = color;
+            } else if (target === 'background') {
+                document.getElementById('themeBackgroundColor').value = color;
+                document.getElementById('themeBackgroundColorText').value = color.toUpperCase();
+                document.getElementById('backgroundColorSample').style.background = color;
+            }
+
+            // Update active state
+            document.querySelectorAll(`.color-preset[data-target="${target}"]`).forEach(p => {
+                p.classList.remove('active');
+            });
+            preset.classList.add('active');
+        });
+    });
+}
+
+/**
  * Event-Listener Setup
  */
 function setupSettings() {
     // Tabs
     setupTabs();
-    
+
+    // Color Pickers
+    setupColorPickers();
+
     // Form Submit
     const form = document.getElementById('settingsForm');
     if (form) {
@@ -192,7 +332,7 @@ function setupSettings() {
             await Settings.saveConfig(formData);
         });
     }
-    
+
     // Config laden
     Settings.loadConfig();
 }

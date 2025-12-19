@@ -3,40 +3,72 @@
 window.Hydrants = {
     // Alle Hydranten
     list: [],
-    
+
     // Gefilterte Liste
     filteredList: [],
-    
+
     // Aktuell bearbeiteter Hydrant
     currentHydrant: null,
-    
+
     // Sortierung
     sortField: null,
     sortDirection: 'asc',
-    
+
     // Suchtext
     searchText: '',
-    
+
+    // Marker-Typen (dynamisch geladen)
+    markerTypes: [],
+
+    /**
+     * Marker-Typen laden
+     */
+    async loadMarkerTypes() {
+        try {
+            const data = await API.get('../api/marker-types.php?endpoint=list');
+            this.markerTypes = data.data.types || [];
+            this.populateTypeSelect();
+        } catch (error) {
+            console.error('Fehler beim Laden der Marker-Typen:', error);
+            // Fallback auf leeres Array
+            this.markerTypes = [];
+        }
+    },
+
+    /**
+     * Typ-Dropdown befüllen
+     */
+    populateTypeSelect() {
+        const select = document.getElementById('type');
+        if (!select || this.markerTypes.length === 0) return;
+
+        // Aktuellen Wert merken
+        const currentValue = select.value;
+
+        // Dropdown neu befüllen
+        select.innerHTML = this.markerTypes.map(type =>
+            `<option value="${type.id}">${type.label}</option>`
+        ).join('');
+
+        // Wert wiederherstellen (falls vorhanden)
+        if (currentValue && Array.from(select.options).some(opt => opt.value === currentValue)) {
+            select.value = currentValue;
+        }
+    },
+
     /**
      * Alle Hydranten laden
      */
     async loadAll() {
         try {
-            const response = await fetch('../api/hydrants.php', {
-                credentials: 'include'
-            });
-            const data = await response.json();
-            
-            if (data.success) {
-                this.list = data.data.hydrants || [];
-                this.applyFiltersAndSort();
-                if (window.AdminMap) {
-                    AdminMap.renderMarkers(this.list);
-                }
-                this.updateStats();
-            } else {
-                throw new Error(data.error || 'Laden fehlgeschlagen');
+            const data = await API.get('../api/hydrants.php');
+
+            this.list = data.data.hydrants || [];
+            this.applyFiltersAndSort();
+            if (window.AdminMap) {
+                AdminMap.renderMarkers(this.list);
             }
+            this.updateStats();
         } catch (error) {
             console.error('Fehler beim Laden:', error);
             this.showMessage('Fehler beim Laden der Hydranten: ' + error.message, 'error');
@@ -96,12 +128,12 @@ window.Hydrants = {
         
         tbody.innerHTML = this.filteredList.map(hydrant => `
             <tr onclick="Hydrants.edit('${hydrant.id}')">
-                <td><span class="badge badge-${hydrant.type}">${this.getTypeLabel(hydrant.type)}</span></td>
-                <td><strong>${this.escapeHtml(hydrant.title)}</strong></td>
-                <td>${this.escapeHtml(hydrant.description || '-')}</td>
-                <td>${hydrant.lat.toFixed(6)}, ${hydrant.lng.toFixed(6)}</td>
-                <td>${this.formatDate(hydrant.updated_at)}</td>
-                <td onclick="event.stopPropagation()">
+                <td data-label="Typ"><span class="badge" style="background-color: ${this.getTypeColor(hydrant.type)};">${this.getTypeLabel(hydrant.type)}</span></td>
+                <td data-label="Titel"><strong>${this.escapeHtml(hydrant.title)}</strong></td>
+                <td data-label="Beschreibung">${this.escapeHtml(hydrant.description || '-')}</td>
+                <td data-label="Koordinaten">${hydrant.lat.toFixed(6)}, ${hydrant.lng.toFixed(6)}</td>
+                <td data-label="Geändert">${this.formatDate(hydrant.updated_at)}</td>
+                <td data-label="Aktionen" onclick="event.stopPropagation()">
                     <button class="btn-action btn-edit" onclick="Hydrants.edit('${hydrant.id}')">✏️ Bearbeiten</button>
                     <button class="btn-action btn-delete" onclick="Hydrants.confirmDelete('${hydrant.id}')">🗑️ Löschen</button>
                 </td>
@@ -115,22 +147,25 @@ window.Hydrants = {
     updateStats() {
         const totalEl = document.getElementById('statTotal');
         const typesEl = document.getElementById('statTypes');
-        
+        const visibleEl = document.getElementById('statVisible');
+
         if (totalEl) {
             totalEl.textContent = this.list.length;
         }
-        
+
         if (typesEl) {
             const counts = this.list.reduce((acc, h) => {
                 acc[h.type] = (acc[h.type] || 0) + 1;
                 return acc;
             }, {});
-            
-            const parts = Object.entries(counts).map(([type, count]) => 
-                `${count}× ${this.getTypeLabel(type)}`
-            );
-            
-            typesEl.textContent = parts.join(', ') || 'Keine';
+
+            const typeCount = Object.keys(counts).length;
+            typesEl.textContent = typeCount > 0 ? typeCount : '-';
+        }
+
+        if (visibleEl) {
+            // Zeige die Anzahl der gefilterten/sichtbaren Hydranten
+            visibleEl.textContent = this.filteredList ? this.filteredList.length : this.list.length;
         }
     },
     
@@ -175,13 +210,25 @@ window.Hydrants = {
             form.description.value = this.currentHydrant.description || '';
             form.lat.value = this.currentHydrant.lat;
             form.lng.value = this.currentHydrant.lng;
-            form.photo.value = this.currentHydrant.photo || '';
+            
+            // Foto-Galerie rendern
+            if (window.PhotoManager) {
+                PhotoManager.renderGallery(this.currentHydrant);
+            }
         } else {
             form.reset();
             form.id_field.value = '';
             // Standardposition (Mitte Kappel)
             form.lat.value = '50.000';
             form.lng.value = '7.360';
+            
+            // Leere Galerie
+            if (window.PhotoManager) {
+                const gallery = document.getElementById('photoGallery');
+                if (gallery) {
+                    gallery.innerHTML = '<div class="photo-empty">Noch keine Fotos</div>';
+                }
+            }
         }
         
         // Modal-Karte initialisieren
@@ -211,48 +258,21 @@ window.Hydrants = {
     async save(formData) {
         try {
             const isEdit = !!formData.id;
-            const url = isEdit 
+            const url = isEdit
                 ? `../api/hydrants.php?id=${formData.id}`
                 : '../api/hydrants.php';
-            
-            const method = isEdit ? 'PUT' : 'POST';
-            
-            console.log('Speichere Hydrant:', method, url, formData);
-            
-            const response = await fetch(url, {
-                method: method,
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                credentials: 'include',
-                body: JSON.stringify(formData)
-            });
-            
-            // Response-Text holen (auch bei Fehler)
-            const responseText = await response.text();
-            console.log('Response Status:', response.status);
-            console.log('Response Text:', responseText);
-            
-            // JSON parsen
-            let data;
-            try {
-                data = JSON.parse(responseText);
-            } catch (e) {
-                console.error('JSON Parse Error:', e);
-                console.error('Response war:', responseText);
-                throw new Error('Server-Antwort ist kein gültiges JSON. Erste 200 Zeichen: ' + responseText.substring(0, 200));
-            }
-            
-            if (data.success) {
-                this.showMessage(
-                    isEdit ? 'Hydrant erfolgreich gespeichert' : 'Hydrant erfolgreich erstellt',
-                    'success'
-                );
-                this.closeModal();
-                await this.loadAll();
-            } else {
-                throw new Error(data.error || 'Speichern fehlgeschlagen');
-            }
+
+            // API helper automatically includes CSRF token
+            const data = isEdit
+                ? await API.put(url, formData)
+                : await API.post(url, formData);
+
+            this.showMessage(
+                isEdit ? 'Hydrant erfolgreich gespeichert' : 'Hydrant erfolgreich erstellt',
+                'success'
+            );
+            this.closeModal();
+            await this.loadAll();
         } catch (error) {
             console.error('Fehler beim Speichern:', error);
             this.showMessage('Fehler beim Speichern: ' + error.message, 'error');
@@ -276,19 +296,10 @@ window.Hydrants = {
      */
     async delete(id) {
         try {
-            const response = await fetch(`../api/hydrants.php?id=${id}`, {
-                method: 'DELETE',
-                credentials: 'include'
-            });
-            
-            const data = await response.json();
-            
-            if (data.success) {
-                this.showMessage('Hydrant erfolgreich gelöscht', 'success');
-                await this.loadAll();
-            } else {
-                throw new Error(data.error || 'Löschen fehlgeschlagen');
-            }
+            await API.delete(`../api/hydrants.php?id=${id}`);
+
+            this.showMessage('Hydrant erfolgreich gelöscht', 'success');
+            await this.loadAll();
         } catch (error) {
             console.error('Fehler beim Löschen:', error);
             this.showMessage('Fehler beim Löschen: ' + error.message, 'error');
@@ -319,15 +330,28 @@ window.Hydrants = {
      * Typ-Label
      */
     getTypeLabel(type) {
-        const labels = {
-            'h80': 'H80',
-            'h100': 'H100',
-            'h125': 'H125',
-            'h150': 'H150',
-            'reservoir': 'Reservoir',
-            'building': 'Gebäude'
-        };
-        return labels[type] || type;
+        // Dynamisch aus geladenen Marker-Typen
+        const markerType = this.markerTypes.find(t => t.id === type);
+        if (markerType) {
+            return markerType.label;
+        }
+
+        // Fallback falls Typ nicht gefunden
+        return type;
+    },
+
+    /**
+     * Typ-Farbe
+     */
+    getTypeColor(type) {
+        // Dynamisch aus geladenen Marker-Typen
+        const markerType = this.markerTypes.find(t => t.id === type);
+        if (markerType && markerType.color) {
+            return markerType.color;
+        }
+
+        // Fallback-Farbe
+        return '#999999';
     },
     
     /**
@@ -364,8 +388,7 @@ function setupHydrantForm() {
             title: form.title.value.trim(),
             description: form.description.value.trim(),
             lat: parseFloat(form.lat.value),
-            lng: parseFloat(form.lng.value),
-            photo: form.photo.value.trim()
+            lng: parseFloat(form.lng.value)
         };
         
         // Bei Edit: ID mitgeben
@@ -459,6 +482,45 @@ function setupTableSort() {
             // Neu rendern
             Hydrants.applyFiltersAndSort();
         });
+    });
+}
+
+/**
+ * Mobile Sort Setup
+ */
+function setupMobileSort() {
+    const sortField = document.getElementById('mobileSortField');
+    const sortToggle = document.getElementById('mobileSortToggle');
+
+    if (sortField) {
+        sortField.addEventListener('change', (e) => {
+            Hydrants.sortField = e.target.value;
+            Hydrants.sortDirection = 'asc';
+            updateSortHeaders();
+            Hydrants.applyFiltersAndSort();
+        });
+    }
+
+    if (sortToggle) {
+        sortToggle.addEventListener('click', () => {
+            Hydrants.sortDirection = Hydrants.sortDirection === 'asc' ? 'desc' : 'asc';
+            sortToggle.style.transform = Hydrants.sortDirection === 'asc' ? 'rotate(0deg)' : 'rotate(180deg)';
+            updateSortHeaders();
+            Hydrants.applyFiltersAndSort();
+        });
+    }
+}
+
+/**
+ * Update header sort indicators
+ */
+function updateSortHeaders() {
+    const headers = document.querySelectorAll('.hydrant-table th[data-sort]');
+    headers.forEach(header => {
+        header.classList.remove('sorted-asc', 'sorted-desc');
+        if (header.dataset.sort === Hydrants.sortField) {
+            header.classList.add(`sorted-${Hydrants.sortDirection}`);
+        }
     });
 }
 

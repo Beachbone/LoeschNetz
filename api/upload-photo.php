@@ -5,9 +5,6 @@ require_once 'common.php';
 
 requireAdmin();
 
-// CSRF-Schutz
-validateCsrfToken();
-
 $method = $_SERVER['REQUEST_METHOD'];
 
 if ($method !== 'POST') {
@@ -25,17 +22,21 @@ $config = readJson(CONFIG_FILE);
 $maxWidth = $config['photos']['maxWidth'] ?? 1920;
 $maxHeight = $config['photos']['maxHeight'] ?? 1920;
 $quality = $config['photos']['quality'] ?? 80;
-$maxSizeKb = $config['photos']['maxSizeKb'] ?? 2048;
+$maxSizeKb = $config['photos']['maxSizeKb'] ?? 5120; // 5MB Fallback (Client komprimiert vorher)
 
 // Uploads-Verzeichnis
 $uploadDir = __DIR__ . '/../uploads/hydrants/' . $hydrantId . '/';
 $thumbDir = $uploadDir . 'thumbs/';
+$recycleDir = $uploadDir . 'recycle/';
 
 if (!is_dir($uploadDir)) {
     mkdir($uploadDir, 0755, true);
 }
 if (!is_dir($thumbDir)) {
     mkdir($thumbDir, 0755, true);
+}
+if (!is_dir($recycleDir)) {
+    mkdir($recycleDir, 0755, true);
 }
 
 // Datei-Upload

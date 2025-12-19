@@ -1,0 +1,47 @@
+# Session data
+data/sessions.json
+
+# Backup files
+*.backup
+*.backup.json
+config.backup.json
+config.backup.json.backup
+config.json.backup
+
+# Logs
+data/crud.log
+data/crud.log.*
+
+# Snapshots
+data/snapshots/
+
+# Uploaded files (user photos)
+uploads/
+
+# Production data files (use examples instead)
+data/hydrants.json
+data/marker-types.json
+data/users.json
+
+# Production config (use config.example.json instead)
+config.json
+
+# Archive directory (old code/files)
+archive/
+
+# IDE files
+*.geany
+.vscode/
+.idea/
+.claude/settings.local.json
+
+# Temporary files
+*.tmp
+*.temp
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Generated icons
+icons/marker_*.png
