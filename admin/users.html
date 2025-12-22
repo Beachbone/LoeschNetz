@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User-Verwaltung - LoeschNetz</title>
-    
     <link rel="stylesheet" href="./css/admin.css">
 </head>
 <body>
@@ -147,6 +146,52 @@
                 <div class="modal-footer">
                     <button type="button" class="btn-action" onclick="Users.closeResetModal()">Abbrechen</button>
                     <button type="submit" class="btn-primary">Passwort zurücksetzen</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Passwort ändern -->
+    <div class="modal-overlay" id="changePasswordModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title">Passwort ändern</h2>
+                <button class="modal-close" id="closeChangePassword">&times;</button>
+            </div>
+            <form id="changePasswordForm">
+                <div class="modal-body">
+                    <!-- Hidden username field for accessibility -->
+                    <input type="text" name="username" autocomplete="username" style="display: none;" aria-hidden="true" tabindex="-1">
+
+                    <div id="passwordChangeNotice" class="alert alert-warning" style="display: none;">
+                        <strong>⚠️ Passwort muss geändert werden</strong>
+                        <p>Aus Sicherheitsgründen müssen Sie Ihr Passwort bei der ersten Anmeldung ändern.</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="currentPassword">Aktuelles Passwort *</label>
+                        <input type="password" name="current_password" id="currentPassword" required
+                               autocomplete="current-password">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="newPassword">Neues Passwort * <small>(mind. 8 Zeichen)</small></label>
+                        <input type="password" name="new_password" id="newPassword" required
+                               minlength="8" autocomplete="new-password">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="confirmPassword">Neues Passwort bestätigen *</label>
+                        <input type="password" name="confirm_password" id="confirmPassword" required
+                               minlength="8" autocomplete="new-password">
+                    </div>
+
+                    <div class="password-strength" id="passwordStrength"></div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" id="cancelPasswordChange">Abbrechen</button>
+                    <button type="submit" class="btn-primary">Passwort ändern</button>
                 </div>
             </form>
         </div>
