@@ -222,11 +222,11 @@ window.Hydrants = {
             form.lat.value = '50.000';
             form.lng.value = '7.360';
             
-            // Leere Galerie
+            // Leere Galerie mit Hinweis
             if (window.PhotoManager) {
                 const gallery = document.getElementById('photoGallery');
                 if (gallery) {
-                    gallery.innerHTML = '<div class="photo-empty">Noch keine Fotos</div>';
+                    gallery.innerHTML = '<div class="photo-empty">Noch keine Fotos<br><small style="color: #666;">💡 Speichern Sie den Hydranten zuerst, um Fotos hinzuzufügen</small></div>';
                 }
             }
         }
@@ -267,12 +267,44 @@ window.Hydrants = {
                 ? await API.put(url, formData)
                 : await API.post(url, formData);
 
-            this.showMessage(
-                isEdit ? 'Hydrant erfolgreich gespeichert' : 'Hydrant erfolgreich erstellt',
-                'success'
-            );
-            this.closeModal();
-            await this.loadAll();
+            // Bei neuem Hydrant: Modal offen lassen und in Edit-Modus wechseln
+            if (!isEdit && data.success && data.data && data.data.hydrant) {
+                const newHydrant = data.data.hydrant;
+
+                // CurrentHydrant setzen
+                this.currentHydrant = newHydrant;
+
+                // PhotoManager ID setzen
+                if (window.PhotoManager) {
+                    window.PhotoManager.currentHydrantId = newHydrant.id;
+                    window.PhotoManager.renderGallery(newHydrant);
+                }
+
+                // Form ID-Feld aktualisieren
+                const form = document.getElementById('hydrantForm');
+                if (form && form.id_field) {
+                    form.id_field.value = newHydrant.id;
+                }
+
+                // Modal-Titel ändern
+                const title = document.getElementById('modalTitle');
+                if (title) {
+                    title.textContent = 'Hydrant bearbeiten';
+                }
+
+                this.showMessage(
+                    'Hydrant erfolgreich erstellt. Sie können jetzt Fotos hinzufügen!',
+                    'success'
+                );
+
+                // Hydranten-Liste im Hintergrund aktualisieren
+                await this.loadAll();
+            } else {
+                // Bei Edit: Modal schließen wie bisher
+                this.showMessage('Hydrant erfolgreich gespeichert', 'success');
+                this.closeModal();
+                await this.loadAll();
+            }
         } catch (error) {
             console.error('Fehler beim Speichern:', error);
             this.showMessage('Fehler beim Speichern: ' + error.message, 'error');
