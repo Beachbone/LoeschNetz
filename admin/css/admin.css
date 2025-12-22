@@ -2302,3 +2302,76 @@ body > .modal.active {
         display: none !important;
     }
 }
+
+/* ========================================
+   Marker Popup Styles
+   ======================================== */
+
+.map-popup-content {
+    padding: 10px;
+}
+
+.map-popup-title {
+    font-weight: bold;
+    margin: 0;
+}
+
+.map-popup-type {
+    color: #666;
+}
+
+.map-popup-description {
+    margin: 10px 0;
+}
+
+.map-popup-photos {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-top: 10px;
+}
+
+.map-popup-photo {
+    width: 100%;
+    max-width: 150px;
+    border-radius: 4px;
+}
+
+.map-popup-photo-legacy {
+    width: 100%;
+    max-width: 200px;
+    border-radius: 4px;
+    margin-top: 5px;
+}
+
+.map-popup-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.map-popup-btn {
+    flex: 1;
+    padding: 8px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 18px;
+    color: white;
+}
+
+.map-popup-btn-edit {
+    background: #cc0000;
+}
+
+.map-popup-btn-edit:hover {
+    background: #b30000;
+}
+
+.map-popup-btn-delete {
+    background: #666;
+}
+
+.map-popup-btn-delete:hover {
+    background: #555;
+}

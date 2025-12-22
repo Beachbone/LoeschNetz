@@ -123,31 +123,31 @@ window.AdminMap = {
                 
                 
                 // Popup
-                let popupContent = `<div style="padding: 10px;">`;
-                popupContent += `<strong>${this.escapeHtml(hydrant.title)}</strong><br>`;
-                popupContent += `<span style="color: #666;">${Hydrants.getTypeLabel(hydrant.type)}</span><br>`;
+                let popupContent = `<div class="map-popup-content">`;
+                popupContent += `<strong class="map-popup-title">${this.escapeHtml(hydrant.title)}</strong><br>`;
+                popupContent += `<span class="map-popup-type">${Hydrants.getTypeLabel(hydrant.type)}</span><br>`;
 
                 if (hydrant.description) {
-                    popupContent += `<p style="margin: 10px 0;">${this.escapeHtml(hydrant.description)}</p>`;
+                    popupContent += `<p class="map-popup-description">${this.escapeHtml(hydrant.description)}</p>`;
                 }
 
                 // Support new photos array structure
                 if (hydrant.photos && Array.isArray(hydrant.photos) && hydrant.photos.length > 0) {
-                    popupContent += `<div style="display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px;">`;
+                    popupContent += `<div class="map-popup-photos">`;
                     hydrant.photos.forEach(photo => {
                         const photoPath = `../uploads/hydrants/${hydrant.id}/${photo.filename}`;
-                        popupContent += `<img src="${photoPath}" style="width: 100%; max-width: 150px; border-radius: 4px;">`;
+                        popupContent += `<img src="${photoPath}" class="map-popup-photo">`;
                     });
                     popupContent += `</div>`;
                 }
                 // Fallback for old single photo field
                 else if (hydrant.photo) {
-                    popupContent += `<img src="../uploads/${hydrant.photo}" style="width: 100%; max-width: 200px; border-radius: 4px; margin-top: 5px;">`;
+                    popupContent += `<img src="../uploads/${hydrant.photo}" class="map-popup-photo-legacy">`;
                 }
 
-                popupContent += `<div style="display: flex; gap: 8px; margin-top: 10px;">`;
-                popupContent += `<button onclick="Hydrants.edit('${hydrant.id}')" style="flex: 1; padding: 8px; background: #cc0000; color: white; border: none; border-radius: 3px; cursor: pointer; font-size: 18px;" title="Bearbeiten">✏️</button>`;
-                popupContent += `<button onclick="Hydrants.confirmDelete('${hydrant.id}')" style="flex: 1; padding: 8px; background: #666; color: white; border: none; border-radius: 3px; cursor: pointer; font-size: 18px;" title="Löschen">🗑️</button>`;
+                popupContent += `<div class="map-popup-actions">`;
+                popupContent += `<button onclick="Hydrants.edit('${hydrant.id}')" class="map-popup-btn map-popup-btn-edit" title="Bearbeiten">✏️</button>`;
+                popupContent += `<button onclick="Hydrants.confirmDelete('${hydrant.id}')" class="map-popup-btn map-popup-btn-delete" title="Löschen">🗑️</button>`;
                 popupContent += `</div>`;
                 popupContent += `</div>`;
 
