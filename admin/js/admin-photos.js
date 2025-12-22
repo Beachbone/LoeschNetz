@@ -264,6 +264,54 @@ window.PhotoManager = {
 };
 
 /**
+ * Hilfsfunktion: Hydrant speichern falls noch nicht gespeichert
+ */
+async function ensureHydrantSaved() {
+    // Wenn Hydrant bereits existiert, nichts tun
+    if (window.Hydrants && window.Hydrants.currentHydrant) {
+        return true;
+    }
+
+    // Formular validieren und speichern
+    const form = document.getElementById('hydrantForm');
+    if (!form) {
+        showMessage('Formular nicht gefunden', 'error');
+        return false;
+    }
+
+    const formData = {
+        type: form.type.value,
+        title: form.title.value.trim(),
+        description: form.description.value.trim(),
+        lat: parseFloat(form.lat.value),
+        lng: parseFloat(form.lng.value)
+    };
+
+    // Validierung
+    if (!formData.title) {
+        showMessage('Bitte Titel eingeben', 'error');
+        return false;
+    }
+
+    if (isNaN(formData.lat) || isNaN(formData.lng)) {
+        showMessage('Ungültige Koordinaten', 'error');
+        return false;
+    }
+
+    // Speichern
+    showMessage('Hydrant wird gespeichert...', 'info');
+
+    try {
+        await window.Hydrants.save(formData);
+        // Nach dem Speichern sollte currentHydrant gesetzt sein
+        return !!window.Hydrants.currentHydrant;
+    } catch (error) {
+        showMessage('Fehler beim Speichern: ' + error.message, 'error');
+        return false;
+    }
+}
+
+/**
  * Upload-Button Setup
  */
 function setupPhotoUpload() {
@@ -271,33 +319,45 @@ function setupPhotoUpload() {
     const cameraBtn = document.getElementById('photoCameraBtn');
     const uploadInput = document.getElementById('photoUpload');
     const cameraInput = document.getElementById('photoCameraUpload');
-    
+
     // Galerie-Upload
     if (uploadBtn && uploadInput) {
-        uploadBtn.addEventListener('click', () => uploadInput.click());
-        
+        uploadBtn.addEventListener('click', async () => {
+            // Erst Hydrant speichern falls nötig
+            const saved = await ensureHydrantSaved();
+            if (saved) {
+                uploadInput.click();
+            }
+        });
+
         uploadInput.addEventListener('change', async (e) => {
             const files = Array.from(e.target.files);
-            
+
             for (const file of files) {
                 await PhotoManager.uploadPhoto(file);
             }
-            
+
             uploadInput.value = '';
         });
     }
-    
+
     // Kamera-Upload
     if (cameraBtn && cameraInput) {
-        cameraBtn.addEventListener('click', () => cameraInput.click());
-        
+        cameraBtn.addEventListener('click', async () => {
+            // Erst Hydrant speichern falls nötig
+            const saved = await ensureHydrantSaved();
+            if (saved) {
+                cameraInput.click();
+            }
+        });
+
         cameraInput.addEventListener('change', async (e) => {
             const files = Array.from(e.target.files);
-            
+
             for (const file of files) {
                 await PhotoManager.uploadPhoto(file);
             }
-            
+
             cameraInput.value = '';
         });
     }

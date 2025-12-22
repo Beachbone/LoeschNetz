@@ -251,6 +251,9 @@ window.AdminMap = {
             // GPS-Button Event-Listener
             this.setupGpsButton();
 
+            // Automatisch GPS-Position beim Öffnen ermitteln
+            this.autoSetGpsPosition();
+
             console.log('AdminMap.initModalMap() - Erfolgreich abgeschlossen');
         } catch (error) {
             console.error('AdminMap.initModalMap() - FEHLER:', error);
@@ -270,6 +273,55 @@ window.AdminMap = {
         gpsButton.addEventListener('click', () => {
             this.getHighAccuracyPosition();
         });
+    },
+
+    /**
+     * Automatisch GPS-Position beim Öffnen des Modals setzen
+     */
+    autoSetGpsPosition() {
+        if (!navigator.geolocation) {
+            console.log('AdminMap: GPS nicht verfügbar, verwende Standardposition');
+            return;
+        }
+
+        console.log('AdminMap: Versuche GPS-Position automatisch zu ermitteln...');
+
+        const options = {
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 0
+        };
+
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                console.log('AdminMap: GPS-Position automatisch ermittelt:', position.coords);
+
+                const lat = position.coords.latitude;
+                const lng = position.coords.longitude;
+
+                // Formularfelder aktualisieren
+                const form = document.getElementById('hydrantForm');
+                const latField = form.querySelector('[name="lat"]');
+                const lngField = form.querySelector('[name="lng"]');
+
+                latField.value = lat.toFixed(6);
+                lngField.value = lng.toFixed(6);
+
+                // Marker und Karte aktualisieren
+                if (this.modalMarker && this.modalMap) {
+                    this.modalMarker.setLatLng([lat, lng]);
+                    this.modalMap.setView([lat, lng], 18);
+                }
+
+                console.log('AdminMap: Marker automatisch auf GPS-Position gesetzt');
+            },
+            (error) => {
+                console.log('AdminMap: GPS-Position konnte nicht automatisch ermittelt werden, verwende Standardposition');
+                console.log('AdminMap: GPS-Fehler:', error.message);
+                // Standardposition bleibt gesetzt (keine weitere Aktion nötig)
+            },
+            options
+        );
     },
 
     /**
