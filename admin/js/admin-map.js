@@ -145,7 +145,10 @@ window.AdminMap = {
                     popupContent += `<img src="../uploads/${hydrant.photo}" style="width: 100%; max-width: 200px; border-radius: 4px; margin-top: 5px;">`;
                 }
 
-                popupContent += `<button onclick="Hydrants.edit('${hydrant.id}')" style="margin-top: 10px; padding: 6px 12px; background: #cc0000; color: white; border: none; border-radius: 3px; cursor: pointer;">Bearbeiten</button>`;
+                popupContent += `<div style="display: flex; gap: 8px; margin-top: 10px;">`;
+                popupContent += `<button onclick="Hydrants.edit('${hydrant.id}')" style="flex: 1; padding: 6px 12px; background: #cc0000; color: white; border: none; border-radius: 3px; cursor: pointer;">✏️ Bearbeiten</button>`;
+                popupContent += `<button onclick="Hydrants.confirmDelete('${hydrant.id}')" style="flex: 1; padding: 6px 12px; background: #666; color: white; border: none; border-radius: 3px; cursor: pointer;">🗑️ Löschen</button>`;
+                popupContent += `</div>`;
                 popupContent += `</div>`;
 
                 marker.bindPopup(popupContent);
