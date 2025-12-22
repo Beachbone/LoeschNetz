@@ -1,7 +1,7 @@
 // sw.js - Service Worker für LoeschNetz Public PWA
 // Version mit Leaflet-Support und Offline-Fähigkeit
 
-const CACHE_VERSION = 'loeschnetz-v1.0.0';
+const CACHE_VERSION = 'loeschnetz-v1.0.1';
 const CACHE_STATIC = `${CACHE_VERSION}-static`;
 const CACHE_DYNAMIC = `${CACHE_VERSION}-dynamic`;
 const CACHE_IMAGES = `${CACHE_VERSION}-images`;
@@ -15,7 +15,7 @@ const STATIC_ASSETS = [
     './impressum.html',
     './css/style.css',
     './js/app.js',
-    './manifest.json',
+    './manifest.php',
     './favicon.png',
     // Leaflet (lokal)
     './leaflet/leaflet.css',
@@ -166,26 +166,22 @@ async function networkFirstStrategy(request, cacheName) {
         return response;
     } catch (error) {
         console.log('[SW] Netzwerk nicht verfügbar, versuche Cache:', request.url);
-        
+
         // Nur GET-Requests aus Cache holen
         if (request.method === 'GET') {
             const cache = await caches.open(cacheName);
             const cached = await cache.match(request);
-            
+
             if (cached) {
                 console.log('[SW] Aus Cache geladen:', request.url);
                 return cached;
             }
         }
-	        
-	        // Kein Cache für non-GET oder nichts gefunden
-	        console.log('[SW] Kein Cache verfügbar für:', request.url);
-	        throw error;
-		}
-        
-        
-        console.error('[SW] Auch nicht im Cache:', request.url);
+
+        // Kein Cache für non-GET oder nichts gefunden
+        console.log('[SW] Kein Cache verfügbar für:', request.url);
         throw error;
+    }
 }
 
 /**
