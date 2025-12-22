@@ -237,8 +237,19 @@ window.Hydrants = {
                 AdminMap.initModalMap();
             }, 100);
         }
-        
+
+        // Modal öffnen
         modal.classList.add('active');
+
+        // Scroll-Position zurücksetzen (Modal beginnt immer oben)
+        setTimeout(() => {
+            const modalContent = modal.querySelector('.modal');
+            if (modalContent) {
+                modalContent.scrollTop = 0;
+            }
+            // Auch das Overlay selbst zurücksetzen
+            modal.scrollTop = 0;
+        }, 0);
     },
     
     /**
