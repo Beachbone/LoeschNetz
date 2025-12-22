@@ -267,8 +267,13 @@ window.Hydrants = {
                 ? await API.put(url, formData)
                 : await API.post(url, formData);
 
+            console.log('Save Response:', data);
+            console.log('isEdit:', isEdit);
+            console.log('Condition check:', !isEdit, data.success, data.data, data.data?.hydrant);
+
             // Bei neuem Hydrant: Modal offen lassen und in Edit-Modus wechseln
             if (!isEdit && data.success && data.data && data.data.hydrant) {
+                console.log('✅ Modal bleibt offen für neuen Hydrant');
                 const newHydrant = data.data.hydrant;
 
                 // CurrentHydrant setzen
@@ -301,7 +306,8 @@ window.Hydrants = {
                 await this.loadAll();
             } else {
                 // Bei Edit: Modal schließen wie bisher
-                this.showMessage('Hydrant erfolgreich gespeichert', 'success');
+                console.log('❌ Modal wird geschlossen (Edit-Modus oder Bedingung nicht erfüllt)');
+                this.showMessage(isEdit ? 'Hydrant erfolgreich gespeichert' : 'Hydrant erfolgreich erstellt', 'success');
                 this.closeModal();
                 await this.loadAll();
             }
