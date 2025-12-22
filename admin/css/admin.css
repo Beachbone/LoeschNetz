@@ -1566,7 +1566,7 @@ body > .modal.active {
     position: fixed;
     top: 80px;
     right: 20px;
-    z-index: 3000;
+    z-index: 10002; /* Höher als Modal (10001) damit Toast-Meldungen immer sichtbar sind */
     max-width: 400px;
 }
 
