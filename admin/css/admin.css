@@ -2309,11 +2309,17 @@ body > .modal.active {
 
 .map-popup-content {
     padding: 10px;
+    max-width: 250px;
+    min-width: 200px;
 }
 
 .map-popup-title {
     font-weight: bold;
     margin: 0;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    max-width: 250px;
 }
 
 .map-popup-type {
@@ -2322,6 +2328,8 @@ body > .modal.active {
 
 .map-popup-description {
     margin: 10px 0;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
 }
 
 .map-popup-photos {
