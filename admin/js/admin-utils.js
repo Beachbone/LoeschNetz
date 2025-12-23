@@ -244,3 +244,89 @@ window.API = {
         return data;
     }
 };
+
+/**
+ * Debug-Einstellungen anwenden (Reload-Button anzeigen)
+ */
+async function applyDebugSettings() {
+    try {
+        const data = await API.get('../api/config.php?endpoint=get');
+        const config = data.data;
+
+        const reloadButton = document.getElementById('reloadButton');
+        if (reloadButton && config.debug && config.debug.showReloadButton === true) {
+            reloadButton.style.display = 'inline-block';
+            console.log('✅ Debug-Modus: Reload-Button aktiviert');
+        }
+    } catch (error) {
+        console.warn('⚠️ Konnte Debug-Einstellungen nicht laden:', error);
+    }
+}
+
+/**
+ * App neu laden (Cache löschen)
+ */
+async function reloadApp() {
+    const button = document.getElementById('reloadButton');
+
+    try {
+        // Visuelle Rückmeldung (Spinning-Animation)
+        if (button) {
+            button.classList.add('loading');
+            button.disabled = true;
+        }
+
+        console.log('🔄 Cache wird geleert und App wird neu geladen...');
+
+        // Cache-API: Alle Admin-Caches löschen
+        if ('caches' in window) {
+            const cacheNames = await caches.keys();
+            const adminCaches = cacheNames.filter(name => name.startsWith('loeschnetz-admin-'));
+            await Promise.all(
+                adminCaches.map(cacheName => caches.delete(cacheName))
+            );
+            console.log('✅ Admin-Caches gelöscht:', adminCaches.length);
+        }
+
+        // Service Worker: Update erzwingen
+        if ('serviceWorker' in navigator) {
+            const registration = await navigator.serviceWorker.getRegistration();
+            if (registration) {
+                await registration.update();
+                console.log('✅ Service Worker aktualisiert');
+            }
+        }
+
+        // Seite komplett neu laden (mit Cache-Busting)
+        const baseUrl = window.location.href.split('?')[0].split('#')[0];
+        const reloadUrl = `${baseUrl}?_reload=${Date.now()}`;
+        window.location.replace(reloadUrl);
+
+    } catch (error) {
+        console.error('❌ Fehler beim Neuladen:', error);
+
+        // Fehlermeldung
+        if (button) {
+            button.classList.remove('loading');
+            button.textContent = '❌';
+            setTimeout(() => {
+                button.textContent = '🔄';
+                button.disabled = false;
+            }, 2000);
+        }
+
+        // Fallback: Normale Seiten-Reload
+        showMessage('Fehler beim Cache-Löschen. Seite wird trotzdem neu geladen.', 'warning');
+        setTimeout(() => location.reload(), 1000);
+    }
+}
+
+/**
+ * Setup Reload-Button
+ */
+function setupReloadButton() {
+    const reloadButton = document.getElementById('reloadButton');
+    if (reloadButton) {
+        reloadButton.addEventListener('click', reloadApp);
+    }
+}

@@ -2383,3 +2383,21 @@ body > .modal.active {
 .map-popup-btn-delete:hover {
     background: #555;
 }
+
+/* ========================================
+   Reload Button (Debug Mode)
+   ======================================== */
+
+#reloadButton.loading {
+    animation: spin 1s linear infinite;
+    pointer-events: none;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
