@@ -170,19 +170,9 @@ include __DIR__ . '/includes/head.php';
         </div>
     </div>
 
-    <!-- Leaflet JS -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <?php include __DIR__ . '/includes/scripts.php'; ?>
 
-    <!-- Admin JS -->
-    <script src="./js/admin-utils.js"></script>
-    <script src="./js/admin-auth.js"></script>
-    <script src="./js/admin-menu.js"></script>
-    <script src="./js/admin-password.js"></script>
-    <script src="./js/admin-photos.js"></script>
-    <script src="./js/admin-hydrants.js"></script>
-    <script src="./js/admin-map.js"></script>
-    
-    <!-- Init -->
+    <!-- Page-specific Init -->
     <script>
         // App initialisieren
         async function initApp() {
@@ -552,5 +542,4 @@ document.getElementById('dismissInstall')?.addEventListener('click', () => {
 })();
 </script>
 
-</body>
-</html>
+<?php include __DIR__ . '/includes/footer.php'; ?>

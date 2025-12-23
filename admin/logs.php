@@ -1,32 +1,11 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Logging - LoeschNetz Admin</title>
+<?php
+$pageTitle = 'Logging';
+$pageScripts = ['logs'];
+include __DIR__ . '/includes/head.php';
+?>
 
-    <!-- Admin CSS -->
-    <link rel="stylesheet" href="./css/admin.css?v=6">
-</head>
-<body>
-    <!-- Header -->
-    <div class="header">
-        <div class="header-content">
-            <div class="logo">
-                <span>🔥 LoeschNetz Admin</span>
-            </div>
-            <div class="user-info">
-                <span>Angemeldet als: <strong id="userName">...</strong></span>
-                <span class="text-muted text-small" id="userRole"></span>
-                <button id="installAppBtn" class="btn-header" title="App installieren" onclick="showInstallPrompt()" style="display: none;">📱</button>
-                <button id="changePasswordBtn" class="btn-header" title="Passwort ändern">🔑</button>
-                <button class="btn-logout" id="logoutBtn">Abmelden</button>
-            </div>
-        </div>
-    </div>
+<?php include __DIR__ . '/includes/header.php'; ?>
 
-    <!-- Navigation (dynamically generated) -->
-    <div id="nav-menu"></div>
 
     <!-- Container -->
     <div class="container">
@@ -114,11 +93,6 @@
     </div>
 
     <!-- Admin JS -->
-    <script src="./js/admin-utils.js"></script>
-    <script src="./js/admin-auth.js"></script>
-    <script src="./js/admin-menu.js"></script>
-    <script src="./js/admin-password.js"></script>
-    <script src="./js/admin-logs.js"></script>
 
     <!-- Init -->
     <script>
@@ -313,5 +287,4 @@
             toggleBackToTopButton();
         })();
     </script>
-</body>
-</html>
+<?php include __DIR__ . '/includes/footer.php'; ?>

@@ -1,40 +1,11 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Snapshots - LoeschNetz Admin</title>
+<?php
+$pageTitle = 'Snapshots';
+$pageScripts = ['snapshots'];
+include __DIR__ . '/includes/head.php';
+?>
 
-    <!-- PWA Manifest -->
-    <link rel="manifest" href="./manifest.json">
-    <meta name="theme-color" content="#d32f2f">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="LoeschNetz Admin">
-    <link rel="apple-touch-icon" href="../icons/icon-192x192.png">
+<?php include __DIR__ . '/includes/header.php'; ?>
 
-    <!-- Admin CSS -->
-    <link rel="stylesheet" href="./css/admin.css?v=1">
-</head>
-<body>
-    <!-- Header -->
-    <div class="header">
-        <div class="header-content">
-            <div class="logo">
-                <span>🔥 LoeschNetz Admin</span>
-            </div>
-            <div class="user-info">
-                <span>Angemeldet als: <strong id="userName">...</strong></span>
-                <span class="text-muted text-small" id="userRole"></span>
-                <button id="installAppBtn" class="btn-header" title="App installieren" onclick="showInstallPrompt()" style="display: none;">📱</button>
-                <button id="changePasswordBtn" class="btn-header" title="Passwort ändern">🔑</button>
-                <button class="btn-logout" id="logoutBtn">Abmelden</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Navigation (dynamically generated) -->
-    <div id="nav-menu"></div>
 
     <!-- Container -->
     <div class="container">
@@ -205,11 +176,6 @@
     </div>
 
     <!-- Scripts -->
-    <script src="./js/admin-utils.js"></script>
-    <script src="./js/admin-auth.js"></script>
-    <script src="./js/admin-menu.js"></script>
-    <script src="./js/admin-password.js"></script>
-    <script src="./js/admin-snapshots.js"></script>
     <script>
         // App initialisieren
         async function initApp() {
@@ -387,5 +353,4 @@
             toggleBackToTopButton();
         })();
     </script>
-</body>
-</html>
+<?php include __DIR__ . '/includes/footer.php'; ?>

@@ -1,30 +1,11 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Marker-Typen - LoeschNetz Admin</title>
-    <link rel="stylesheet" href="./css/admin.css">
-</head>
-<body>
-    <!-- Header -->
-    <div class="header">
-        <div class="header-content">
-            <div class="logo">
-                <span>🔥 LoeschNetz Admin</span>
-            </div>
-            <div class="user-info">
-                <span>Angemeldet als: <strong id="userName">...</strong></span>
-                <span class="text-muted text-small" id="userRole"></span>
-                <button id="installAppBtn" class="btn-header" title="App installieren" onclick="showInstallPrompt()" style="display: none;">📱</button>
-                <button id="changePasswordBtn" class="btn-header" title="Passwort ändern">🔑</button>
-                <button class="btn-logout" id="logoutBtn">Abmelden</button>
-            </div>
-        </div>
-    </div>
+<?php
+$pageTitle = 'Marker-Typen';
+$pageScripts = ['marker-types'];
+include __DIR__ . '/includes/head.php';
+?>
 
-    <!-- Navigation (dynamically generated) -->
-    <div id="nav-menu"></div>
+<?php include __DIR__ . '/includes/header.php'; ?>
+
 
     <!-- Container -->
     <div class="container">
@@ -182,11 +163,6 @@
     </div>
 
     <!-- Scripts -->
-    <script src="./js/admin-utils.js"></script>
-    <script src="./js/admin-auth.js"></script>
-    <script src="./js/admin-menu.js"></script>
-    <script src="./js/admin-password.js"></script>
-    <script src="./js/admin-marker-types.js"></script>
     <script>
         // Desktop Sort Setup
         function setupDesktopSort() {
@@ -446,5 +422,4 @@
             toggleBackToTopButton();
         })();
     </script>
-</body>
-</html>
+<?php include __DIR__ . '/includes/footer.php'; ?>
