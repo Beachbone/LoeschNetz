@@ -391,6 +391,22 @@ if ('serviceWorker' in navigator) {
 let deferredPrompt;
 let installPromptShown = false;
 
+// Verstecke Install-Button wenn App bereits im Standalone-Modus läuft
+function checkStandaloneMode() {
+    if (window.matchMedia('(display-mode: standalone)').matches) {
+        const installBtn = document.getElementById('installAppBtn');
+        if (installBtn) {
+            installBtn.style.display = 'none';
+            console.log('✅ App läuft im Standalone-Modus, Install-Button versteckt');
+        }
+        return true;
+    }
+    return false;
+}
+
+// Prüfe beim Laden
+checkStandaloneMode();
+
 // Debug-Modus: URL-Parameter ?resetpwa=1 löscht localStorage
 const urlParams = new URLSearchParams(window.location.search);
 if (urlParams.get('resetpwa') === '1') {

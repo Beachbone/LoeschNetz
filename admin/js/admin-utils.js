@@ -254,9 +254,12 @@ async function applyDebugSettings() {
         const config = data.data;
 
         const reloadButton = document.getElementById('reloadButton');
-        if (reloadButton && config.debug && config.debug.showReloadButton === true) {
+        // Zeige Reload-Button wenn Debug aktiviert UND showReloadButton true
+        if (reloadButton && config.debug && config.debug.enabled === true && config.debug.showReloadButton === true) {
             reloadButton.style.display = 'inline-block';
             console.log('✅ Debug-Modus: Reload-Button aktiviert');
+        } else {
+            console.log('ℹ️ Reload-Button nicht aktiv. Debug enabled:', config.debug?.enabled, 'showReloadButton:', config.debug?.showReloadButton);
         }
     } catch (error) {
         console.warn('⚠️ Konnte Debug-Einstellungen nicht laden:', error);
