@@ -173,7 +173,7 @@
                 
                 if (data.success && data.data.logged_in) {
                     // Bereits eingeloggt -> weiterleiten
-                    window.location.href = './index.html';
+                    window.location.href = './index.php';
                 }
             } catch (error) {
                 console.log('Nicht eingeloggt');
@@ -219,7 +219,7 @@
                     }
 
                     // Login erfolgreich
-                    window.location.href = './index.html';
+                    window.location.href = './index.php';
                 } else {
                     // Login fehlgeschlagen
                     showError(data.error || 'Login fehlgeschlagen');

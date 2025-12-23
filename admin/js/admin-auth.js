@@ -70,7 +70,7 @@ window.Auth = {
      * Login erforderlich - Weiterleitung zu Login
      */
     requireLogin() {
-        window.location.href = './login.html';
+        window.location.href = './login.php';
     },
     
     /**
@@ -88,7 +88,7 @@ window.Auth = {
             if (data.success) {
                 this.currentUser = null;
                 this.setCsrfToken(null); // CSRF Token löschen
-                window.location.href = './login.html';
+                window.location.href = './login.php';
             } else {
                 throw new Error(data.error || 'Logout fehlgeschlagen');
             }
@@ -136,7 +136,7 @@ window.Auth = {
     requireAdmin() {
         if (!this.isAdmin()) {
             alert('Diese Funktion ist nur für Administratoren verfügbar.');
-            window.location.href = './index.html';
+            window.location.href = './index.php';
         }
     },
     
@@ -164,7 +164,7 @@ window.Auth = {
     }
 };
 
-// Logout-Button Event-Listener (wird in index.html gesetzt)
+// Logout-Button Event-Listener (wird in index.php gesetzt)
 function setupLogout() {
     const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) {

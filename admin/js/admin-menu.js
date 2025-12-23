@@ -12,37 +12,37 @@
 const MENU_CONFIG = [
     {
         label: 'Hydranten',
-        href: './index.html',
+        href: './index.php',
         icon: '📍',
         adminOnly: false
     },
     {
         label: 'Marker-Typen',
-        href: './marker-types.html',
+        href: './marker-types.php',
         icon: '🎨',
         adminOnly: true
     },
     {
         label: 'User',
-        href: './users.html',
+        href: './users.php',
         icon: '👥',
         adminOnly: true
     },
     {
         label: 'Einstellungen',
-        href: './settings.html',
+        href: './settings.php',
         icon: '⚙️',
         adminOnly: true
     },
     {
         label: 'Snapshots',
-        href: './snapshots.html',
+        href: './snapshots.php',
         icon: '🗂️',
         adminOnly: false
     },
     {
         label: 'Logging',
-        href: './logs.html',
+        href: './logs.php',
         icon: '📋',
         adminOnly: false
     }
@@ -64,7 +64,7 @@ function generateMenu() {
     const isAdmin = window.Auth && window.Auth.currentUser && window.Auth.currentUser.is_admin;
 
     // Get current page for active state
-    const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+    const currentPage = window.location.pathname.split('/').pop() || 'index.php';
 
     // Find active menu item for mobile toggle display
     let activeItemLabel = 'Menu';

@@ -97,7 +97,7 @@ window.PasswordManager = {
                 if (window.Auth) {
                     Auth.logout();
                 } else {
-                    window.location.href = './login.html';
+                    window.location.href = './login.php';
                 }
             }, 2000);
         } catch (error) {
@@ -112,7 +112,7 @@ window.PasswordManager = {
     checkPasswordStrength(password) {
         const strengthEl = document.getElementById('passwordStrength');
         
-        // Element existiert nicht (z.B. auf users.html) → Silent Return
+        // Element existiert nicht (z.B. auf users.php) → Silent Return
         if (!strengthEl) {
             return;
         }

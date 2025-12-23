@@ -138,7 +138,7 @@ async function cacheFirstStrategy(request, cacheName) {
         // Offline-Fallback für HTML - zeige Login-Seite
         if (request.destination === 'document') {
             const cache = await caches.open(CACHE_STATIC);
-            const fallback = await cache.match('./login.html');
+            const fallback = await cache.match('./login.php');
             if (fallback) {
                 return fallback;
             }

@@ -297,7 +297,7 @@ include __DIR__ . '/includes/head.php';
         </form>
     </div>
 
-    <!-- Password Change Modal (copy from index.html) -->
+    <!-- Password Change Modal (copy from index.php) -->
     <div class="modal-overlay" id="changePasswordModal">
         <div class="modal">
             <div class="modal-header">

@@ -70,21 +70,21 @@
             "name": "Hydranten",
             "short_name": "Hydranten",
             "description": "Hydranten verwalten",
-            "url": "./index.html",
+            "url": "./index.php",
             "icons": [{ "src": "../icons/icon-96x96.png", "sizes": "96x96" }]
         },
         {
             "name": "Logging",
             "short_name": "Logs",
             "description": "Änderungsprotokoll ansehen",
-            "url": "./logs.html",
+            "url": "./logs.php",
             "icons": [{ "src": "../icons/icon-96x96.png", "sizes": "96x96" }]
         },
         {
             "name": "Einstellungen",
             "short_name": "Settings",
             "description": "App-Einstellungen",
-            "url": "./settings.html",
+            "url": "./settings.php",
             "icons": [{ "src": "../icons/icon-96x96.png", "sizes": "96x96" }]
         }
     ]
