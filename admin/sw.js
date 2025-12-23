@@ -1,7 +1,7 @@
 // sw.js - Service Worker für LoeschNetz Admin PWA
 // Version mit Offline-Fähigkeit für Admin-Interface
 
-const CACHE_VERSION = 'loeschnetz-admin-v1.2.1';
+const CACHE_VERSION = 'loeschnetz-admin-v1.2.2';
 const CACHE_STATIC = `${CACHE_VERSION}-static`;
 const CACHE_DYNAMIC = `${CACHE_VERSION}-dynamic`;
 
@@ -15,6 +15,7 @@ const STATIC_ASSETS = [
     './settings.html',
     './snapshots.html',
     './logs.html',
+    './manifest.json',
     './css/admin.css',
     './js/admin-utils.js',
     './js/admin-auth.js',
