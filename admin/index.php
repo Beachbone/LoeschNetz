@@ -1,44 +1,10 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - LoeschNetz</title>
+<?php
+$pageTitle = 'Dashboard';
+$pageScripts = ['photos', 'hydrants', 'map'];
+include __DIR__ . '/includes/head.php';
+?>
 
-    <!-- PWA Manifest -->
-    <link rel="manifest" href="./manifest.json">
-    <meta name="theme-color" content="#d32f2f">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="LoeschNetz Admin">
-    <link rel="apple-touch-icon" href="../icons/icon-192x192.png">
-
-    <!-- Leaflet CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-
-    <!-- Admin CSS -->
-    <link rel="stylesheet" href="./css/admin.css">
-</head>
-<body>
-    <!-- Header -->
-    <div class="header">
-        <div class="header-content">
-            <div class="logo">
-                <span>🔥 LoeschNetz Admin</span>
-            </div>
-            <div class="user-info">
-                <span>Angemeldet als: <strong id="userName">...</strong></span>
-                <span class="text-muted text-small" id="userRole"></span>
-                <button id="reloadButton" class="btn-header" title="App neu laden (Cache löschen)" style="display: none;">🔄</button>
-                <button id="installAppBtn" class="btn-header" title="App installieren" onclick="showInstallPrompt()" style="display: none;">📱</button>
-                <button id="changePasswordBtn" class="btn-header" title="Passwort ändern">🔑</button>
-                <button class="btn-logout" id="logoutBtn">Abmelden</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Navigation (dynamically generated) -->
-    <div id="nav-menu"></div>
+<?php include __DIR__ . '/includes/header.php'; ?>
 
     <!-- Container -->
     <div class="container">
