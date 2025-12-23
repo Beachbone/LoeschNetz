@@ -386,6 +386,21 @@ if ('serviceWorker' in navigator) {
 let deferredPrompt;
 let installPromptShown = false;
 
+// Debug-Modus: URL-Parameter ?resetpwa=1 löscht localStorage
+const urlParams = new URLSearchParams(window.location.search);
+if (urlParams.get('resetpwa') === '1') {
+    localStorage.removeItem('hasSeenInstallPrompt');
+    console.log('🔄 Install-Prompt Status zurückgesetzt');
+    // Zeige visuelle Bestätigung
+    setTimeout(() => {
+        if (window.showMessage) {
+            showMessage('Install-Prompt zurückgesetzt! Seite wird neu geladen...', 'success');
+        }
+        // Entferne Parameter und lade neu
+        window.location.href = window.location.pathname;
+    }, 1000);
+}
+
 window.addEventListener('beforeinstallprompt', (e) => {
     console.log('📱 beforeinstallprompt Event gefeuert');
     e.preventDefault();
