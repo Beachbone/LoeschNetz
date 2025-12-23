@@ -384,8 +384,10 @@ if ('serviceWorker' in navigator) {
 
 // PWA Install Prompt
 let deferredPrompt;
+let installPromptShown = false;
 
 window.addEventListener('beforeinstallprompt', (e) => {
+    console.log('📱 beforeinstallprompt Event gefeuert');
     e.preventDefault();
     deferredPrompt = e;
 
@@ -393,31 +395,56 @@ window.addEventListener('beforeinstallprompt', (e) => {
     const installBtn = document.getElementById('installAppBtn');
     if (installBtn && !window.matchMedia('(display-mode: standalone)').matches) {
         installBtn.style.display = 'inline-block';
+        console.log('✅ Install-Button im Header angezeigt');
     }
 
     // Prüfe ob bereits angezeigt wurde
     const hasSeenInstallPrompt = localStorage.getItem('hasSeenInstallPrompt');
 
-    // Zeige Install-Prompt nur beim ersten Mal automatisch
-    if (!hasSeenInstallPrompt) {
+    // Zeige Install-Prompt nur beim ersten Mal automatisch (nach 3 Sekunden)
+    if (!hasSeenInstallPrompt && !installPromptShown) {
         setTimeout(() => {
             const installPrompt = document.getElementById('installPrompt');
             if (installPrompt && !window.matchMedia('(display-mode: standalone)').matches) {
                 installPrompt.style.display = 'block';
+                installPromptShown = true;
+                console.log('✅ Automatischer Install-Prompt angezeigt');
             }
-        }, 10000);
+        }, 3000);
     }
 });
+
+// Fallback für Browser ohne beforeinstallprompt (z.B. Firefox)
+// Zeige Button trotzdem an, wenn PWA-Kriterien erfüllt sind
+setTimeout(() => {
+    if (!deferredPrompt && !window.matchMedia('(display-mode: standalone)').matches) {
+        // Prüfe ob es ein Service Worker gibt (PWA-Kriterium)
+        if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+            const installBtn = document.getElementById('installAppBtn');
+            if (installBtn) {
+                installBtn.style.display = 'inline-block';
+                installBtn.title = 'App installieren (über Browser-Menü)';
+                console.log('ℹ️ Fallback: Install-Button angezeigt (kein beforeinstallprompt Event)');
+            }
+        }
+    }
+}, 2000);
 
 // Funktion zum manuellen Anzeigen des Install-Prompts
 window.showInstallPrompt = function() {
     const installPrompt = document.getElementById('installPrompt');
+
     if (deferredPrompt && installPrompt && !window.matchMedia('(display-mode: standalone)').matches) {
+        // Chrome/Edge/Vivaldi: Nutze Standard-Prompt
         installPrompt.style.display = 'block';
     } else if (window.matchMedia('(display-mode: standalone)').matches) {
         alert('Die App ist bereits installiert!');
     } else {
-        alert('Installation ist im Browser nicht verfügbar. Bitte öffnen Sie die Seite im Browser und versuchen Sie es erneut.');
+        // Firefox oder anderer Browser ohne beforeinstallprompt
+        alert('Bitte nutzen Sie das Browser-Menü, um die App zu installieren:\n\n' +
+              '• Firefox: Menü → "Diese Seite installieren"\n' +
+              '• Chrome/Edge: Menü → "App installieren"\n' +
+              '• Safari: Teilen → "Zum Home-Bildschirm"');
     }
 };
 
