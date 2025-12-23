@@ -391,26 +391,50 @@ if ('serviceWorker' in navigator) {
 let deferredPrompt;
 let installPromptShown = false;
 
-// Verstecke Install-Button wenn App bereits im Standalone-Modus läuft
-function checkStandaloneMode() {
+// Verstecke Install-Button wenn App bereits installiert ist
+function checkInstallStatus() {
+    const installBtn = document.getElementById('installAppBtn');
+    if (!installBtn) return;
+
+    // 1. Prüfe ob im Standalone-Modus (PWA läuft)
     if (window.matchMedia('(display-mode: standalone)').matches) {
-        const installBtn = document.getElementById('installAppBtn');
-        if (installBtn) {
-            installBtn.style.display = 'none';
-            console.log('✅ App läuft im Standalone-Modus, Install-Button versteckt');
-        }
+        installBtn.style.display = 'none';
+        console.log('✅ App läuft im Standalone-Modus, Install-Button versteckt');
         return true;
     }
+
+    // 2. Prüfe localStorage (wurde bereits installiert?)
+    const isInstalled = localStorage.getItem('pwaInstalled');
+    if (isInstalled === 'true') {
+        installBtn.style.display = 'none';
+        console.log('✅ PWA bereits installiert (localStorage), Install-Button versteckt');
+        return true;
+    }
+
+    // 3. Prüfe mit getInstalledRelatedApps API (Chrome/Edge)
+    if ('getInstalledRelatedApps' in navigator) {
+        navigator.getInstalledRelatedApps().then(relatedApps => {
+            if (relatedApps.length > 0) {
+                installBtn.style.display = 'none';
+                localStorage.setItem('pwaInstalled', 'true');
+                console.log('✅ PWA bereits installiert (getInstalledRelatedApps), Install-Button versteckt');
+            }
+        }).catch(err => {
+            console.log('ℹ️ getInstalledRelatedApps nicht verfügbar:', err.message);
+        });
+    }
+
     return false;
 }
 
 // Prüfe beim Laden
-checkStandaloneMode();
+checkInstallStatus();
 
 // Debug-Modus: URL-Parameter ?resetpwa=1 löscht localStorage
 const urlParams = new URLSearchParams(window.location.search);
 if (urlParams.get('resetpwa') === '1') {
     localStorage.removeItem('hasSeenInstallPrompt');
+    localStorage.removeItem('pwaInstalled');
     console.log('🔄 Install-Prompt Status zurückgesetzt');
     // Zeige visuelle Bestätigung
     setTimeout(() => {
@@ -511,8 +535,15 @@ document.getElementById('installButton')?.addEventListener('click', async () => 
 
         // Verstecke Header-Button nach Installation
         if (outcome === 'accepted') {
+            // Markiere PWA als installiert
+            localStorage.setItem('pwaInstalled', 'true');
+
             const installBtn = document.getElementById('installAppBtn');
-            if (installBtn) installBtn.style.display = 'none';
+            if (installBtn) {
+                installBtn.style.display = 'none';
+            }
+
+            console.log('✅ PWA installiert, Status gespeichert');
         }
 
         deferredPrompt = null;
