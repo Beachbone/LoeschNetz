@@ -1,0 +1,43 @@
+# LoeschNetz Admin .htaccess
+# Sicherstellen, dass PHP-Dateien statt HTML geladen werden
+
+# DirectoryIndex: index.php als Standard
+DirectoryIndex index.php
+
+# Rewrite Engine aktivieren
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Redirect alte .html Aufrufe zu .php
+    # login.html -> login.php
+    RewriteRule ^login\.html$ login.php [R=301,L]
+
+    # index.html -> index.php
+    RewriteRule ^index\.html$ index.php [R=301,L]
+
+    # users.html -> users.php
+    RewriteRule ^users\.html$ users.php [R=301,L]
+
+    # marker-types.html -> marker-types.php
+    RewriteRule ^marker-types\.html$ marker-types.php [R=301,L]
+
+    # logs.html -> logs.php
+    RewriteRule ^logs\.html$ logs.php [R=301,L]
+
+    # snapshots.html -> snapshots.php
+    RewriteRule ^snapshots\.html$ snapshots.php [R=301,L]
+
+    # settings.html -> settings.php
+    RewriteRule ^settings\.html$ settings.php [R=301,L]
+</IfModule>
+
+# Security: Prevent access to includes directory
+<IfModule mod_rewrite.c>
+    RewriteRule ^includes/ - [F,L]
+</IfModule>
+
+# Prevent access to backup and sensitive files
+<FilesMatch "\.(backup|bak|old|log|json\.backup)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>

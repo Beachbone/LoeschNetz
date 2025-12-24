@@ -333,7 +333,8 @@ include __DIR__ . '/includes/head.php';
         </div>
     </div>
 
-    <!-- Scripts -->
+    <?php include __DIR__ . '/includes/scripts.php'; ?>
+
     <script>
         async function initApp() {
             const isAuthenticated = await Auth.checkSession();

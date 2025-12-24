@@ -162,7 +162,8 @@ include __DIR__ . '/includes/head.php';
         </div>
     </div>
 
-    <!-- Scripts -->
+    <?php include __DIR__ . '/includes/scripts.php'; ?>
+
     <script>
         // Desktop Sort Setup
         function setupDesktopSort() {

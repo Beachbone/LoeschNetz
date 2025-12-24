@@ -92,7 +92,7 @@ include __DIR__ . '/includes/head.php';
         </div>
     </div>
 
-    <!-- Admin JS -->
+    <?php include __DIR__ . '/includes/scripts.php'; ?>
 
     <!-- Init -->
     <script>
