@@ -74,10 +74,13 @@ self.addEventListener('fetch', (event) => {
                     // Network-First für index.php, Cache als Fallback
                     return fetch(event.request)
                         .then(response => {
+                            // Clone SOFORT vor jeder anderen Verwendung (Race Condition vermeiden)
+                            const responseClone = response.clone();
+
                             // Update Cache im Hintergrund
                             if (response.ok) {
                                 caches.open(CACHE_NAME).then(cache => {
-                                    cache.put(event.request, response.clone());
+                                    cache.put(event.request, responseClone);
                                 });
                             }
                             return response;
