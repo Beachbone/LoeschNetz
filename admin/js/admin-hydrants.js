@@ -310,11 +310,21 @@ window.Hydrants = {
 
                 // Hydranten-Liste im Hintergrund aktualisieren
                 await this.loadAll();
+
+                // Karte auf neuen Hydrant zentrieren und hervorheben
+                if (window.AdminMap) {
+                    AdminMap.centerOnHydrant(newHydrant.id, newHydrant.lat, newHydrant.lng);
+                }
             } else {
                 // Bei Edit: Modal schließen wie bisher
                 this.showMessage(isEdit ? 'Hydrant erfolgreich gespeichert' : 'Hydrant erfolgreich erstellt', 'success');
                 this.closeModal();
                 await this.loadAll();
+
+                // Karte auf gespeicherten Hydrant zentrieren und hervorheben
+                if (isEdit && window.AdminMap && formData.id) {
+                    AdminMap.centerOnHydrant(formData.id, formData.lat, formData.lng);
+                }
             }
         } catch (error) {
             console.error('Fehler beim Speichern:', error);

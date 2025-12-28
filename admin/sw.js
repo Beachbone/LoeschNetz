@@ -1,7 +1,7 @@
 // sw.js - Service Worker für LoeschNetz Admin PWA
 // Version mit Offline-Fähigkeit für Admin-Interface
 
-const CACHE_VERSION = 'loeschnetz-admin-v1.4.0';
+const CACHE_VERSION = 'loeschnetz-admin-v1.5.7';
 const CACHE_STATIC = `${CACHE_VERSION}-static`;
 const CACHE_DYNAMIC = `${CACHE_VERSION}-dynamic`;
 
@@ -28,7 +28,10 @@ const STATIC_ASSETS = [
     './js/admin-users.js',
     './js/admin-settings.js',
     './js/admin-snapshots.js',
-    './js/admin-logs.js'
+    './js/admin-logs.js',
+    './icons/icon-96x96.png',
+    './icons/icon-192x192.png',
+    './icons/icon-512x512.png'
 ];
 
 // Installation: Cache füllen
@@ -100,10 +103,12 @@ self.addEventListener('fetch', (event) => {
     }
 
     // Admin-Dateien (HTML, CSS, JS): Cache-first mit Network-Fallback
-    if (url.origin === location.origin && url.pathname.startsWith('/admin/')) {
-        event.respondWith(cacheFirstStrategy(request, CACHE_STATIC));
-        return;
-    }
+// sw.js Anpassung
+if (url.origin === location.origin && 
+   (url.pathname.includes('/admin/') || url.pathname.includes('/icons/'))) {		
+    event.respondWith(cacheFirstStrategy(request, CACHE_STATIC));
+    return;
+}
 
     // Alles andere: Network only
     event.respondWith(fetch(request));

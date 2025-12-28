@@ -1,7 +1,7 @@
 // sw.js - Service Worker für LoeschNetz Public PWA
 // Version mit Leaflet-Support und Offline-Fähigkeit
 
-const CACHE_VERSION = 'loeschnetz-v1.0.2';
+const CACHE_VERSION = 'loeschnetz-v1.2.0';
 const CACHE_STATIC = `${CACHE_VERSION}-static`;
 const CACHE_DYNAMIC = `${CACHE_VERSION}-dynamic`;
 const CACHE_IMAGES = `${CACHE_VERSION}-images`;
@@ -11,12 +11,12 @@ const CACHE_TILES = `${CACHE_VERSION}-tiles`;
 const STATIC_ASSETS = [
     './',
     './index.html',
-    './datenschutz.html',
-    './impressum.html',
     './css/style.css',
     './js/app.js',
     './manifest.php',
     './favicon.png',
+    // Admin CSS
+    './admin/css/admin.css',
     // Leaflet (lokal)
     './leaflet/leaflet.css',
     './leaflet/leaflet.js',

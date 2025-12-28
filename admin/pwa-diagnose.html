@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PWA Diagnose - LoeschNetz Admin</title>
+    <link rel="manifest" href="./manifest.json">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #d32f2f;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+        h2 {
+            color: #333;
+            margin: 20px 0 10px;
+            font-size: 18px;
+        }
+        .check-item {
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .check-item.success {
+            background: #e8f5e9;
+            border-left: 4px solid #4caf50;
+        }
+        .check-item.error {
+            background: #ffebee;
+            border-left: 4px solid #f44336;
+        }
+        .check-item.warning {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+        }
+        .check-item.info {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+        }
+        .icon {
+            font-size: 20px;
+            min-width: 24px;
+        }
+        .details {
+            flex: 1;
+        }
+        .label {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .message {
+            font-size: 14px;
+            color: #666;
+        }
+        code {
+            background: #f5f5f5;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 13px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #d32f2f;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 10px 10px 10px 0;
+            text-decoration: none;
+        }
+        .btn:hover {
+            background: #b71c1c;
+        }
+        .btn-secondary {
+            background: #757575;
+        }
+        .btn-secondary:hover {
+            background: #616161;
+        }
+        pre {
+            background: #f5f5f5;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 12px;
+        }
+        .loading {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #666;
+        }
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #d32f2f;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 PWA Diagnose - Admin Interface</h1>
+
+        <div id="results">
+            <div class="loading">
+                <div class="spinner"></div>
+                <span>Prüfe PWA-Kriterien...</span>
+            </div>
+        </div>
+
+        <div style="margin-top: 20px;">
+            <button class="btn" onclick="runDiagnosis()">🔄 Erneut prüfen</button>
+            <a href="./index.php" class="btn btn-secondary">← Zurück zum Admin</a>
+        </div>
+    </div>
+
+    <script>
+        async function runDiagnosis() {
+            const results = document.getElementById('results');
+            results.innerHTML = '<div class="loading"><div class="spinner"></div><span>Prüfe PWA-Kriterien...</span></div>';
+
+            const checks = [];
+
+            // 1. Browser-Check
+            const userAgent = navigator.userAgent;
+            const isChrome = /Chrome/.test(userAgent) && /Google Inc/.test(navigator.vendor);
+            const isEdge = /Edg/.test(userAgent);
+            const isFirefox = /Firefox/.test(userAgent);
+            const isVivaldi = /Vivaldi/.test(userAgent);
+            const isSamsung = /SamsungBrowser/.test(userAgent);
+
+            let browserSupport = 'error';
+            let browserMessage = 'Unbekannter Browser';
+
+            if (isChrome) {
+                browserSupport = 'success';
+                browserMessage = 'Chrome unterstützt WebAPK vollständig ✓';
+            } else if (isEdge) {
+                browserSupport = 'success';
+                browserMessage = 'Edge unterstützt WebAPK vollständig ✓';
+            } else if (isSamsung) {
+                browserSupport = 'success';
+                browserMessage = 'Samsung Internet unterstützt WebAPK ✓';
+            } else if (isVivaldi) {
+                browserSupport = 'warning';
+                browserMessage = 'Vivaldi: Eingeschränkte WebAPK-Unterstützung. Verwende Chrome für beste Ergebnisse.';
+            } else if (isFirefox) {
+                browserSupport = 'error';
+                browserMessage = 'Firefox Mobile unterstützt KEINE WebAPK! Nur Shortcuts möglich. Verwende Chrome/Edge.';
+            }
+
+            checks.push({
+                type: browserSupport,
+                icon: browserSupport === 'success' ? '✅' : (browserSupport === 'warning' ? '⚠️' : '❌'),
+                label: 'Browser-Kompatibilität',
+                message: browserMessage
+            });
+
+            // 2. HTTPS-Check
+            const isHTTPS = location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+            checks.push({
+                type: isHTTPS ? 'success' : 'error',
+                icon: isHTTPS ? '✅' : '❌',
+                label: 'HTTPS / Localhost',
+                message: isHTTPS ? `${location.protocol} - OK` : 'PWA benötigt HTTPS (außer localhost)'
+            });
+
+            // 3. Manifest-Check
+            let manifestCheck = { type: 'error', icon: '❌', label: 'Manifest', message: 'Nicht gefunden' };
+            try {
+                const manifestLink = document.querySelector('link[rel="manifest"]');
+                if (manifestLink) {
+                    const manifestUrl = new URL(manifestLink.href, location.href);
+                    const response = await fetch(manifestUrl.href);
+
+                    if (response.ok) {
+                        const manifest = await response.json();
+
+                        // Prüfe wichtige Manifest-Eigenschaften
+                        const hasName = manifest.name || manifest.short_name;
+                        const hasStartUrl = manifest.start_url;
+                        const hasDisplay = manifest.display === 'standalone' || manifest.display === 'fullscreen';
+                        const hasIcons = manifest.icons && manifest.icons.length > 0;
+                        const has192Icon = manifest.icons?.some(i => i.sizes === '192x192');
+                        const has512Icon = manifest.icons?.some(i => i.sizes === '512x512');
+                        const hasMaskable = manifest.icons?.some(i => i.purpose?.includes('maskable'));
+
+                        if (hasName && hasStartUrl && hasDisplay && has192Icon && has512Icon) {
+                            manifestCheck = {
+                                type: 'success',
+                                icon: '✅',
+                                label: 'Manifest geladen',
+                                message: `${manifest.name || manifest.short_name} - Alle Pflichtfelder OK ${hasMaskable ? '(inkl. maskable icons)' : ''}`
+                            };
+                        } else {
+                            const missing = [];
+                            if (!hasName) missing.push('name/short_name');
+                            if (!hasStartUrl) missing.push('start_url');
+                            if (!hasDisplay) missing.push('display:standalone');
+                            if (!has192Icon) missing.push('192x192 Icon');
+                            if (!has512Icon) missing.push('512x512 Icon');
+
+                            manifestCheck = {
+                                type: 'warning',
+                                icon: '⚠️',
+                                label: 'Manifest unvollständig',
+                                message: `Fehlend: ${missing.join(', ')}`
+                            };
+                        }
+
+                        // Icon-Erreichbarkeit prüfen
+                        if (manifest.icons && manifest.icons.length > 0) {
+                            const iconChecks = [];
+                            for (const icon of manifest.icons.slice(0, 3)) { // Nur erste 3 prüfen
+                                try {
+                                    const iconUrl = new URL(icon.src, manifestUrl.href);
+                                    const iconResponse = await fetch(iconUrl.href, { method: 'HEAD' });
+                                    iconChecks.push({
+                                        type: iconResponse.ok ? 'success' : 'error',
+                                        icon: iconResponse.ok ? '✅' : '❌',
+                                        label: `Icon ${icon.sizes}`,
+                                        message: iconResponse.ok ? `Erreichbar: ${iconUrl.pathname}` : `Nicht erreichbar: ${iconUrl.pathname}`
+                                    });
+                                } catch (err) {
+                                    iconChecks.push({
+                                        type: 'error',
+                                        icon: '❌',
+                                        label: `Icon ${icon.sizes}`,
+                                        message: `Fehler beim Laden: ${icon.src}`
+                                    });
+                                }
+                            }
+                            checks.push(manifestCheck, ...iconChecks);
+                        } else {
+                            checks.push(manifestCheck);
+                        }
+                    } else {
+                        manifestCheck.message = `HTTP ${response.status} - Manifest nicht erreichbar unter ${manifestUrl.pathname}`;
+                        checks.push(manifestCheck);
+                    }
+                } else {
+                    manifestCheck.message = 'Kein <link rel="manifest"> im HTML gefunden';
+                    checks.push(manifestCheck);
+                }
+            } catch (err) {
+                manifestCheck.message = `Fehler: ${err.message}`;
+                checks.push(manifestCheck);
+            }
+
+            // 4. Service Worker Check
+            if ('serviceWorker' in navigator) {
+                try {
+                    const registration = await navigator.serviceWorker.getRegistration();
+                    if (registration) {
+                        const swState = registration.active ? 'active' : (registration.installing ? 'installing' : 'waiting');
+                        checks.push({
+                            type: registration.active ? 'success' : 'warning',
+                            icon: registration.active ? '✅' : '⚠️',
+                            label: 'Service Worker',
+                            message: `Status: ${swState} - Scope: ${registration.scope}`
+                        });
+                    } else {
+                        checks.push({
+                            type: 'error',
+                            icon: '❌',
+                            label: 'Service Worker',
+                            message: 'Nicht registriert'
+                        });
+                    }
+                } catch (err) {
+                    checks.push({
+                        type: 'error',
+                        icon: '❌',
+                        label: 'Service Worker',
+                        message: `Fehler: ${err.message}`
+                    });
+                }
+            } else {
+                checks.push({
+                    type: 'error',
+                    icon: '❌',
+                    label: 'Service Worker',
+                    message: 'Browser unterstützt keine Service Worker'
+                });
+            }
+
+            // 5. Display Mode Check
+            const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+            const isFullscreen = window.matchMedia('(display-mode: fullscreen)').matches;
+            checks.push({
+                type: 'info',
+                icon: 'ℹ️',
+                label: 'Aktueller Display Mode',
+                message: isStandalone || isFullscreen ? `PWA läuft im ${isStandalone ? 'Standalone' : 'Fullscreen'} Modus` : 'Browser-Modus (nicht installiert)'
+            });
+
+            // 6. Installation-Prompt Check
+            checks.push({
+                type: 'info',
+                icon: 'ℹ️',
+                label: 'Installation',
+                message: 'beforeinstallprompt Event wird nur auf unterstützten Browsern ausgelöst. Prüfe Chrome DevTools → Application → Manifest für Details.'
+            });
+
+            // Ergebnisse rendern
+            let html = '<h2>📋 Diagnose-Ergebnisse</h2>';
+
+            checks.forEach(check => {
+                html += `
+                    <div class="check-item ${check.type}">
+                        <div class="icon">${check.icon}</div>
+                        <div class="details">
+                            <div class="label">${check.label}</div>
+                            <div class="message">${check.message}</div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            // Zusammenfassung und Empfehlungen
+            const hasErrors = checks.some(c => c.type === 'error');
+            const hasWarnings = checks.some(c => c.type === 'warning');
+
+            html += '<h2>💡 Empfehlungen</h2>';
+
+            if (isFirefox) {
+                html += `
+                    <div class="check-item error">
+                        <div class="icon">🚫</div>
+                        <div class="details">
+                            <div class="label">Firefox Mobile</div>
+                            <div class="message">Firefox unterstützt WebAPK nicht. Installiere <strong>Chrome for Android</strong> oder <strong>Microsoft Edge</strong> für volle PWA-Unterstützung.</div>
+                        </div>
+                    </div>
+                `;
+            } else if (isVivaldi) {
+                html += `
+                    <div class="check-item warning">
+                        <div class="icon">⚠️</div>
+                        <div class="details">
+                            <div class="label">Vivaldi Mobile</div>
+                            <div class="message">Vivaldi hat eingeschränkte WebAPK-Unterstützung. Für beste Ergebnisse verwende Chrome oder Edge.</div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            if (!hasErrors && (isChrome || isEdge || isSamsung)) {
+                html += `
+                    <div class="check-item success">
+                        <div class="icon">🎉</div>
+                        <div class="details">
+                            <div class="label">Bereit für WebAPK</div>
+                            <div class="message">Alle Kriterien erfüllt! Öffne das Browser-Menü → "App installieren" oder warte auf den automatischen Install-Prompt.</div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            html += '<h2>🛠️ Debug-Info</h2>';
+            html += `<pre>User-Agent: ${navigator.userAgent}
+URL: ${location.href}
+Protokoll: ${location.protocol}
+Display Mode: ${isStandalone ? 'standalone' : 'browser'}</pre>`;
+
+            results.innerHTML = html;
+        }
+
+        // Beim Laden ausführen
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', runDiagnosis);
+        } else {
+            runDiagnosis();
+        }
+    </script>
+</body>
+</html>

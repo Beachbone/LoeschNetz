@@ -37,7 +37,23 @@ DirectoryIndex index.php
 </IfModule>
 
 # Prevent access to backup and sensitive files
-<FilesMatch "\.(backup|bak|old|log|json\.backup)$">
+# Note: manifest.json and other .json files are allowed
+<FilesMatch "\.(backup|bak|old|log)$|\.json\.backup$">
     Order allow,deny
     Deny from all
+</FilesMatch>
+
+# Ensure PWA files are served with correct MIME types
+<IfModule mod_mime.c>
+    AddType application/manifest+json .webmanifest
+    AddType application/json .json
+    AddType text/javascript .js
+</IfModule>
+
+# Allow manifest.json and service worker
+<FilesMatch "^(manifest\.json|sw\.js)$">
+    <IfModule mod_headers.c>
+        Header set Cache-Control "public, max-age=3600"
+        Header set Access-Control-Allow-Origin "*"
+    </IfModule>
 </FilesMatch>

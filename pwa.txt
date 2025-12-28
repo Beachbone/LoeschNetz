@@ -1,0 +1,181 @@
+PWA DIAGNOSE REPORT
+Erstellt: 27.12.2025, 14:24:33
+URL: https://hydrant.ffw-kappel.de/pwa-test.html
+
+============================================================
+📱 INSTALLATION STATUS
+============================================================
+❌ Standalone Mode: NEIN
+✅ Display Mode: browser
+✅ iOS Gerät: Nein
+
+============================================================
+📋 MANIFEST CHECK
+============================================================
+Manifest URL: https://hydrant.ffw-kappel.de/manifest.php
+✅ id: /
+✅ name: LoeschNetz
+✅ start_url: /index.html
+✅ scope: /
+✅ display: standalone
+✅ theme_color: #d32f2f
+✅ Icons Anzahl: 11
+✅ Maskable Icon: JA
+Display Override: ["standalone","minimal-ui"]
+
+--- Vollständiges Manifest ---
+{
+  "id": "/",
+  "name": "LoeschNetz",
+  "short_name": "LoeschNetz",
+  "description": "Offline-fähige Hydrantenverwaltung",
+  "start_url": "/index.html",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": [
+    "standalone",
+    "minimal-ui"
+  ],
+  "orientation": "portrait",
+  "theme_color": "#d32f2f",
+  "background_color": "#ffffff",
+  "icons": [
+    {
+      "src": "/icons/icon-48x48.png",
+      "sizes": "48x48",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-72x72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-96x96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-128x128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-152x152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icons/icon-384x384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "categories": [
+    "utilities",
+    "navigation"
+  ],
+  "screenshots": [],
+  "related_applications": [],
+  "prefer_related_applications": false
+}
+
+============================================================
+⚙️ SERVICE WORKER
+============================================================
+✅ Service Worker Support: JA
+❌ Registrierungen: 0
+❌ 
+Controller aktiv: NEIN
+
+============================================================
+🖼️ ICONS CHECK
+============================================================
+Prüfe 11 Icons...
+
+✅ OK (200) - 48x48 any
+    → /icons/icon-48x48.png
+✅ OK (200) - 72x72 any
+    → /icons/icon-72x72.png
+✅ OK (200) - 96x96 any
+    → /icons/icon-96x96.png
+✅ OK (200) - 128x128 any
+    → /icons/icon-128x128.png
+✅ OK (200) - 144x144 any
+    → /icons/icon-144x144.png
+✅ OK (200) - 152x152 any
+    → /icons/icon-152x152.png
+✅ OK (200) - 192x192 any
+    → /icons/icon-192x192.png
+✅ OK (200) - 192x192 maskable
+    → /icons/icon-192x192.png
+✅ OK (200) - 384x384 any
+    → /icons/icon-384x384.png
+✅ OK (200) - 512x512 any
+    → /icons/icon-512x512.png
+✅ OK (200) - 512x512 maskable
+    → /icons/icon-512x512.png
+
+============================================================
+🌐 BROWSER & SYSTEM INFO
+============================================================
+User Agent:
+Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Mobile Safari/537.36
+
+✅ Android Version: 10
+✅ Chrome Version: 142.0.0.0
+✅ Vivaldi Browser: NEIN
+✅ Screen Resolution: 376x835
+✅ Window Size: 375x747
+✅ Device Pixel Ratio: 3.25
+✅ Online Status: ONLINE
+✅ Connection Type: 4g
+
+--- Platform Info ---
+Platform: Linux armv81
+Language: de-DE
+Cookies Enabled: true
+Do Not Track: 1
+
+============================================================
+💾 INSTALL STATUS
+============================================================
+✅ Install-Prompt ist VERFÜGBAR!
+Die App kann installiert werden.
+Nutze den Button "App installieren" unten.

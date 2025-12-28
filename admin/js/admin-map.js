@@ -444,6 +444,53 @@ window.AdminMap = {
     },
     
     /**
+     * Auf Hydrant zentrieren und highlighten
+     */
+    centerOnHydrant(hydrantId, lat, lng) {
+        if (!this.map) {
+            console.warn('AdminMap: Karte nicht initialisiert');
+            return;
+        }
+
+        console.log(`AdminMap: Zentriere auf Hydrant ${hydrantId} bei ${lat}, ${lng}`);
+
+        // Karte auf Position zentrieren mit Animation
+        this.map.setView([lat, lng], 17, {
+            animate: true,
+            duration: 1
+        });
+
+        // Finde den entsprechenden Marker
+        setTimeout(() => {
+            const marker = this.markers.find(m => {
+                const pos = m.getLatLng();
+                return Math.abs(pos.lat - lat) < 0.0001 && Math.abs(pos.lng - lng) < 0.0001;
+            });
+
+            if (marker) {
+                // Marker-Element für Animation finden
+                const markerElement = marker.getElement();
+                if (markerElement) {
+                    // Highlight-Animation hinzufügen
+                    markerElement.classList.add('marker-highlight');
+
+                    // Animation nach 2 Sekunden entfernen
+                    setTimeout(() => {
+                        markerElement.classList.remove('marker-highlight');
+                    }, 2000);
+                }
+
+                // Popup öffnen für zusätzliches Feedback
+                marker.openPopup();
+
+                console.log('AdminMap: Marker hervorgehoben');
+            } else {
+                console.warn('AdminMap: Marker nicht gefunden');
+            }
+        }, 500); // Warte kurz, bis Karte zentriert ist
+    },
+
+    /**
      * HTML escapen
      */
     escapeHtml(text) {

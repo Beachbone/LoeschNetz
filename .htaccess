@@ -1,6 +1,9 @@
 # LoeschNetz Root .htaccess
 # Security and HTTPS Configuration
 
+# DirectoryIndex: index.html als Standard
+DirectoryIndex index.html
+
 # Enable Rewrite Engine
 <IfModule mod_rewrite.c>
     RewriteEngine On
