@@ -264,6 +264,16 @@ include __DIR__ . '/includes/head.php';
                 </div>
 
                 <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="snapshotsBackupImages" name="snapshotsBackupImages">
+                        Bilder in Snapshots sichern
+                    </label>
+                    <small style="display: block; margin-top: 5px; color: #666;">
+                        Erstellt eine Kopie aller Hydrant-Bilder beim Snapshot (benötigt mehr Speicherplatz)
+                    </small>
+                </div>
+
+                <div class="form-group">
                     <label for="snapshotsMaxCount">Max. Anzahl Snapshots</label>
                     <input type="number" min="1" max="100" id="snapshotsMaxCount" name="snapshotsMaxCount" required>
                 </div>

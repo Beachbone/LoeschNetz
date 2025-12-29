@@ -93,8 +93,16 @@ window.Snapshots = {
         document.getElementById('totalSnapshots').textContent = this.snapshots.length;
         document.getElementById('snapshotCount').textContent = this.snapshots.length;
 
-        const totalBytes = this.snapshots.reduce((sum, s) => sum + (s.size_bytes || 0), 0);
+        // Gesamtgröße berechnen (Daten + Bilder)
+        const totalDataBytes = this.snapshots.reduce((sum, s) => sum + (s.size_bytes || 0), 0);
+        const totalImagesBytes = this.snapshots.reduce((sum, s) => sum + (s.images_size_bytes || 0), 0);
+        const totalBytes = totalDataBytes + totalImagesBytes;
+
         document.getElementById('totalSize').textContent = this.formatBytes(totalBytes);
+
+        // Aufschlüsselung anzeigen
+        const breakdown = `Daten: ${this.formatBytes(totalDataBytes)}, Bilder: ${this.formatBytes(totalImagesBytes)}`;
+        document.getElementById('sizeBreakdown').textContent = breakdown;
     },
 
     /**
@@ -138,6 +146,7 @@ window.Snapshots = {
         html += '<th data-sort="date">Datum <span class="sort-icon">↕</span></th>';
         html += '<th data-sort="hydrant_count">Hydranten <span class="sort-icon">↕</span></th>';
         html += '<th data-sort="size_bytes">Größe <span class="sort-icon">↕</span></th>';
+        html += '<th data-sort="images_size_bytes">Bilder <span class="sort-icon">↕</span></th>';
         html += '<th data-sort="created_by">Erstellt von <span class="sort-icon">↕</span></th>';
         html += '<th>Aktionen</th>';
         html += '</tr></thead><tbody>';
@@ -147,10 +156,16 @@ window.Snapshots = {
             const size = this.formatBytes(snapshot.size_bytes);
             const isAuto = snapshot.created_by === 'auto';
 
+            // Bilder-Info
+            const imagesInfo = snapshot.has_images
+                ? `📦 ${this.formatBytes(snapshot.images_size_bytes)}`
+                : '<span style="color:#999;">—</span>';
+
             html += `<tr>
                 <td data-label="Datum"><strong>${snapshot.date}</strong><br><small>${date.toLocaleString('de-DE')}</small></td>
                 <td data-label="Hydranten">${snapshot.hydrant_count}</td>
                 <td data-label="Größe">${size}</td>
+                <td data-label="Bilder">${imagesInfo}</td>
                 <td data-label="Erstellt von">${isAuto ? '🤖 Automatisch' : snapshot.created_by}</td>
                 <td data-label="Aktionen" class="actions">
                     <button class="btn-icon" onclick="Snapshots.showPreview('${snapshot.date}')" title="Vorschau anzeigen">

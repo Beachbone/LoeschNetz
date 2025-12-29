@@ -247,6 +247,9 @@ function validateAndMergeConfig($current, $new) {
         if (isset($new['snapshots']['autoCreate'])) {
             $merged['snapshots']['autoCreate'] = (bool)$new['snapshots']['autoCreate'];
         }
+        if (isset($new['snapshots']['backupImages'])) {
+            $merged['snapshots']['backupImages'] = (bool)$new['snapshots']['backupImages'];
+        }
     }
     
     // PHOTOS

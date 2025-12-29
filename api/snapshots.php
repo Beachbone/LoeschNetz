@@ -233,13 +233,22 @@ function handleDelete() {
     }
     
     $filename = SNAPSHOTS_DIR . "hydrants_{$date}.json";
-    
+
     if (!file_exists($filename)) {
         sendError('Snapshot nicht gefunden', 404);
     }
-    
+
+    // JSON löschen
     if (unlink($filename)) {
         error_log("SNAPSHOTS - Snapshot vom $date gelöscht");
+
+        // Zugehörige Bilder-ZIP löschen
+        $imagesFile = SNAPSHOTS_DIR . "images_{$date}.zip";
+        if (file_exists($imagesFile)) {
+            unlink($imagesFile);
+            error_log("SNAPSHOTS - Bilder-ZIP vom $date gelöscht");
+        }
+
         sendSuccess(['message' => 'Snapshot gelöscht']);
     } else {
         sendError('Snapshot konnte nicht gelöscht werden', 500);
@@ -251,49 +260,63 @@ function handleDelete() {
  */
 function createSnapshot() {
     $config = getConfig();
-    
+
     // Snapshots aktiviert?
     if (!($config['snapshots']['enabled'] ?? true)) {
         throw new Exception('Snapshots sind deaktiviert');
     }
-    
+
     $today = date('Y-m-d');
     $filename = SNAPSHOTS_DIR . "hydrants_{$today}.json";
-    
+
     // Bereits heute erstellt?
     if (file_exists($filename)) {
         // Existiert bereits, überschreiben
         error_log("SNAPSHOTS - Überschreibe existierenden Snapshot: $filename");
     }
-    
+
     // Hydranten laden
     $hydrants = readJson(HYDRANTS_FILE);
     if (!$hydrants) {
         throw new Exception('Konnte hydrants.json nicht laden');
     }
-    
+
     // Snapshot-Daten mit Metadaten
     $currentUser = getCurrentUser();
     $snapshotData = [
         '_snapshot_meta' => [
             'created' => date('c'),
             'hydrant_count' => count($hydrants['hydrants'] ?? []),
-            'created_by' => $currentUser ? $currentUser['username'] : 'system'
+            'created_by' => $currentUser ? $currentUser['username'] : 'system',
+            'images_backed_up' => false
         ],
         'hydrants' => $hydrants['hydrants'] ?? []
     ];
-    
+
     // Snapshot speichern
     $result = writeJson($filename, $snapshotData);
     if (!$result) {
         throw new Exception('Konnte Snapshot nicht schreiben');
     }
-    
+
+    // Bilder-Backup erstellen (falls aktiviert)
+    if ($config['snapshots']['backupImages'] ?? false) {
+        try {
+            backupImages($today);
+            $snapshotData['_snapshot_meta']['images_backed_up'] = true;
+            writeJson($filename, $snapshotData);
+            error_log("SNAPSHOTS - Bilder gesichert für: $today");
+        } catch (Exception $e) {
+            error_log("SNAPSHOTS - Bilder-Backup Fehler: " . $e->getMessage());
+            // Nicht kritisch, Snapshot ist trotzdem gültig
+        }
+    }
+
     // Rotation durchführen
     rotateSnapshots($config['snapshots']['max_count'] ?? 20);
-    
+
     error_log("SNAPSHOTS - Snapshot erstellt: $filename");
-    
+
     return $filename;
 }
 
@@ -312,10 +335,20 @@ function rotateSnapshots($maxCount) {
     while (count($snapshots) > $maxCount) {
         $oldest = array_shift($snapshots);
         $filename = SNAPSHOTS_DIR . $oldest['filename'];
-        
+
+        // JSON löschen
         if (file_exists($filename)) {
             unlink($filename);
             error_log("SNAPSHOTS - Rotiert (gelöscht): {$oldest['filename']}");
+        }
+
+        // Zugehörige Bilder-ZIP löschen
+        if (!empty($oldest['images_filename'])) {
+            $imagesFile = SNAPSHOTS_DIR . $oldest['images_filename'];
+            if (file_exists($imagesFile)) {
+                unlink($imagesFile);
+                error_log("SNAPSHOTS - Rotiert (gelöscht): {$oldest['images_filename']}");
+            }
         }
     }
 }
@@ -337,14 +370,22 @@ function getSnapshotList() {
             // Snapshot-Daten laden für Metadaten
             $data = readJson($file);
             $meta = $data['_snapshot_meta'] ?? [];
-            
+
+            // Prüfen ob Bilder-Backup existiert
+            $imagesZip = SNAPSHOTS_DIR . "images_{$date}.zip";
+            $hasImages = file_exists($imagesZip);
+            $imagesSize = $hasImages ? filesize($imagesZip) : 0;
+
             $snapshots[] = [
                 'filename' => $filename,
                 'date' => $date,
                 'hydrant_count' => $meta['hydrant_count'] ?? count($data['hydrants'] ?? []),
                 'size_bytes' => filesize($file),
                 'created' => $meta['created'] ?? date('c', filemtime($file)),
-                'created_by' => $meta['created_by'] ?? 'unknown'
+                'created_by' => $meta['created_by'] ?? 'unknown',
+                'has_images' => $hasImages,
+                'images_size_bytes' => $imagesSize,
+                'images_filename' => $hasImages ? "images_{$date}.zip" : null
             ];
         }
     }
@@ -355,6 +396,75 @@ function getSnapshotList() {
     });
     
     return $snapshots;
+}
+
+/**
+ * Bilder sichern für Snapshot (als ZIP)
+ */
+function backupImages($date) {
+    $uploadsDir = __DIR__ . '/../uploads/hydrants/';
+    $zipFile = SNAPSHOTS_DIR . "images_{$date}.zip";
+
+    // Uploads-Verzeichnis existiert nicht?
+    if (!is_dir($uploadsDir)) {
+        error_log("SNAPSHOTS - Uploads-Verzeichnis nicht gefunden: $uploadsDir");
+        return 0; // Kein Fehler werfen, einfach überspringen
+    }
+
+    // Alte ZIP-Datei löschen falls vorhanden
+    if (file_exists($zipFile)) {
+        unlink($zipFile);
+    }
+
+    // ZIP-Archiv erstellen
+    $zip = new ZipArchive();
+    if ($zip->open($zipFile, ZipArchive::CREATE) !== true) {
+        throw new Exception("Konnte ZIP-Datei nicht erstellen: $zipFile");
+    }
+
+    // Rekursiv Dateien zum ZIP hinzufügen
+    $fileCount = addDirectoryToZip($zip, $uploadsDir, '');
+    $zip->close();
+
+    $zipSize = filesize($zipFile);
+    error_log("SNAPSHOTS - $fileCount Dateien in ZIP gepackt (" . round($zipSize / 1024 / 1024, 2) . " MB)");
+
+    return $fileCount;
+}
+
+/**
+ * Verzeichnis rekursiv zu ZIP hinzufügen
+ */
+function addDirectoryToZip($zip, $sourceDir, $zipPath) {
+    $fileCount = 0;
+
+    if (!is_dir($sourceDir)) {
+        return 0;
+    }
+
+    $dir = opendir($sourceDir);
+    while (($file = readdir($dir)) !== false) {
+        if ($file === '.' || $file === '..') {
+            continue;
+        }
+
+        $sourcePath = $sourceDir . $file;
+        $zipFilePath = $zipPath . $file;
+
+        if (is_dir($sourcePath)) {
+            // Unterverzeichnis hinzufügen
+            $zip->addEmptyDir($zipFilePath);
+            $fileCount += addDirectoryToZip($zip, $sourcePath . '/', $zipFilePath . '/');
+        } else {
+            // Datei hinzufügen
+            if ($zip->addFile($sourcePath, $zipFilePath)) {
+                $fileCount++;
+            }
+        }
+    }
+    closedir($dir);
+
+    return $fileCount;
 }
 
 /**

@@ -68,6 +68,7 @@ window.Settings = {
         document.getElementById('snapshotsEnabled').checked = this.config.snapshots.enabled;
         document.getElementById('snapshotsMaxCount').value = this.config.snapshots.maxCount;
         document.getElementById('snapshotsAutoCreate').checked = this.config.snapshots.autoCreate;
+        document.getElementById('snapshotsBackupImages').checked = this.config.snapshots.backupImages || false;
         
         // PHOTOS
         document.getElementById('photosMaxWidth').value = this.config.photos.maxWidth;
@@ -139,7 +140,8 @@ window.Settings = {
             snapshots: {
                 enabled: formData.get('snapshotsEnabled') === 'on',
                 maxCount: parseInt(formData.get('snapshotsMaxCount')),
-                autoCreate: formData.get('snapshotsAutoCreate') === 'on'
+                autoCreate: formData.get('snapshotsAutoCreate') === 'on',
+                backupImages: formData.get('snapshotsBackupImages') === 'on'
             },
             photos: {
                 maxWidth: parseInt(formData.get('photosMaxWidth')),

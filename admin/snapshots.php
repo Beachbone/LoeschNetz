@@ -35,6 +35,7 @@ include __DIR__ . '/includes/head.php';
                 <div class="stat-content">
                     <div class="stat-label">Gesamtgröße</div>
                     <div class="stat-value" id="totalSize">0 KB</div>
+                    <small id="sizeBreakdown" style="color: #666; font-size: 0.75rem; margin-top: 4px; display: block;">Daten: 0 KB, Bilder: 0 KB</small>
                 </div>
             </div>
             <div class="stat-card">

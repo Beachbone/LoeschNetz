@@ -405,19 +405,47 @@ function autoSnapshot() {
                 'created' => date('c'),
                 'hydrant_count' => count($hydrants['hydrants'] ?? []),
                 'created_by' => getCurrentUser()['username'] ?? 'auto',
-                'auto' => true
+                'auto' => true,
+                'images_backed_up' => false
             ],
             'hydrants' => $hydrants['hydrants'] ?? []
         ];
-        
+
         // Snapshot speichern
         $result = writeJson($filename, $snapshotData);
         if (!$result) {
             throw new Exception('Konnte Snapshot nicht schreiben');
         }
-        
+
         error_log("AUTO-SNAPSHOT - Erstellt: $filename");
-        
+
+        // Bilder-Backup erstellen (falls aktiviert)
+        if ($config['backupImages'] ?? false) {
+            try {
+                $uploadsDir = __DIR__ . '/../uploads/hydrants/';
+                $zipFile = $snapshotsDir . "images_{$today}.zip";
+
+                if (is_dir($uploadsDir)) {
+                    // Alte ZIP löschen
+                    if (file_exists($zipFile)) {
+                        unlink($zipFile);
+                    }
+
+                    // ZIP erstellen
+                    $zip = new ZipArchive();
+                    if ($zip->open($zipFile, ZipArchive::CREATE) === true) {
+                        $copied = addDirectoryToZipInline($zip, $uploadsDir, '');
+                        $zip->close();
+                        $snapshotData['_snapshot_meta']['images_backed_up'] = true;
+                        writeJson($filename, $snapshotData);
+                        error_log("AUTO-SNAPSHOT - $copied Bilder in ZIP gesichert");
+                    }
+                }
+            } catch (Exception $e) {
+                error_log("AUTO-SNAPSHOT - Bilder-Backup Fehler: " . $e->getMessage());
+            }
+        }
+
         // Rotation durchführen
         rotateSnapshotsInline($snapshotsDir, $config['max_count'] ?? 20);
         
@@ -427,20 +455,53 @@ function autoSnapshot() {
 }
 
 /**
+ * Verzeichnis rekursiv zu ZIP hinzufügen (für Auto-Snapshot)
+ */
+function addDirectoryToZipInline($zip, $sourceDir, $zipPath) {
+    $fileCount = 0;
+
+    if (!is_dir($sourceDir)) {
+        return 0;
+    }
+
+    $dir = opendir($sourceDir);
+    while (($file = readdir($dir)) !== false) {
+        if ($file === '.' || $file === '..') {
+            continue;
+        }
+
+        $sourcePath = $sourceDir . $file;
+        $zipFilePath = $zipPath . $file;
+
+        if (is_dir($sourcePath)) {
+            $zip->addEmptyDir($zipFilePath);
+            $fileCount += addDirectoryToZipInline($zip, $sourcePath . '/', $zipFilePath . '/');
+        } else {
+            if ($zip->addFile($sourcePath, $zipFilePath)) {
+                $fileCount++;
+            }
+        }
+    }
+    closedir($dir);
+
+    return $fileCount;
+}
+
+/**
  * Snapshot-Rotation (älteste löschen)
  */
 function rotateSnapshotsInline($snapshotsDir, $maxCount) {
     $files = glob($snapshotsDir . 'hydrants_*.json');
-    
+
     if (count($files) <= $maxCount) {
         return; // Nichts zu tun
     }
-    
+
     // Nach Datum sortieren (älteste zuerst)
     usort($files, function($a, $b) {
         return filemtime($a) - filemtime($b);
     });
-    
+
     // Zu viele? Älteste löschen
     while (count($files) > $maxCount) {
         $oldest = array_shift($files);
