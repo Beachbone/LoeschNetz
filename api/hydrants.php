@@ -109,10 +109,10 @@ function handleCreateHydrant() {
         }
     }
     
-    // Koordinaten validieren
-    $lat = floatval($input['lat']);
-    $lng = floatval($input['lng']);
-    
+    // Koordinaten validieren und auf 8 Dezimalstellen runden (≈ 1mm Genauigkeit)
+    $lat = round(floatval($input['lat']), 8);
+    $lng = round(floatval($input['lng']), 8);
+
     if ($lat < -90 || $lat > 90 || $lng < -180 || $lng > 180) {
         sendError('Ungültige Koordinaten', 400, 'VALIDATION_ERROR');
     }
@@ -231,15 +231,15 @@ function handleUpdateHydrant($id) {
     
     // Felder aktualisieren (nur wenn angegeben)
     if (isset($input['lat'])) {
-        $lat = floatval($input['lat']);
+        $lat = round(floatval($input['lat']), 8);
         if ($lat < -90 || $lat > 90) {
             sendError('Ungültige Latitude', 400, 'VALIDATION_ERROR');
         }
         $hydrant['lat'] = $lat;
     }
-    
+
     if (isset($input['lng'])) {
-        $lng = floatval($input['lng']);
+        $lng = round(floatval($input['lng']), 8);
         if ($lng < -180 || $lng > 180) {
             sendError('Ungültige Longitude', 400, 'VALIDATION_ERROR');
         }
