@@ -1,7 +1,7 @@
 // sw.js - Minimaler Service Worker für LoeschNetz Admin PWA
 // Minimales Caching für Offline-Start
 
-const CACHE_VERSION = 'loeschnetz-admin-v2.1.1';
+const CACHE_VERSION = 'loeschnetz-admin-v1.0.0';
 const CACHE_NAME = `${CACHE_VERSION}-minimal`;
 
 // Minimale Dateien für Offline-Start
