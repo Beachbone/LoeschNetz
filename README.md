@@ -11,7 +11,7 @@ LoeschNetz ist eine Progressive Web App (PWA) zur Verwaltung und Visualisierung 
 - **GPS-Integration** - Präzise Koordinatenerfassung mit 9 Dezimalstellen (~1cm Genauigkeit)
 - **Foto-Dokumentation** - Upload und Verwaltung von Hydrantenfotos mit automatischer Komprimierung
 - **Automatische Backups** - Tägliche Snapshots mit optionalem Bilder-Backup
-- **Multi-User-System** - Benutzerverwaltung mit rollenbasierter Zugriffskontrolle
+- **Einfaches 2-Rollen-System** - Admin und Editor mit klaren Berechtigungen
 - **Vollständiges Audit-Log** - Nachvollziehbare CRUD-Operationen
 - **PWA-Installation** - Als App auf Desktop und Mobile installierbar
 
@@ -91,13 +91,13 @@ LoeschNetz ist eine Progressive Web App (PWA) zur Verwaltung und Visualisierung 
 - Getrennte Größenverfolgung für Daten und Bilder
 
 **Benutzerverwaltung:**
-- Multi-User-Support mit Rollenverwaltung
-- Admin- und Editor-Rollen
+- Einfaches 2-Rollen-System (Admin und Editor)
+- **Admin:** Volle Kontrolle über Hydranten, Benutzer, Snapshots, Einstellungen
+- **Editor:** Verwaltung von Hydranten und Fotos, kein Zugriff auf System-Einstellungen
 - Benutzeranlage mit automatischer Passwort-Generierung
 - Passwort-Änderungsfunktion
 - Session-Management mit Auto-Logout
 - Tracking fehlgeschlagener Login-Versuche
-- Vorbereitung für biometrische Anmeldung
 
 **Aktivitätsprotokolle (CRUD-Logs):**
 - Vollständiger Audit-Trail aller Datenänderungen
@@ -128,7 +128,7 @@ LoeschNetz ist eine Progressive Web App (PWA) zur Verwaltung und Visualisierung 
 
 ### Backend
 
-- **PHP 7.4+** - Server-seitige Logik
+- **PHP 8.2+** - Server-seitige Logik (ältere Versionen sind out of support)
 - **JSON-basierte Dateispeicherung** - Keine Datenbank erforderlich
 - **RESTful API** - Standardisierte HTTP-Endpunkte
 - **Session-basierte Authentifizierung** - Sichere Anmeldung
@@ -218,7 +218,7 @@ loeschnetz/
 ### Voraussetzungen
 
 - Webserver (Apache empfohlen) mit mod_rewrite
-- PHP 7.4 oder höher
+- **PHP 8.2 oder höher** (ältere Versionen sind out of support)
 - Schreibrechte für `/data/`, `/uploads/`, `/admin/`
 - HTTPS-Fähigkeit (empfohlen für PWA)
 - Moderne Browser mit Service Worker-Unterstützung
@@ -361,7 +361,7 @@ Die zentrale Konfiguration erfolgt über `config.json`:
 ### Authentifizierung & Autorisierung
 - Session-basierte Authentifizierung mit sicheren HTTP-only Cookies
 - Bcrypt-Passwort-Hashing
-- Rollenbasierte Zugriffskontrolle (Admin/Editor)
+- Einfaches 2-Rollen-System (Admin und Editor)
 - CSRF-Token-Validierung
 - Tracking fehlgeschlagener Login-Versuche
 - Automatisches Logout bei Inaktivität
