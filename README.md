@@ -419,7 +419,11 @@ Die Anwendung lädt Kartenmaterial von OpenStreetMap und ESRI. Die Nutzer werden
 
 ## Lizenz
 
-Dieses Projekt wurde für die Freiwillige Feuerwehr Kappel entwickelt.
+Dieses Projekt ist unter der [MIT License](LICENSE) lizenziert.
+
+Copyright (c) 2025 Freiwillige Feuerwehr Kappel
+
+Das Projekt darf frei verwendet, modifiziert und weitergegeben werden. Siehe [LICENSE](LICENSE) Datei für Details.
 
 ## Support & Entwicklung
 
