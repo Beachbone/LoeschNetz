@@ -1,3 +1,0 @@
-# Claude Code Konfiguration - Zugriff verweigern
-Order Deny,Allow
-Deny from all
