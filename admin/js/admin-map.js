@@ -219,16 +219,16 @@ window.AdminMap = {
             // Marker verschieben -> Koordinaten aktualisieren
             this.modalMarker.on('dragend', (e) => {
                 const pos = e.target.getLatLng();
-                latField.value = pos.lat.toFixed(6);
-                lngField.value = pos.lng.toFixed(6);
+                latField.value = pos.lat.toFixed(9);
+                lngField.value = pos.lng.toFixed(9);
                 console.log('AdminMap: Koordinaten nach Drag:', pos.lat, pos.lng);
             });
             
             // Klick auf Karte -> Marker verschieben
             this.modalMap.on('click', (e) => {
                 this.modalMarker.setLatLng(e.latlng);
-                latField.value = e.latlng.lat.toFixed(6);
-                lngField.value = e.latlng.lng.toFixed(6);
+                latField.value = e.latlng.lat.toFixed(9);
+                lngField.value = e.latlng.lng.toFixed(9);
                 console.log('AdminMap: Koordinaten nach Klick:', e.latlng.lat, e.latlng.lng);
             });
             
@@ -307,8 +307,8 @@ window.AdminMap = {
                 const latField = form.querySelector('[name="lat"]');
                 const lngField = form.querySelector('[name="lng"]');
 
-                latField.value = lat.toFixed(6);
-                lngField.value = lng.toFixed(6);
+                latField.value = lat.toFixed(9);
+                lngField.value = lng.toFixed(9);
 
                 // Marker und Karte aktualisieren
                 if (this.modalMarker && this.modalMap) {
@@ -363,8 +363,8 @@ window.AdminMap = {
                 const latField = form.querySelector('[name="lat"]');
                 const lngField = form.querySelector('[name="lng"]');
 
-                latField.value = lat.toFixed(6);
-                lngField.value = lng.toFixed(6);
+                latField.value = lat.toFixed(9);
+                lngField.value = lng.toFixed(9);
 
                 // Marker und Karte aktualisieren
                 if (this.modalMarker && this.modalMap) {
