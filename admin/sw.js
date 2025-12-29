@@ -1,12 +1,13 @@
 // sw.js - Minimaler Service Worker für LoeschNetz Admin PWA
 // Minimales Caching für Offline-Start
 
-const CACHE_VERSION = 'loeschnetz-admin-v2.1.0';
+const CACHE_VERSION = 'loeschnetz-admin-v2.1.1';
 const CACHE_NAME = `${CACHE_VERSION}-minimal`;
 
 // Minimale Dateien für Offline-Start
 const MINIMAL_ASSETS = [
     './index.php',
+    './icons/icon-144x144.png',
     './icons/icon-192x192.png',
     './icons/icon-512x512.png'
 ];
@@ -59,11 +60,10 @@ self.addEventListener('fetch', (event) => {
     const url = new URL(event.request.url);
 
     // Nur minimale Assets cachen (index.php und Icons)
-    if (url.origin === location.origin &&
-        (url.pathname.endsWith('/admin/index.php') ||
-         url.pathname.endsWith('/admin/') ||
-         url.pathname.includes('/admin/icons/icon-192x192.png') ||
-         url.pathname.includes('/admin/icons/icon-512x512.png'))) {
+ if (url.origin === location.origin &&
+    (url.pathname === '/admin/' || 
+     url.pathname === '/admin/index.php' ||
+     url.pathname.includes('/admin/icons/'))) {
 
         event.respondWith(
             caches.match(event.request)
