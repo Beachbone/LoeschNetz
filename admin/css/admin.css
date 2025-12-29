@@ -2148,6 +2148,57 @@ body > .modal.active {
     }
 }
 
+/* New Hydrant FAB */
+.new-hydrant-fab {
+    position: fixed;
+    bottom: 30px;
+    left: 30px;
+    background: #28a745;
+    color: white;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    font-size: 32px;
+    font-weight: 300;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease, background 0.2s ease;
+    transform: translateY(100px);
+}
+
+.new-hydrant-fab.visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.new-hydrant-fab:hover {
+    background: #218838;
+    transform: translateY(-5px) scale(1.05);
+}
+
+.new-hydrant-fab:active {
+    transform: translateY(0) scale(0.95);
+}
+
+@media (max-width: 768px) {
+    .new-hydrant-fab {
+        bottom: 20px;
+        left: 20px;
+        width: 55px;
+        height: 55px;
+        font-size: 28px;
+    }
+}
+
 /* === Install Prompt === */
 .install-prompt {
     position: fixed;

@@ -307,6 +307,9 @@ include __DIR__ . '/includes/head.php';
 <!-- Back to Top Button -->
 <button id="backToTop" class="back-to-top" aria-label="Nach oben" title="Nach oben">↑</button>
 
+<!-- New Hydrant FAB -->
+<button id="newHydrantFAB" class="new-hydrant-fab" aria-label="Neuer Hydrant" title="Neuer Hydrant">+</button>
+
 <!-- Install Prompt (nur wenn noch nicht installiert) -->
 <div id="installPrompt" class="install-prompt" style="display: none;">
     <p>LoeschNetz Admin als App installieren?</p>
@@ -539,6 +542,33 @@ document.getElementById('dismissInstall')?.addEventListener('click', () => {
     backToTopButton.addEventListener('click', scrollToTop);
 
     toggleBackToTopButton();
+})();
+</script>
+
+<!-- New Hydrant FAB Functionality -->
+<script>
+(function() {
+    const newHydrantFAB = document.getElementById('newHydrantFAB');
+    const scrollThreshold = 300;
+
+    function toggleNewHydrantFAB() {
+        if (window.pageYOffset > scrollThreshold || document.documentElement.scrollTop > scrollThreshold) {
+            newHydrantFAB.classList.add('visible');
+        } else {
+            newHydrantFAB.classList.remove('visible');
+        }
+    }
+
+    function openNewHydrantModal() {
+        if (window.Hydrants && typeof window.Hydrants.createNew === 'function') {
+            window.Hydrants.createNew();
+        }
+    }
+
+    window.addEventListener('scroll', toggleNewHydrantFAB);
+    newHydrantFAB.addEventListener('click', openNewHydrantModal);
+
+    toggleNewHydrantFAB();
 })();
 </script>
 
