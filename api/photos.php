@@ -32,7 +32,8 @@ function handleDelete() {
     $input = getJsonInput();
     $hydrantId = $input['hydrant_id'] ?? null;
     $filename = $input['filename'] ?? null;
-    
+    $forceCleanup = $input['force_cleanup'] ?? false;
+
     if (!$hydrantId || !$filename) {
         sendError('hydrant_id und filename erforderlich', 400);
     }
@@ -56,22 +57,25 @@ function handleDelete() {
     
     // In Recycle Bin verschieben
     $moved = false;
-    if (file_exists($photoPath)) {
+    $fileExists = file_exists($photoPath);
+
+    if ($fileExists) {
         rename($photoPath, $recyclePath);
         $moved = true;
     }
     if (file_exists($thumbPath)) {
         rename($thumbPath, $recycleThumbPath);
     }
-    
-    if (!$moved) {
-        sendError('Datei nicht gefunden', 404);
+
+    // Wenn Datei nicht existiert und kein force_cleanup
+    if (!$fileExists && !$forceCleanup) {
+        sendError('Datei nicht gefunden', 404, null, ['file_missing' => true]);
     }
-    
-    // Aus Hydrant-Daten entfernen
+
+    // Aus Hydrant-Daten entfernen (auch wenn Datei fehlt bei force_cleanup)
     $hydrants = readJson(HYDRANTS_FILE);
     $updated = false;
-    
+
     foreach ($hydrants['hydrants'] as &$hydrant) {
         if ($hydrant['id'] === $hydrantId) {
             if (isset($hydrant['photos'])) {
@@ -84,10 +88,11 @@ function handleDelete() {
             break;
         }
     }
-    
+
     if ($updated) {
         writeJson(HYDRANTS_FILE, $hydrants);
     }
-    
-    sendSuccess(['message' => 'Foto gelöscht']);
+
+    $message = $fileExists ? 'Foto gelöscht' : 'Eintrag bereinigt (Datei nicht gefunden)';
+    sendSuccess(['message' => $message]);
 }

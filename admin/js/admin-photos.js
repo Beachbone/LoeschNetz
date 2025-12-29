@@ -184,34 +184,36 @@ window.PhotoManager = {
     /**
      * Foto löschen
      */
-    async deletePhoto(filename) {
-        if (!confirm('Foto wirklich löschen?')) return;
-        
+    async deletePhoto(filename, forceCleanup = false) {
+        // Erste Bestätigung nur wenn nicht force_cleanup
+        if (!forceCleanup && !confirm('Foto wirklich löschen?')) return;
+
         try {
             const result = await API.delete('../api/photos.php?endpoint=delete', {
                 hydrant_id: this.currentHydrantId,
-                filename: filename
+                filename: filename,
+                force_cleanup: forceCleanup
             });
 
             if (result.success) {
-                showMessage('Foto gelöscht', 'success');
-                
+                showMessage(result.data?.message || 'Foto gelöscht', 'success');
+
                 // Nutze das aktuelle Modal-Hydrant-Objekt
                 const currentHydrant = Hydrants.currentHydrant;
-                
-                
+
+
                 if (currentHydrant) {
                     if (currentHydrant.photos && Array.isArray(currentHydrant.photos)) {
                         // Foto aus Array entfernen
                         currentHydrant.photos = currentHydrant.photos.filter(p => p.filename !== filename);
-                        
-                        
+
+
                         // Galerie neu rendern
                         this.renderGallery(currentHydrant);
                     } else {
                     }
                 }
-                
+
                 // Hydrant im Hintergrund neu laden (für Tabelle/Karte)
                 Hydrants.loadAll().catch(err => console.error('Reload-Fehler:', err));
             } else {
@@ -219,7 +221,21 @@ window.PhotoManager = {
             }
         } catch (error) {
             console.error('Lösch-Fehler:', error);
-            showMessage('Fehler: ' + error.message, 'error');
+
+            // Spezialfall: Datei nicht gefunden
+            if (error.response && error.response.file_missing) {
+                const cleanup = confirm(
+                    'Die Bilddatei existiert nicht mehr auf dem Server.\n\n' +
+                    'Möchten Sie den verwaisten Eintrag aus der Datenbank entfernen?'
+                );
+
+                if (cleanup) {
+                    // Erneut aufrufen mit force_cleanup
+                    await this.deletePhoto(filename, true);
+                }
+            } else {
+                showMessage('Fehler: ' + error.message, 'error');
+            }
         }
     },
     

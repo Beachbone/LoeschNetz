@@ -238,7 +238,9 @@ window.API = {
 
         // Andere Fehler
         if (!response.ok || !data.success) {
-            throw new Error(data.error || `HTTP ${response.status}: ${response.statusText}`);
+            const error = new Error(data.error || `HTTP ${response.status}: ${response.statusText}`);
+            error.response = data; // Füge die komplette Response zum Error hinzu
+            throw error;
         }
 
         return data;

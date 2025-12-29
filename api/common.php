@@ -261,17 +261,22 @@ function sendSuccess($data = null, $message = null, $code = 200) {
 /**
  * Error Response
  */
-function sendError($message, $code = 400, $errorCode = null) {
+function sendError($message, $code = 400, $errorCode = null, $additionalData = null) {
     http_response_code($code);
     $response = [
         'success' => false,
         'error' => $message
     ];
-    
+
     if ($errorCode !== null) {
         $response['code'] = $errorCode;
     }
-    
+
+    // Zusätzliche Daten hinzufügen (z.B. file_missing Flag)
+    if ($additionalData !== null && is_array($additionalData)) {
+        $response = array_merge($response, $additionalData);
+    }
+
     echo json_encode($response, JSON_UNESCAPED_UNICODE);
     exit();
 }
