@@ -480,8 +480,8 @@ window.AdminMap = {
                     }, 2000);
                 }
 
-                // Popup öffnen für zusätzliches Feedback
-                marker.openPopup();
+                // Popup nicht mehr automatisch öffnen (Issue #7)
+                // marker.openPopup();
 
                 console.log('AdminMap: Marker hervorgehoben');
             } else {
