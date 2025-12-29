@@ -141,12 +141,12 @@ include __DIR__ . '/includes/head.php';
                     <div class="form-row">
                         <div class="form-group">
                             <label for="lat">Breitengrad *</label>
-                            <input type="number" name="lat" id="lat" step="0.000001" required placeholder="50.000000">
+                            <input type="number" name="lat" id="lat" step="0.000000001" required placeholder="50.000000000">
                         </div>
 
                         <div class="form-group">
                             <label for="lng">Längengrad *</label>
-                            <input type="number" name="lng" id="lng" step="0.000001" required placeholder="7.360000">
+                            <input type="number" name="lng" id="lng" step="0.000000001" required placeholder="7.360000000">
                         </div>
                     </div>
 
