@@ -60,7 +60,16 @@ switch ($action) {
             sendError('Method not allowed', 405);
         }
         break;
-        
+
+    case 'download':
+        if ($method === 'GET') {
+            requireAuth();
+            handleDownload();
+        } else {
+            sendError('Method not allowed', 405);
+        }
+        break;
+
     default:
         sendError('Unknown action: ' . $action, 404);
 }
@@ -253,6 +262,45 @@ function handleDelete() {
     } else {
         sendError('Snapshot konnte nicht gelöscht werden', 500);
     }
+}
+
+/**
+ * Snapshot herunterladen
+ */
+function handleDownload() {
+    $date = $_GET['date'] ?? '';
+    $type = $_GET['type'] ?? 'data'; // 'data' oder 'images'
+
+    if (empty($date)) {
+        sendError('Datum fehlt', 400);
+    }
+
+    // Dateiname basierend auf Typ bestimmen
+    if ($type === 'images') {
+        $filename = SNAPSHOTS_DIR . "images_{$date}.zip";
+        $downloadName = "snapshot_images_{$date}.zip";
+        $contentType = 'application/zip';
+    } else {
+        $filename = SNAPSHOTS_DIR . "hydrants_{$date}.json";
+        $downloadName = "snapshot_data_{$date}.json";
+        $contentType = 'application/json';
+    }
+
+    // Datei existiert?
+    if (!file_exists($filename)) {
+        sendError('Datei nicht gefunden', 404);
+    }
+
+    // Download-Headers setzen
+    header('Content-Type: ' . $contentType);
+    header('Content-Disposition: attachment; filename="' . $downloadName . '"');
+    header('Content-Length: ' . filesize($filename));
+    header('Cache-Control: no-cache, must-revalidate');
+    header('Expires: 0');
+
+    // Datei ausgeben
+    readfile($filename);
+    exit;
 }
 
 /**

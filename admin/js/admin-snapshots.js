@@ -171,6 +171,12 @@ window.Snapshots = {
                     <button class="btn-icon" onclick="Snapshots.showPreview('${snapshot.date}')" title="Vorschau anzeigen">
                         👁️
                     </button>
+                    <button class="btn-icon" onclick="Snapshots.downloadSnapshot('${snapshot.date}', 'data')" title="Daten herunterladen">
+                        💾
+                    </button>
+                    ${snapshot.has_images ? `<button class="btn-icon" onclick="Snapshots.downloadSnapshot('${snapshot.date}', 'images')" title="Bilder herunterladen">
+                        📦
+                    </button>` : ''}
                     <button class="btn-icon" onclick="Snapshots.showRestoreModal('${snapshot.date}')" title="Wiederherstellen">
                         ♻️
                     </button>
@@ -205,6 +211,23 @@ window.Snapshots = {
         }
     },
     
+    /**
+     * Snapshot herunterladen
+     */
+    downloadSnapshot(date, type = 'data') {
+        const url = `../api/snapshots.php?action=download&date=${encodeURIComponent(date)}&type=${encodeURIComponent(type)}`;
+
+        // Download auslösen durch Erstellen eines temporären Links
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = ''; // Browser entscheidet über Dateiname basierend auf Content-Disposition Header
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        console.log(`📥 Download gestartet: ${type} vom ${date}`);
+    },
+
     /**
      * Vorschau anzeigen
      */
