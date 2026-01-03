@@ -12,6 +12,8 @@ const App = {
     markerTypes: [],
     hydrants: [],
     userLocationMarker: null,
+    userLocationWatchId: null,
+    isLocationTrackingActive: false,
     isOnline: navigator.onLine,
     deferredPrompt: null,
     performance: {
@@ -981,32 +983,53 @@ function toggleLegend() {
 // === GPS-Funktionen ===
 function gotoUserLocation() {
     const button = document.getElementById('gpsButton');
-    
+
     if (!navigator.geolocation) {
         alert('Geolocation wird von Ihrem Browser nicht unterstützt.');
         return;
     }
-    
+
+    // Toggle: Tracking ein/aus
+    if (App.isLocationTrackingActive) {
+        stopLocationTracking();
+    } else {
+        startLocationTracking();
+    }
+}
+
+function startLocationTracking() {
+    const button = document.getElementById('gpsButton');
+
+    console.log('📍 Starte Live-Positionsverfolgung...');
     button?.classList.add('active');
-    
-    navigator.geolocation.getCurrentPosition(
+    App.isLocationTrackingActive = true;
+
+    const options = {
+        enableHighAccuracy: true,
+        timeout: 30000,
+        maximumAge: 0
+    };
+
+    // watchPosition für kontinuierliches Tracking
+    App.userLocationWatchId = navigator.geolocation.watchPosition(
         (position) => {
-            const { latitude, longitude } = position.coords;
+            const { latitude, longitude, accuracy } = position.coords;
             const zoom = App.config?.map?.locationZoom || 18;
-            
-            // Karte zentrieren
-            App.map.setView([latitude, longitude], zoom);
-            
-            // User-Marker anzeigen
-            showUserLocationMarker(latitude, longitude, position.coords.accuracy);
-            
-            button?.classList.remove('active');
-            console.log('✅ GPS-Position gefunden:', latitude, longitude);
+
+            console.log('📍 Position aktualisiert:', latitude, longitude, '±' + Math.round(accuracy) + 'm');
+
+            // Karte nur beim ersten Mal zentrieren
+            if (!App.userLocationMarker) {
+                App.map.setView([latitude, longitude], zoom);
+            }
+
+            // User-Marker aktualisieren
+            showUserLocationMarker(latitude, longitude, accuracy);
         },
         (error) => {
-            button?.classList.remove('active');
             console.error('❌ GPS-Fehler:', error.message);
-            
+            stopLocationTracking();
+
             let message = 'Standort konnte nicht ermittelt werden.';
             if (error.code === error.PERMISSION_DENIED) {
                 message = 'Standort-Berechtigung wurde verweigert.';
@@ -1015,15 +1038,31 @@ function gotoUserLocation() {
             } else if (error.code === error.TIMEOUT) {
                 message = 'Standort-Abfrage Timeout.';
             }
-            
+
             alert(message);
         },
-        {
-            enableHighAccuracy: true,
-            timeout: 10000,
-            maximumAge: 0
-        }
+        options
     );
+}
+
+function stopLocationTracking() {
+    const button = document.getElementById('gpsButton');
+
+    console.log('📍 Stoppe Live-Positionsverfolgung');
+
+    if (App.userLocationWatchId !== null) {
+        navigator.geolocation.clearWatch(App.userLocationWatchId);
+        App.userLocationWatchId = null;
+    }
+
+    button?.classList.remove('active');
+    App.isLocationTrackingActive = false;
+
+    // Optional: User-Marker entfernen
+    // if (App.userLocationMarker) {
+    //     App.map.removeLayer(App.userLocationMarker);
+    //     App.userLocationMarker = null;
+    // }
 }
 
 function showUserLocationMarker(lat, lng, accuracy) {

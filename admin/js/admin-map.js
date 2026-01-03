@@ -4,11 +4,15 @@ window.AdminMap = {
     // Haupt-Karte
     map: null,
     markers: [],
-    
+
     // Modal-Karte
     modalMap: null,
     modalMarker: null,
-    
+
+    // User-Position Tracking
+    userLocationLayer: null,
+    userLocationWatchId: null,
+
     // Icons (wie in Phase 1)
     icons: {},
     
@@ -254,8 +258,18 @@ window.AdminMap = {
             // GPS-Button Event-Listener
             this.setupGpsButton();
 
-            // Automatisch GPS-Position beim Öffnen ermitteln
-            this.autoSetGpsPosition();
+            // Unterscheidung: Neu erstellen vs. Bearbeiten
+            const isEditMode = window.Hydrants && window.Hydrants.currentHydrant;
+
+            if (isEditMode) {
+                // Edit-Modus: User-Position nur als Indikator anzeigen (Live-Tracking)
+                console.log('AdminMap: Edit-Modus - Marker bleibt an Position, User-Position wird als Indikator angezeigt');
+                this.startUserLocationTracking();
+            } else {
+                // Neu-Modus: GPS-Position automatisch setzen
+                console.log('AdminMap: Neu-Modus - GPS-Position wird automatisch gesetzt');
+                this.autoSetGpsPosition();
+            }
 
             console.log('AdminMap.initModalMap() - Erfolgreich abgeschlossen');
         } catch (error) {
@@ -325,6 +339,98 @@ window.AdminMap = {
             },
             options
         );
+    },
+
+    /**
+     * Live User-Position-Tracking starten (für Edit-Modus)
+     */
+    startUserLocationTracking() {
+        if (!navigator.geolocation) {
+            console.log('AdminMap: GPS nicht verfügbar, kein User-Position-Tracking möglich');
+            return;
+        }
+
+        // Alte Tracking-Session beenden falls vorhanden
+        this.stopUserLocationTracking();
+
+        console.log('AdminMap: Starte Live User-Position-Tracking...');
+
+        const options = {
+            enableHighAccuracy: true,
+            timeout: 30000,
+            maximumAge: 0
+        };
+
+        // watchPosition für kontinuierliches Tracking
+        this.userLocationWatchId = navigator.geolocation.watchPosition(
+            (position) => {
+                const lat = position.coords.latitude;
+                const lng = position.coords.longitude;
+                const accuracy = position.coords.accuracy;
+
+                console.log('AdminMap: User-Position aktualisiert:', lat, lng, '±' + Math.round(accuracy) + 'm');
+
+                // User-Position als Kreis-Layer anzeigen/aktualisieren
+                this.updateUserLocationIndicator(lat, lng, accuracy);
+            },
+            (error) => {
+                console.log('AdminMap: User-Position-Tracking Fehler:', error.message);
+                // Fehler ignorieren, kein User-Position-Indikator wird angezeigt
+            },
+            options
+        );
+    },
+
+    /**
+     * User-Position-Indikator anzeigen/aktualisieren
+     */
+    updateUserLocationIndicator(lat, lng, accuracy) {
+        if (!this.modalMap) return;
+
+        // Alten Layer entfernen
+        if (this.userLocationLayer) {
+            this.modalMap.removeLayer(this.userLocationLayer);
+        }
+
+        // Genauigkeits-Kreis (äußerer Kreis)
+        const accuracyCircle = L.circle([lat, lng], {
+            radius: accuracy,
+            color: '#4285F4',
+            fillColor: '#4285F4',
+            fillOpacity: 0.15,
+            weight: 1
+        });
+
+        // Punkt-Marker (innerer Punkt)
+        const userMarker = L.circleMarker([lat, lng], {
+            radius: 8,
+            color: 'white',
+            fillColor: '#4285F4',
+            fillOpacity: 1,
+            weight: 2
+        });
+
+        // Als LayerGroup kombinieren
+        this.userLocationLayer = L.layerGroup([accuracyCircle, userMarker]).addTo(this.modalMap);
+
+        console.log('AdminMap: User-Position-Indikator aktualisiert');
+    },
+
+    /**
+     * User-Position-Tracking stoppen
+     */
+    stopUserLocationTracking() {
+        if (this.userLocationWatchId !== null) {
+            navigator.geolocation.clearWatch(this.userLocationWatchId);
+            this.userLocationWatchId = null;
+            console.log('AdminMap: User-Position-Tracking gestoppt');
+        }
+
+        // Layer entfernen
+        if (this.userLocationLayer && this.modalMap) {
+            this.modalMap.removeLayer(this.userLocationLayer);
+            this.userLocationLayer = null;
+        }
     },
 
     /**

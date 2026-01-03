@@ -260,6 +260,12 @@ window.Hydrants = {
         if (modal) {
             modal.classList.remove('active');
         }
+
+        // User-Position-Tracking stoppen
+        if (window.AdminMap) {
+            AdminMap.stopUserLocationTracking();
+        }
+
         this.currentHydrant = null;
     },
     
